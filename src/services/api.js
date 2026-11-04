@@ -72,4 +72,35 @@ api.interceptors.response.use(
   },
 )
 
+// Reintento de errores recuperables: timeout, red inestable o servidor caído un momento (502, 503, 504).
+// Solo para GET, porque repetir un POST podría crear algo dos veces.
+const MAX_RETRIES = 2
+const RECOVERABLE_STATUS = [502, 503, 504]
+
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+function isRecoverable(error) {
+  if (axios.isCancel(error) || error.code === 'ERR_OFFLINE') return false
+  if (!error.response) return true
+  return RECOVERABLE_STATUS.includes(error.response.status)
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config
+    const isGet = config?.method === 'get'
+    const retries = config?._retries ?? 0
+
+    if (!isGet || !isRecoverable(error) || retries >= MAX_RETRIES || config.signal?.aborted) {
+      return Promise.reject(error)
+    }
+
+    config._retries = retries + 1
+    // Espera cada vez más entre intentos: 1 s y luego 2 s
+    await wait(1000 * config._retries)
+    return api(config)
+  },
+)
+
 export default api
