@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { tokenStorage } from '../utils/tokenStorage'
+import { isOffline } from '../utils/network'
 
 export const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -10,6 +11,10 @@ const api = axios.create({
 
 // Agrega el access token a todas las peticiones
 api.interceptors.request.use((config) => {
+  // Sin internet no tiene sentido esperar los 15 segundos del timeout: se corta al instante
+  if (isOffline()) {
+    throw new axios.AxiosError('Sin conexión a internet', 'ERR_OFFLINE', config)
+  }
   const token = tokenStorage.getAccessToken()
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
