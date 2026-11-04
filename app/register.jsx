@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { Link } from 'expo-router'
-import AuthLayout from '../../src/components/AuthLayout'
-import FormField from '../../src/components/FormField'
-import PrimaryButton from '../../src/components/PrimaryButton'
-import { useAuth } from '../../src/hooks/useAuth'
-import { errorMessage } from '../../src/utils/errorMessage'
-import { validateRegister } from '../../src/utils/validation'
-import { colors } from '../../src/theme'
+import AuthLayout from '../src/components/AuthLayout'
+import FormField from '../src/components/FormField'
+import PrimaryButton from '../src/components/PrimaryButton'
+import { useAuth } from '../src/hooks/useAuth'
+import { errorMessage } from '../src/utils/errorMessage'
+import { validateRegister } from '../src/utils/validation'
+import { colors } from '../src/theme'
 
 const ROLES = [
   { value: 'CLIENT', title: 'Quiero contratar', description: 'Publico proyectos' },
