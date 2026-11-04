@@ -64,9 +64,13 @@ api.interceptors.response.use(
       const accessToken = await refreshPromise
       original.headers.Authorization = `Bearer ${accessToken}`
       return api(original)
-    } catch {
-      await tokenStorage.clear()
-      onSessionExpired()
+    } catch (refreshError) {
+      // Si el refresh falló por la red (sin señal, timeout), la sesión sigue siendo válida:
+      // no se cierra, solo falla esta petición. Se cierra solo si el backend rechazó el refresh token.
+      if (refreshError.response || !tokenStorage.getRefreshToken()) {
+        await tokenStorage.clear()
+        onSessionExpired()
+      }
       return Promise.reject(error)
     }
   },
