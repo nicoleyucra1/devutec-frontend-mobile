@@ -90,7 +90,7 @@ try {
 
 ## Logo
 
-Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `splash-icon.png` (pantalla de carga, con fondo `#4f46e5` definido en `app.json`), `favicon.png` y `images/logo.png` (pantalla de bienvenida). Para cambiar el logo basta con reemplazar esos archivos con los mismos tamaños.
+Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `splash-icon.png` (pantalla de carga sobre fondo blanco y animación de entrada), `favicon.png` y `images/logo.png` (pantalla de bienvenida). Si se cambia el logo, hay que actualizar `LOGO_ASPECT_RATIO` en `src/components/AnimatedSplash.jsx`.
 
 ## Build con EAS
 

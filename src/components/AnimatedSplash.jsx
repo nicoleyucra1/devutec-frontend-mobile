@@ -7,9 +7,9 @@ import { colors } from '../theme'
 // así el cambio del splash nativo a esta animación no se nota
 export const SPLASH_LOGO_WIDTH = 160
 
-const logo = require('../../assets/images/splash-logo.png')
-// Ancho dividido entre alto de splash-logo.png
-const LOGO_ASPECT_RATIO = 1
+const logo = require('../../assets/splash-icon.png')
+// Ancho dividido entre alto de splash-icon.png
+const LOGO_ASPECT_RATIO = 800 / 699
 
 // Animación de entrada: el logo hace "pop", aparece el nombre y todo se desvanece con un zoom.
 // No termina hasta que `ready` sea true (por ejemplo, cuando ya se leyó la sesión guardada).

@@ -48,7 +48,8 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background, paddingHorizontal: 24 },
   hero: { flex: 1, justifyContent: 'center' },
-  logo: { width: 88, height: 88, borderRadius: 20 },
+  // El logo es más ancho que alto (proporción 1.14)
+  logo: { width: 110, height: 96 },
   title: { fontSize: 34, fontWeight: '800', color: colors.text, marginTop: 20 },
   tagline: { fontSize: 17, color: colors.muted, marginTop: 8, lineHeight: 24 },
   features: { marginTop: 32, gap: 16 },
