@@ -6,4 +6,10 @@ export const freelancerService = {
     const { data } = await api.get('/freelancers/me', { signal })
     return data
   },
+
+  // Perfil público de cualquier freelancer, buscado por su id de usuario (GET /freelancers/{userId})
+  async getByUserId(userId, { signal } = {}) {
+    const { data } = await api.get(`/freelancers/${userId}`, { signal })
+    return data
+  },
 }
