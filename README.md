@@ -21,6 +21,7 @@ Escanea el QR con la app **Expo Go** (Android o iOS); el celular y la computador
 ```
 app/                  pantallas (cada archivo es una ruta de expo-router)
 ├── _layout.jsx       layout raíz: AuthProvider y protección de rutas
+├── welcome.jsx       bienvenida, lo primero que ve quien no tiene sesión
 ├── login.jsx
 ├── register.jsx
 └── (tabs)/           pestañas que se ven con sesión
@@ -62,7 +63,7 @@ const { user, login, register, logout } = useAuth()
 ## Sesión y tokens
 
 - Los tokens se guardan cifrados con `expo-secure-store` (Keychain en iOS, Keystore en Android). Al abrir la app se leen y, si hay sesión, se entra directo a las pestañas.
-- `app/_layout.jsx` usa `Stack.Protected`: con sesión solo se puede ver `(tabs)`; sin sesión, solo `login` y `register`. Al iniciar o cerrar sesión, la navegación cambia sola.
+- `app/_layout.jsx` usa `Stack.Protected`: con sesión solo se puede ver `(tabs)`; sin sesión, solo `welcome`, `login` y `register`. Al iniciar sesión se va a Inicio y al cerrarla, a la bienvenida (`redirectTo`).
 - El access token dura 15 minutos. Cuando una petición recibe 401, el interceptor de `services/api.js` lo renueva con `/auth/refresh` y reintenta la petición una vez. Si varias peticiones fallan a la vez, todas esperan la misma renovación.
 
 ## Sin conexión y timeouts
@@ -86,6 +87,10 @@ try {
 
 - **Una pestaña nueva:** crear el archivo en `app/(tabs)/` y agregarlo en `app/(tabs)/_layout.jsx` con su título e ícono.
 - **Una pantalla de detalle** (por ejemplo `/projects/5`): crear `app/projects/[id].jsx` y abrirla con `router.push('/projects/5')`.
+
+## Logo
+
+Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `splash-icon.png` (pantalla de carga, con fondo `#4f46e5` definido en `app.json`), `favicon.png` y `images/logo.png` (pantalla de bienvenida). Para cambiar el logo basta con reemplazar esos archivos con los mismos tamaños.
 
 ## Build con EAS
 
