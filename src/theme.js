@@ -1,4 +1,4 @@
-// Paleta de DEVUTEC (Fundamentos del diseño): Ink, Paper, Surface, Line, Escrow, Lime, Pending, Error y Progress.
+// Paleta de DEVUTEC (sistema de diseño de Ari): Ink, Paper, Surface, Line, Escrow, Lime, Pending, Error y Progress.
 // Hay una versión clara y una oscura. Las pantallas toman los colores con useTheme(), así cambian con el modo.
 const brand = {
   ink: '#0E0E0C',
@@ -17,16 +17,16 @@ export const lightColors = {
   background: brand.paper,
   card: brand.surface,
   text: brand.ink,
-  muted: '#6B6A63',
+  muted: '#6F6D67',
   border: brand.line,
-  inputBorder: '#D6D1C6',
+  inputBorder: '#D9D4CA',
   // Botón principal: tinta con texto blanco
   primary: brand.ink,
   onPrimary: '#FFFFFF',
-  primaryLight: '#ECE9E1',
+  primaryLight: '#EEECE6',
   // Verde de confianza para estados positivos, enlaces y el pago protegido
   accent: brand.escrow,
-  accentLight: '#E3EFE8',
+  accentLight: '#EAF3ED',
   limeText: brand.ink,
   errorLight: '#FBEAE7',
   pendingLight: '#F8EEDC',
@@ -55,17 +55,18 @@ export const darkColors = {
   white: '#FFFFFF',
 }
 
-// Tipografías del diseño: una sans gruesa para todo y una serif cursiva para las palabras destacadas
+// Tipografías del diseño: Geist para todo y una serif cursiva para las palabras destacadas
 export const fonts = {
-  regular: 'InterTight_400Regular',
-  medium: 'InterTight_500Medium',
-  semibold: 'InterTight_600SemiBold',
-  bold: 'InterTight_700Bold',
-  extrabold: 'InterTight_800ExtraBold',
+  regular: 'Geist_400Regular',
+  medium: 'Geist_500Medium',
+  semibold: 'Geist_600SemiBold',
+  bold: 'Geist_700Bold',
+  extrabold: 'Geist_800ExtraBold',
   serifItalic: 'InstrumentSerif_400Regular_Italic',
 }
 
-export const radius = { sm: 8, md: 12, lg: 16, xl: 20 }
+// Campos con radio 14 y botones con radio 16, como en el diseño
+export const radius = { sm: 8, md: 14, lg: 16, xl: 20 }
 
 // Compatibilidad: el código que todavía importa `colors` recibe la paleta clara
 export const colors = lightColors

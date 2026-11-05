@@ -29,5 +29,5 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     paddingHorizontal: 16,
   },
-  text: { color: '#F5F3EE', textAlign: 'center', fontSize: 13, fontFamily: 'InterTight_600SemiBold' },
+  text: { color: '#F5F3EE', textAlign: 'center', fontSize: 13, fontFamily: 'Geist_600SemiBold' },
 })

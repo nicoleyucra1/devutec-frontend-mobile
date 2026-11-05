@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Stack } from 'expo-router'
 import { useFonts } from 'expo-font'
 import {
-  InterTight_400Regular,
-  InterTight_500Medium,
-  InterTight_600SemiBold,
-  InterTight_700Bold,
-  InterTight_800ExtraBold,
-} from '@expo-google-fonts/inter-tight'
+  Geist_400Regular,
+  Geist_500Medium,
+  Geist_600SemiBold,
+  Geist_700Bold,
+  Geist_800ExtraBold,
+} from '@expo-google-fonts/geist'
 import { InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument-serif'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
@@ -75,11 +75,11 @@ function ThemedStatusBar() {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    InterTight_400Regular,
-    InterTight_500Medium,
-    InterTight_600SemiBold,
-    InterTight_700Bold,
-    InterTight_800ExtraBold,
+    Geist_400Regular,
+    Geist_500Medium,
+    Geist_600SemiBold,
+    Geist_700Bold,
+    Geist_800ExtraBold,
     InstrumentSerif_400Regular_Italic,
   })
 
