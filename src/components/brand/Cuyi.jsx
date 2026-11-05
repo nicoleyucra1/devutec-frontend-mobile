@@ -46,7 +46,7 @@ export default function Cuyi({ size = 140, blink = true }) {
   }, [blink])
 
   return (
-    <View accessibilityRole="image" accessibilityLabel="Cuyi, la mascota de DEV U TEC">
+    <View accessibilityRole="image" accessibilityLabel="Cuyi, la mascota de DEVUTEC">
       {PIXELS.map((row, r) => (
         <View key={r} style={{ flexDirection: 'row' }}>
           {row.split('').map((key, c) => {

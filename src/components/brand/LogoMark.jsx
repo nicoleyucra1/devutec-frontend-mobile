@@ -13,7 +13,7 @@ export default function LogoMark({ width = 48, variant }) {
       source={useLime ? require('../../../assets/images/logo-mark.png') : require('../../../assets/images/logo-mark-ink.png')}
       style={{ width, height: width / LOGO_ASPECT_RATIO }}
       resizeMode="contain"
-      accessibilityLabel="Logo de DEV U TEC"
+      accessibilityLabel="Logo de DEVUTEC"
     />
   )
 }

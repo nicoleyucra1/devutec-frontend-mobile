@@ -12,7 +12,7 @@ const ESCROW_X = WIDTH / 2
 const DEV_X = WIDTH - NODE / 2
 const COIN = 26
 
-// Cómo funciona DEV U TEC en una animación: la moneda sale del cliente, se queda en la garantía
+// Cómo funciona DEVUTEC en una animación: la moneda sale del cliente, se queda en la garantía
 // (el escudo late) y cuando se aprueba la entrega llega al developer. Se repite sin parar.
 export default function PaymentFlow() {
   const { colors } = useTheme()

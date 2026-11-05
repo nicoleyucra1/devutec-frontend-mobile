@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "DEV U TEC",
+    "name": "DEVUTEC",
     "slug": "devutec-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -35,13 +35,13 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "DEV U TEC usa Face ID para confirmar acciones importantes, como liberar un pago."
+          "faceIDPermission": "DEVUTEC usa Face ID para confirmar acciones importantes, como liberar un pago."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "DevUTEC usa tu ubicación para sugerir el distrito del proyecto que publicas."
+          "locationWhenInUsePermission": "DEVUTEC usa tu ubicación para sugerir el distrito del proyecto que publicas."
         }
       ]
     ],

@@ -1,4 +1,4 @@
-// Paleta de DEV U TEC (Fundamentos del diseño): Ink, Paper, Surface, Line, Escrow, Lime, Pending, Error y Progress.
+// Paleta de DEVUTEC (Fundamentos del diseño): Ink, Paper, Surface, Line, Escrow, Lime, Pending, Error y Progress.
 // Hay una versión clara y una oscura. Las pantallas toman los colores con useTheme(), así cambian con el modo.
 const brand = {
   ink: '#0E0E0C',

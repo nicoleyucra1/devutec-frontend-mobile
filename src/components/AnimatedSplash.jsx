@@ -66,7 +66,7 @@ export default function AnimatedSplash({ ready, onFinish }) {
           ],
         }}
         resizeMode="contain"
-        accessibilityLabel="Logo de DEV U TEC"
+        accessibilityLabel="Logo de DEVUTEC"
       />
     </Animated.View>
   )

@@ -1,6 +1,6 @@
-# DEV U TEC — Mobile
+# DEVUTEC — Mobile
 
-App móvil de DEV U TEC, hecha con React Native y Expo (SDK 58) y navegación con expo-router.
+App móvil de DEVUTEC, hecha con React Native y Expo (SDK 58) y navegación con expo-router.
 
 ## Cómo correrla
 
@@ -136,7 +136,7 @@ Tipografías (`fonts`): Inter Tight (`regular`, `medium`, `semibold`, `bold`, `e
 ## Marca
 
 - `src/components/brand/LogoMark.jsx`: el isotipo DU (tinta en claro, lima en oscuro).
-- `src/components/brand/Wordmark.jsx`: el nombre DEV U TEC en texto.
+- `src/components/brand/Wordmark.jsx`: el nombre DEVUTEC en texto.
 - `src/components/brand/BrandLockup.jsx`: el logo completo, símbolo DU + nombre (se usa arriba de la bienvenida, login y registro).
 - `src/components/brand/Cuyi.jsx`: la mascota en pixel art (14 × 13), dibujada con vistas para que se vea nítida en cualquier tamaño. Parpadea cada tanto.
 - Imágenes en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo y monocromo de Android), `favicon.png`, `splash-icon.png` e `images/logo-mark*.png`. El splash nativo es el logo lima sobre tinta (96 de ancho, en `app.json`) y enseguida empieza la animación con el mismo logo en el mismo lugar.
