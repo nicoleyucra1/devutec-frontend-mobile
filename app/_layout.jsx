@@ -5,6 +5,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import AnimatedSplash from '../src/components/AnimatedSplash'
 import OfflineBanner from '../src/components/OfflineBanner'
 import { AuthProvider } from '../src/contexts/AuthProvider'
+import { IntroContext } from '../src/contexts/introContext'
 import { useAuth } from '../src/hooks/useAuth'
 
 function RootNavigator() {
@@ -31,20 +32,29 @@ function RootNavigator() {
 // El splash nativo se queda visible hasta que la animación de entrada lo reemplaza
 SplashScreen.preventAutoHideAsync().catch(() => {})
 
-function Intro() {
+// Muestra la animación de entrada encima de la app y avisa a las pantallas cuando ya se ven
+function IntroGate({ children }) {
   const { loading } = useAuth()
-  const [visible, setVisible] = useState(true)
+  const [revealed, setRevealed] = useState(false)
+  const [finished, setFinished] = useState(false)
 
-  if (!visible) return null
-  return <AnimatedSplash ready={!loading} onFinish={() => setVisible(false)} />
+  return (
+    <IntroContext.Provider value={revealed}>
+      {children}
+      {!finished && (
+        <AnimatedSplash ready={!loading} onReveal={() => setRevealed(true)} onFinish={() => setFinished(true)} />
+      )}
+    </IntroContext.Provider>
+  )
 }
 
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootNavigator />
-      <OfflineBanner />
-      <Intro />
+      <IntroGate>
+        <RootNavigator />
+        <OfflineBanner />
+      </IntroGate>
       <StatusBar style="dark" />
     </AuthProvider>
   )

@@ -27,7 +27,8 @@ function Ripple({ progress }) {
 // Animación de entrada sobre el color de la marca: el logo aparece con un "pop", salen dos ondas,
 // aparece el nombre y la pantalla sube como una cortina para mostrar la app.
 // No termina hasta que `ready` sea true (por ejemplo, cuando ya se leyó la sesión guardada).
-export default function AnimatedSplash({ ready, onFinish }) {
+// onReveal avisa cuando la cortina empieza a subir; onFinish, cuando ya no se ve.
+export default function AnimatedSplash({ ready, onReveal, onFinish }) {
   const { height } = useWindowDimensions()
   const logoScale = useRef(new Animated.Value(0.3)).current
   const logoOpacity = useRef(new Animated.Value(0)).current
@@ -45,6 +46,7 @@ export default function AnimatedSplash({ ready, onFinish }) {
   const exit = () => {
     if (exiting.current) return
     exiting.current = true
+    onReveal?.()
     Animated.timing(curtain, {
       toValue: 1,
       duration: 550,
