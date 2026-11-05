@@ -22,7 +22,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "DevUTEC usa Face ID para confirmar acciones importantes, como liberar un pago."
+        }
+      ]
     ],
     "scheme": "devutec"
   }
