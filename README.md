@@ -65,6 +65,19 @@ const { user, login, register, logout } = useAuth()
 - `app/_layout.jsx` usa `Stack.Protected`: con sesión solo se puede ver `(tabs)`; sin sesión, solo `login` y `register`. Al iniciar o cerrar sesión, la navegación cambia sola.
 - El access token dura 15 minutos. Cuando una petición recibe 401, el interceptor de `services/api.js` lo renueva con `/auth/refresh` y reintenta la petición una vez. Si varias peticiones fallan a la vez, todas esperan la misma renovación.
 
+## QR del perfil y escáner
+
+- En la pestaña **Perfil**, cada freelancer ve su código QR (`src/components/ProfileQr.jsx`) y puede compartir el enlace.
+- El QR guarda `devutec://freelancers/{userId}`. `src/utils/profileLink.js` arma ese enlace y lo lee; también acepta la URL del perfil en la web o solo el número.
+- En **Inicio**, el botón "Escanear el QR de un freelancer" abre `app/scan.jsx`, que usa la cámara trasera (`expo-camera`) y abre `app/freelancers/[userId].jsx` con el perfil público y sus repos de GitHub.
+- Si un QR no es de DevUTEC, se avisa en la pantalla y se puede volver a escanear a los 2 segundos.
+
+### Permisos denegados y alternativas
+
+- Antes de pedir la cámara se explica para qué se usa. `src/components/PermissionNotice.jsx` sirve para cualquier permiso: si todavía se puede preguntar, muestra "Permitir acceso"; si el usuario lo negó para siempre, muestra "Abrir ajustes".
+- Si se niega el permiso, el dispositivo no tiene cámara o la cámara falla al abrir, se puede pegar el enlace o escribir el número del perfil (`src/components/ManualProfileEntry.jsx`).
+- La biometría (`useBiometricAuth`) tiene su propia alternativa: el código del celular o una confirmación con dos botones.
+
 ## Cómo agregar una pantalla
 
 - **Una pestaña nueva:** crear el archivo en `app/(tabs)/` y agregarlo en `app/(tabs)/_layout.jsx` con su título e ícono.
