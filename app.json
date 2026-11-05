@@ -43,6 +43,14 @@
         {
           "locationWhenInUsePermission": "DevUTEC usa tu ubicación para sugerir el distrito del proyecto que publicas."
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "DevUTEC usa la cámara para escanear el código QR del perfil de un freelancer.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "scheme": "devutec",

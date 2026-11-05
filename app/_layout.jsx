@@ -17,7 +17,7 @@ function RootNavigator() {
     )
   }
 
-  //Con sesión solo se puede entrar a las pestañas; sin sesión, solo a login y registro
+  // Con sesión: las pestañas, proyectos, postular, contratos, el escáner de QR y el perfil público; sin sesión, solo login y registro
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={user !== null}>
@@ -26,6 +26,8 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, title: 'Postular' }} />
         <Stack.Screen name="contracts/[id]" options={{ headerShown: true, title: 'Contrato' }} />
+        <Stack.Screen name="scan" />
+        <Stack.Screen name="freelancers/[userId]" />
       </Stack.Protected>
       <Stack.Protected guard={user === null}>
         <Stack.Screen name="login" />

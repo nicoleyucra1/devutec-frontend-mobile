@@ -1,12 +1,13 @@
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import GithubRepos from '../../src/components/GithubRepos'
+import ProfileQr from '../../src/components/ProfileQr'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useMyFreelancerProfile } from '../../src/hooks/useMyFreelancerProfile'
 import { ROLE_LABELS } from '../../src/utils/roles'
 import { colors } from '../../src/theme'
 
-// Datos del perfil de freelancer que se muestran en el celular; por ahora, sus repos de GitHub
-function FreelancerSection() {
+// Datos del perfil de freelancer que se muestran en el celular: su QR y sus repos de GitHub
+function FreelancerSection({ userId }) {
   const { data: profile, error, loading, reload } = useMyFreelancerProfile()
 
   if (loading) return <ActivityIndicator style={styles.loading} color={colors.primary} />
@@ -22,7 +23,12 @@ function FreelancerSection() {
     )
   }
 
-  return <GithubRepos username={profile.githubUsername} />
+  return (
+    <>
+      <ProfileQr userId={userId} />
+      <GithubRepos username={profile.githubUsername} />
+    </>
+  )
 }
 
 export default function ProfileScreen() {
@@ -36,7 +42,7 @@ export default function ProfileScreen() {
         <Text style={styles.badge}>{ROLE_LABELS[user.rol] ?? user.rol}</Text>
       </View>
 
-      {user.rol === 'FREELANCER' && <FreelancerSection />}
+      {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} />}
 
       {/* Al cerrar sesión, el layout raíz vuelve solo al login */}
       <Pressable onPress={logout} style={({ pressed }) => [styles.logout, pressed && styles.pressed]}>
