@@ -5,10 +5,11 @@ import { Ionicons } from '@expo/vector-icons'
 import PrimaryButton from '../src/components/PrimaryButton'
 import { colors } from '../src/theme'
 
+// Le habla a los dos tipos de usuario: quien contrata y quien trabaja
 const FEATURES = [
-  { icon: 'briefcase-outline', text: 'Proyectos reales de negocios y emprendedores' },
-  { icon: 'shield-checkmark-outline', text: 'El pago queda en garantía hasta que entregas' },
-  { icon: 'star-outline', text: 'Reseñas de ambos lados para generar confianza' },
+  { icon: 'briefcase-outline', title: '¿Necesitas software?', text: 'Publica tu proyecto y elige entre quienes postulan.' },
+  { icon: 'code-slash-outline', title: '¿Eres desarrollador?', text: 'Postula a proyectos reales y gana experiencia.' },
+  { icon: 'shield-checkmark-outline', text: 'El pago queda en garantía hasta que se confirma la entrega.' },
 ]
 
 // Primera pantalla que ve quien no tiene sesión
@@ -20,13 +21,18 @@ export default function WelcomeScreen() {
       <View style={styles.hero}>
         <Image source={require('../assets/images/logo.png')} style={styles.logo} accessibilityLabel="Logo de DevUTEC" />
         <Text style={styles.title}>DevUTEC</Text>
-        <Text style={styles.tagline}>Tu primer proyecto como desarrollador, con el pago asegurado.</Text>
+        <Text style={styles.tagline}>
+          Conecta negocios que necesitan software con desarrolladores junior, con el pago en garantía.
+        </Text>
 
         <View style={styles.features}>
           {FEATURES.map((feature) => (
             <View key={feature.icon} style={styles.feature}>
               <Ionicons name={feature.icon} size={22} color={colors.primary} />
-              <Text style={styles.featureText}>{feature.text}</Text>
+              <Text style={styles.featureText}>
+                {feature.title ? <Text style={styles.featureTitle}>{feature.title} </Text> : null}
+                {feature.text}
+              </Text>
             </View>
           ))}
         </View>
@@ -53,8 +59,9 @@ const styles = StyleSheet.create({
   title: { fontSize: 34, fontWeight: '800', color: colors.text, marginTop: 20 },
   tagline: { fontSize: 17, color: colors.muted, marginTop: 8, lineHeight: 24 },
   features: { marginTop: 32, gap: 16 },
-  feature: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  featureText: { flex: 1, fontSize: 15, color: colors.text },
+  feature: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  featureText: { flex: 1, fontSize: 15, color: colors.text, lineHeight: 21 },
+  featureTitle: { fontWeight: '700' },
   actions: { paddingBottom: 16 },
   secondary: {
     marginTop: 12,
