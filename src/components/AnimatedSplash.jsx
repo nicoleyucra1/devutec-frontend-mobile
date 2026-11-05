@@ -1,23 +1,41 @@
 import { useEffect, useRef } from 'react'
-import { Animated, Easing, StyleSheet } from 'react-native'
+import { Animated, Easing, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { colors } from '../theme'
 
-// Mismo tamaño que el logo del splash nativo (imageWidth en app.json),
-// así el cambio del splash nativo a esta animación no se nota
-export const SPLASH_LOGO_WIDTH = 160
-
-const logo = require('../../assets/splash-icon.png')
-// Ancho dividido entre alto de splash-icon.png
+const LOGO_WIDTH = 150
+// Ancho dividido entre alto de logo-white.png
 const LOGO_ASPECT_RATIO = 800 / 699
+const logo = require('../../assets/images/logo-white.png')
 
-// Animación de entrada: el logo hace "pop", aparece el nombre y todo se desvanece con un zoom.
+// Onda que sale del centro y se desvanece, detrás del logo
+function Ripple({ progress }) {
+  return (
+    <Animated.View
+      style={[
+        styles.ripple,
+        {
+          opacity: progress.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0, 0.35, 0] }),
+          transform: [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.4, 2.6] }) }],
+        },
+      ]}
+    />
+  )
+}
+
+// Animación de entrada sobre el color de la marca: el logo aparece con un "pop", salen dos ondas,
+// aparece el nombre y la pantalla sube como una cortina para mostrar la app.
 // No termina hasta que `ready` sea true (por ejemplo, cuando ya se leyó la sesión guardada).
 export default function AnimatedSplash({ ready, onFinish }) {
-  const logoScale = useRef(new Animated.Value(1)).current
+  const { height } = useWindowDimensions()
+  const logoScale = useRef(new Animated.Value(0.3)).current
+  const logoOpacity = useRef(new Animated.Value(0)).current
+  const ripple1 = useRef(new Animated.Value(0)).current
+  const ripple2 = useRef(new Animated.Value(0)).current
   const nameOpacity = useRef(new Animated.Value(0)).current
-  const nameShift = useRef(new Animated.Value(12)).current
-  const screenOpacity = useRef(new Animated.Value(1)).current
+  const nameShift = useRef(new Animated.Value(16)).current
+  const curtain = useRef(new Animated.Value(0)).current
   const introDone = useRef(false)
   const exiting = useRef(false)
   // Se guarda en un ref para leer el valor actual cuando termina la animación
@@ -27,25 +45,35 @@ export default function AnimatedSplash({ ready, onFinish }) {
   const exit = () => {
     if (exiting.current) return
     exiting.current = true
-    Animated.parallel([
-      Animated.timing(logoScale, { toValue: 6, duration: 450, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
-      Animated.timing(screenOpacity, { toValue: 0, duration: 450, easing: Easing.in(Easing.quad), useNativeDriver: true }),
-    ]).start(() => onFinish())
+    Animated.timing(curtain, {
+      toValue: 1,
+      duration: 550,
+      easing: Easing.inOut(Easing.cubic),
+      useNativeDriver: true,
+    }).start(() => onFinish())
   }
 
   useEffect(() => {
-    // La pantalla ya está dibujada encima: se puede ocultar el splash nativo sin parpadeo
+    // El splash nativo es solo el color de fondo, así que se puede ocultar sin que se note el cambio
     SplashScreen.hideAsync().catch(() => {})
 
-    // Con tiempos fijos la animación dura lo mismo en todos los celulares (unos 1.7 s con la salida)
+    const wave = (value) => Animated.timing(value, { toValue: 1, duration: 1100, easing: Easing.out(Easing.quad), useNativeDriver: true })
+
+    // Con tiempos fijos dura lo mismo en todos los celulares (unos 2 s con la salida)
     Animated.sequence([
-      Animated.timing(logoScale, { toValue: 1.12, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true }),
       Animated.parallel([
-        Animated.timing(logoScale, { toValue: 1, duration: 380, easing: Easing.out(Easing.back(3)), useNativeDriver: true }),
-        Animated.timing(nameOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
-        Animated.timing(nameShift, { toValue: 0, duration: 350, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(logoOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
+        Animated.timing(logoScale, { toValue: 1, duration: 550, easing: Easing.out(Easing.back(2.5)), useNativeDriver: true }),
+        Animated.stagger(250, [wave(ripple1), wave(ripple2)]),
+        Animated.sequence([
+          Animated.delay(350),
+          Animated.parallel([
+            Animated.timing(nameOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
+            Animated.timing(nameShift, { toValue: 0, duration: 350, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+          ]),
+        ]),
       ]),
-      Animated.delay(350),
+      Animated.delay(150),
     ]).start(() => {
       introDone.current = true
       if (readyRef.current) exit()
@@ -60,17 +88,26 @@ export default function AnimatedSplash({ ready, onFinish }) {
   }, [ready])
 
   return (
-    <Animated.View style={[styles.container, { opacity: screenOpacity }]} pointerEvents="none">
-      <Animated.Image
-        source={logo}
-        style={{
-          width: SPLASH_LOGO_WIDTH,
-          height: SPLASH_LOGO_WIDTH / LOGO_ASPECT_RATIO,
-          transform: [{ scale: logoScale }],
-        }}
-        resizeMode="contain"
-        accessibilityLabel="Logo de Devutec"
-      />
+    <Animated.View
+      pointerEvents="none"
+      style={[styles.container, { transform: [{ translateY: curtain.interpolate({ inputRange: [0, 1], outputRange: [0, -height] }) }] }]}
+    >
+      <StatusBar style="light" />
+      <View style={styles.center}>
+        <Ripple progress={ripple1} />
+        <Ripple progress={ripple2} />
+        <Animated.Image
+          source={logo}
+          style={{
+            width: LOGO_WIDTH,
+            height: LOGO_WIDTH / LOGO_ASPECT_RATIO,
+            opacity: logoOpacity,
+            transform: [{ scale: logoScale }],
+          }}
+          resizeMode="contain"
+          accessibilityLabel="Logo de Devutec"
+        />
+      </View>
       <Animated.Text style={[styles.name, { opacity: nameOpacity, transform: [{ translateY: nameShift }] }]}>
         Dev<Animated.Text style={styles.nameAccent}>utec</Animated.Text>
       </Animated.Text>
@@ -82,10 +119,19 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 100,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  name: { position: 'absolute', bottom: '30%', fontSize: 30, fontWeight: '800', color: colors.text },
-  nameAccent: { color: colors.primary },
+  center: { alignItems: 'center', justifyContent: 'center' },
+  ripple: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    borderWidth: 2,
+    borderColor: colors.white,
+  },
+  name: { marginTop: 28, fontSize: 32, fontWeight: '800', color: colors.white, letterSpacing: 0.5 },
+  nameAccent: { color: '#c7d2fe' },
 })

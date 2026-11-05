@@ -90,7 +90,7 @@ try {
 
 ## Logo
 
-Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `splash-icon.png` (pantalla de carga sobre fondo blanco y animación de entrada), `favicon.png` y `images/logo.png` (pantalla de bienvenida). Si se cambia el logo, hay que actualizar `LOGO_ASPECT_RATIO` en `src/components/AnimatedSplash.jsx`.
+Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `favicon.png`, `images/logo.png` (bienvenida) e `images/logo-white.png` (animación de entrada). El splash nativo es solo el color `#4f46e5` (definido en `app.json`, con `splash-icon.png` transparente) y enseguida empieza la animación de `src/components/AnimatedSplash.jsx`. Si se cambia el logo, hay que actualizar `LOGO_ASPECT_RATIO` en ese archivo.
 
 ## Build con EAS
 
