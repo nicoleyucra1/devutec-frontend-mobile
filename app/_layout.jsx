@@ -16,13 +16,14 @@ function RootNavigator() {
     )
   }
 
-  // Con sesión solo se puede entrar a las pestañas; sin sesión, solo a login y registro
+  // Con sesión solo se puede entrar a las pestañas; sin sesión, a la bienvenida, login y registro
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={user !== null}>
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
       <Stack.Protected guard={user === null}>
+        <Stack.Screen name="welcome" />
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
       </Stack.Protected>
