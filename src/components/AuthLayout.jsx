@@ -2,7 +2,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
-import Wordmark from './brand/Wordmark'
+import BrandLockup from './brand/BrandLockup'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 
 // Contenedor de login y registro: evita que el teclado tape los campos.
@@ -31,7 +31,7 @@ export default function AuthLayout({ title, highlight, subtitle, children }) {
       )}
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <Wordmark size={16} />
+          <BrandLockup size={16} />
           <Text style={styles.title}>
             {title}
             {highlight ? <Text style={styles.highlight}> {highlight}</Text> : null}
