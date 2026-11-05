@@ -1,0 +1,43 @@
+import { useEffect, useMemo, useState } from 'react'
+import { useColorScheme } from 'react-native'
+import { ThemeContext } from './themeContext'
+import { darkColors, fonts, lightColors, radius } from '../theme'
+import { preferenceStorage } from '../utils/preferenceStorage'
+
+const PREFERENCE_KEY = 'devutec.theme'
+
+// Modo claro u oscuro. Por defecto sigue al celular; en Perfil se puede fijar "Claro" u "Oscuro".
+export function ThemeProvider({ children }) {
+  const systemScheme = useColorScheme()
+  // 'system' | 'light' | 'dark'
+  const [preference, setPreferenceState] = useState('system')
+
+  useEffect(() => {
+    preferenceStorage.get(PREFERENCE_KEY).then((saved) => {
+      if (saved === 'light' || saved === 'dark' || saved === 'system') setPreferenceState(saved)
+    })
+  }, [])
+
+  const setPreference = (value) => {
+    setPreferenceState(value)
+    preferenceStorage.set(PREFERENCE_KEY, value)
+  }
+
+  const scheme = preference === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : preference
+
+  const value = useMemo(
+    () => ({
+      scheme,
+      isDark: scheme === 'dark',
+      colors: scheme === 'dark' ? darkColors : lightColors,
+      fonts,
+      radius,
+      preference,
+      setPreference,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [scheme, preference],
+  )
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+}
