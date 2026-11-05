@@ -138,7 +138,7 @@ Tipografías (`fonts`): Inter Tight (`regular`, `medium`, `semibold`, `bold`, `e
 - `src/components/brand/LogoMark.jsx`: el isotipo DU (tinta en claro, lima en oscuro).
 - `src/components/brand/Wordmark.jsx`: el nombre DEVUTEC en texto.
 - `src/components/brand/BrandLockup.jsx`: el logo completo, símbolo DU + nombre (se usa arriba de la bienvenida, login y registro).
-- `src/components/brand/Cuyi.jsx`: la mascota en pixel art (14 × 13), dibujada con vistas para que se vea nítida en cualquier tamaño. Parpadea cada tanto.
+- `src/components/brand/Cuyi.jsx`: la mascota en pixel art de 16 × 16 (del sistema de diseño), dibujada con vistas para que se vea nítida en cualquier tamaño. Tiene cinco animaciones: `<Cuyi anim="saluda" />` (login y registro), `escribe` (cargando o enviando), `celebra` (pago liberado, propuesta aceptada), `duerme` (sin conexión) y `confundido` (404 y errores). Si el celular tiene "reducir movimiento", se queda quieto.
 - Imágenes en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo y monocromo de Android), `favicon.png`, `splash-icon.png` e `images/logo-mark*.png`. El splash nativo es el logo lima sobre tinta (96 de ancho, en `app.json`) y enseguida empieza la animación con el mismo logo en el mismo lugar.
 
 ## Build con EAS

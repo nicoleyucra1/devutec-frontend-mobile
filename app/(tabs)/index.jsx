@@ -20,7 +20,7 @@ export default function HomeScreen() {
           </Text>
         </View>
         <View style={styles.cuyi}>
-          <Cuyi size={70} />
+          <Cuyi anim="saluda" size={72} />
         </View>
       </View>
     </ScrollView>

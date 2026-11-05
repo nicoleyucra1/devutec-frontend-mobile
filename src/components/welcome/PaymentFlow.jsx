@@ -71,7 +71,7 @@ export default function PaymentFlow() {
 
         <Animated.View style={[styles.node, pop(dev)]}>
           <View style={[styles.circle, styles.dev]}>
-            <Cuyi size={44} />
+            <Cuyi anim="escribe" size={48} />
           </View>
         </Animated.View>
 
