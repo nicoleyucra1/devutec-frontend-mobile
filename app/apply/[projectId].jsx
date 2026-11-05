@@ -8,7 +8,7 @@ import { useAsync } from '../../src/hooks/useAsync'
 import api from '../../src/services/api'
 import { applicationService } from '../../src/services/applicationService'
 import { errorMessage } from '../../src/utils/errorMessage'
-import { formatMoney } from '../../src/utils/format'
+import { formatBudget } from '../../src/utils/format'
 import { colors } from '../../src/theme'
 
 // Mismas reglas que ApplicationRequestDTO en el backend
@@ -60,7 +60,7 @@ export default function ApplyScreen() {
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.flex} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>{project.title}</Text>
-        <Text style={styles.muted}>Presupuesto del cliente: {formatMoney(project.budget)}</Text>
+        <Text style={styles.muted}>Presupuesto del cliente: {formatBudget(project.budget)}</Text>
 
         <FormField
           label="Tu propuesta"

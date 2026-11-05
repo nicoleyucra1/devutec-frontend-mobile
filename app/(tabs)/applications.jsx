@@ -7,13 +7,13 @@ import { useMyApplications } from '../../src/hooks/useApplications'
 import { applicationService } from '../../src/services/applicationService'
 import { confirmAlert } from '../../src/utils/confirmAlert'
 import { errorMessage } from '../../src/utils/errorMessage'
-import { formatDate, formatMoney } from '../../src/utils/format'
+import { formatDate, formatBudget } from '../../src/utils/format'
 import { APPLICATION_STATUS } from '../../src/utils/status'
 import { colors } from '../../src/theme'
 
 export default function MyApplicationsScreen() {
   const { data: applications, loading, error, reload } = useMyApplications()
-  //id de la postulación que se está retirando, para mostrar su botón cargando
+  // id de la postulación que se está retirando, para mostrar su botón cargando
   const [withdrawingId, setWithdrawingId] = useState(null)
   const [actionError, setActionError] = useState(null)
 
@@ -60,7 +60,7 @@ export default function MyApplicationsScreen() {
             <StatusBadge status={APPLICATION_STATUS[item.status]} fallback={item.status} />
           </View>
           <Text style={styles.muted}>
-            Tu precio: {formatMoney(item.proposedPrice)} · {formatDate(item.createdAt)}
+            Tu precio: {formatBudget(item.proposedPrice)} · {formatDate(item.createdAt)}
           </Text>
           <Text style={styles.message} numberOfLines={3}>
             {item.message}
