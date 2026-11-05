@@ -8,6 +8,10 @@ import { colors } from '../../src/theme'
 import { useProject } from '../../src/hooks/useProject'
 import { formatBudget, formatDate } from '../../src/utils/format'
 
+// En iOS la barra de arriba es transparente por defecto y tapaba el contenido; con fondo sólido
+// la pantalla empieza debajo de ella
+const HEADER_OPTIONS = { headerShown: true, headerTransparent: false, headerStyle: { backgroundColor: colors.white } }
+
 function Meta({ icon, label, value }) {
   return (
     <View style={styles.metaItem}>
@@ -26,7 +30,7 @@ export default function ProjectDetailScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Proyecto', headerBackTitle: 'Volver' }} />
+      <Stack.Screen options={{ ...HEADER_OPTIONS, title: 'Proyecto', headerBackTitle: 'Volver' }} />
       {loading ? <StateView loading message="Cargando proyecto..." /> : null}
       {!loading && error ? <StateView title="No se pudo cargar" message={error} actionLabel="Reintentar" onAction={reload} /> : null}
       {!loading && !error && project ? (
