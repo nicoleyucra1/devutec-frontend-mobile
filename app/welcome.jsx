@@ -19,8 +19,8 @@ export default function WelcomeScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.hero}>
-        <Image source={require('../assets/images/logo.png')} style={styles.logo} accessibilityLabel="Logo de DevUTEC" />
-        <Text style={styles.title}>DevUTEC</Text>
+        <Image source={require('../assets/images/logo.png')} style={styles.logo} accessibilityLabel="Logo de Devutec" />
+        <Text style={styles.title}>Devutec</Text>
         <Text style={styles.tagline}>
           Conecta negocios que necesitan software con desarrolladores junior, con el pago en garantía.
         </Text>

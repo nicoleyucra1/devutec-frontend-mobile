@@ -1,6 +1,6 @@
-# DevUTEC — Mobile
+# Devutec — Mobile
 
-App móvil de DevUTEC, hecha con React Native y Expo (SDK 58) y navegación con expo-router.
+App móvil de Devutec, hecha con React Native y Expo (SDK 58) y navegación con expo-router.
 
 ## Cómo correrla
 

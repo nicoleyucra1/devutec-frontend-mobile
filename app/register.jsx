@@ -54,7 +54,7 @@ export default function RegisterScreen() {
   }
 
   return (
-    <AuthLayout title="Crear cuenta" subtitle="Únete a DevUTEC en menos de un minuto">
+    <AuthLayout title="Crear cuenta" subtitle="Únete a Devutec en menos de un minuto">
       <Text style={styles.label}>¿Qué quieres hacer?</Text>
       <View style={styles.roles}>
         {ROLES.map((role) => {

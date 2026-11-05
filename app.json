@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "DevUTEC",
+    "name": "Devutec",
     "slug": "devutec-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -35,7 +35,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "DevUTEC usa Face ID para confirmar acciones importantes, como liberar un pago."
+          "faceIDPermission": "Devutec usa Face ID para confirmar acciones importantes, como liberar un pago."
         }
       ]
     ],

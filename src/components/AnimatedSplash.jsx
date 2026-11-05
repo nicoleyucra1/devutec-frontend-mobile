@@ -69,10 +69,10 @@ export default function AnimatedSplash({ ready, onFinish }) {
           transform: [{ scale: logoScale }],
         }}
         resizeMode="contain"
-        accessibilityLabel="Logo de DevUTEC"
+        accessibilityLabel="Logo de Devutec"
       />
       <Animated.Text style={[styles.name, { opacity: nameOpacity, transform: [{ translateY: nameShift }] }]}>
-        Dev<Animated.Text style={styles.nameAccent}>UTEC</Animated.Text>
+        Dev<Animated.Text style={styles.nameAccent}>utec</Animated.Text>
       </Animated.Text>
     </Animated.View>
   )
