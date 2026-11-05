@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { Link } from 'expo-router'
 import AuthLayout from '../src/components/AuthLayout'
 import FormField from '../src/components/FormField'
@@ -7,16 +8,18 @@ import PrimaryButton from '../src/components/PrimaryButton'
 import { useAuth } from '../src/hooks/useAuth'
 import { errorMessage } from '../src/utils/errorMessage'
 import { validateRegister } from '../src/utils/validation'
-import { colors } from '../src/theme'
+import { useTheme, useThemedStyles } from '../src/hooks/useTheme'
 
 const ROLES = [
-  { value: 'CLIENT', title: 'Quiero contratar', description: 'Publico proyectos' },
-  { value: 'FREELANCER', title: 'Quiero trabajar', description: 'Postulo a proyectos' },
+  { value: 'CLIENT', icon: 'storefront-outline', title: 'Quiero contratar', description: 'Publico proyectos' },
+  { value: 'FREELANCER', icon: 'code-slash-outline', title: 'Quiero trabajar', description: 'Postulo a proyectos' },
 ]
 
 const INITIAL_VALUES = { nombre: '', email: '', password: '', confirmPassword: '', rol: '' }
 
 export default function RegisterScreen() {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
   const { register } = useAuth()
   const [values, setValues] = useState(INITIAL_VALUES)
   const [errors, setErrors] = useState({})
@@ -54,7 +57,7 @@ export default function RegisterScreen() {
   }
 
   return (
-    <AuthLayout title="Crear cuenta" subtitle="Únete a Devutec en menos de un minuto">
+    <AuthLayout title="Crea tu cuenta." highlight="Es gratis." subtitle="Elige cómo vas a usar DEV U TEC. Te toma menos de un minuto.">
       <Text style={styles.label}>¿Qué quieres hacer?</Text>
       <View style={styles.roles}>
         {ROLES.map((role) => {
@@ -67,6 +70,9 @@ export default function RegisterScreen() {
               accessibilityRole="radio"
               accessibilityState={{ checked: selected }}
             >
+              <View style={[styles.roleIcon, selected && styles.roleIconSelected]}>
+                <Ionicons name={role.icon} size={18} color={selected ? colors.limeText : colors.text} />
+              </View>
               <Text style={styles.roleTitle}>{role.title}</Text>
               <Text style={styles.muted}>{role.description}</Text>
             </Pressable>
@@ -123,28 +129,40 @@ export default function RegisterScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  label: { fontSize: 14, fontWeight: '500', color: colors.text, marginBottom: 6 },
+const createStyles = ({ colors, fonts, radius }) => ({
+  label: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text, marginBottom: 8 },
   roles: { marginBottom: 16, flexDirection: 'row', gap: 12 },
   role: {
     flex: 1,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 10,
-    padding: 12,
-    backgroundColor: colors.white,
+    borderRadius: radius.lg,
+    padding: 14,
+    backgroundColor: colors.card,
   },
-  roleSelected: { borderColor: colors.primary, backgroundColor: colors.primaryLight },
-  roleTitle: { fontWeight: '600', color: colors.text },
-  error: { color: colors.error, fontSize: 13, marginBottom: 12 },
+  roleSelected: { borderColor: colors.text, borderWidth: 2, padding: 13 },
+  roleIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  roleIconSelected: { backgroundColor: colors.lime },
+  roleTitle: { fontFamily: fonts.bold, color: colors.text, fontSize: 15 },
+  error: { fontFamily: fonts.medium, color: colors.error, fontSize: 13, marginBottom: 12 },
   alert: {
+    fontFamily: fonts.medium,
     backgroundColor: colors.errorLight,
     color: colors.error,
     padding: 12,
-    borderRadius: 10,
+    borderRadius: radius.md,
     marginBottom: 8,
+    overflow: 'hidden',
   },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  muted: { color: colors.muted },
-  link: { color: colors.primary, fontWeight: '600' },
+  muted: { fontFamily: fonts.regular, color: colors.muted },
+  link: { fontFamily: fonts.bold, color: colors.text, textDecorationLine: 'underline' },
 })
