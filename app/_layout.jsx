@@ -21,7 +21,7 @@ import { useTheme } from '../src/hooks/useTheme'
 
 function RootNavigator() {
   const { user, loading } = useAuth()
-  const { colors } = useTheme()
+  const { colors, fonts } = useTheme()
 
   // Mientras se lee la sesión guardada, la animación de entrada tapa la pantalla
   if (loading) return null
@@ -32,6 +32,11 @@ function RootNavigator() {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
+        // Para las pantallas que muestran la barra de arriba (Postular, Contrato...)
+        headerStyle: { backgroundColor: colors.background },
+        headerTintColor: colors.text,
+        headerShadowVisible: false,
+        headerTitleStyle: { fontFamily: fonts.semibold, color: colors.text },
         // Las pantallas entran desde la derecha y se puede volver deslizando hacia la derecha
         animation: 'slide_from_right',
         gestureEnabled: true,
@@ -42,6 +47,8 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="projects/[id]" />
         <Stack.Screen name="projects/new" />
+        <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, title: 'Postular' }} />
+        <Stack.Screen name="contracts/[id]" options={{ headerShown: true, title: 'Contrato' }} />
       </Stack.Protected>
       <Stack.Protected guard={user === null} redirectTo="/">
         <Stack.Screen name="welcome" />

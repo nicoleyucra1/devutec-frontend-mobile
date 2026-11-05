@@ -1,10 +1,12 @@
 import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import { useAuth } from '../../src/hooks/useAuth'
 import { useTheme } from '../../src/hooks/useTheme'
 
 // Pestañas principales de la app. Cada módulo agrega aquí su pestaña.
 export default function TabsLayout() {
   const { colors, fonts } = useTheme()
+  const { user } = useAuth()
 
   return (
     <Tabs
@@ -32,6 +34,22 @@ export default function TabsLayout() {
         options={{
           title: 'Proyectos',
           tabBarIcon: ({ color, size }) => <Ionicons name="briefcase-outline" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="applications"
+        options={{
+          title: 'Postulaciones',
+          //Solo los freelancers postulan; para los demás la pestaña se oculta
+          href: user?.rol === 'FREELANCER' ? undefined : null,
+          tabBarIcon: ({ color, size }) => <Ionicons name="paper-plane-outline" color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="contracts"
+        options={{
+          title: 'Contratos',
+          tabBarIcon: ({ color, size }) => <Ionicons name="document-text-outline" color={color} size={size} />,
         }}
       />
       <Tabs.Screen

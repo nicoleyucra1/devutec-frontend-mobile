@@ -144,3 +144,19 @@ Tipografías (`fonts`): Geist (`regular`, `medium`, `semibold`, `bold`, `extrabo
 ## Build con EAS
 
 Para el build, la variable `EXPO_PUBLIC_API_URL` se define en `eas.json`, en el `env` de cada perfil, porque el archivo `.env` no se sube al repositorio.
+
+El proyecto pertenece a la organización **devutec** de Expo (`owner` en `app.json`) y usa el paquete `pe.edu.utec.devutec`. Perfiles de `eas.json`:
+
+| Perfil | Para qué | Resultado |
+|---|---|---|
+| `preview` | Probar la app instalada en Android, sin Expo Go | Archivo `.apk` que se instala directo desde un link |
+| `production` | Publicar en Google Play | Archivo `.aab` |
+
+```bash
+npm install -g eas-cli
+eas login                                    # cuenta de Expo con acceso a la organización devutec
+eas init                                     # solo la primera vez: vincula el proyecto y agrega su projectId
+eas build --platform android --profile preview
+```
+
+Al terminar, EAS muestra un link y un QR para descargar el `.apk`. En iPhone la app se prueba con Expo Go, porque instalarla fuera del App Store requiere una cuenta de Apple Developer.
