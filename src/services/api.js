@@ -1,8 +1,18 @@
 import axios from 'axios'
+import Constants from 'expo-constants'
 import { tokenStorage } from '../utils/tokenStorage'
 import { isOffline } from '../utils/network'
 
-export const API_URL = process.env.EXPO_PUBLIC_API_URL
+// Con EXPO_PUBLIC_API_URL (en .env o en eas.json para los builds) se usa esa dirección.
+// Sin ella, en desarrollo se usa el backend local de la compu que corre Expo: su IP es la misma
+// con la que el celular abrió la app, así que sigue funcionando aunque cambie la red.
+function resolveApiUrl() {
+  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL
+  const host = Constants.expoConfig?.hostUri?.split(':')[0] ?? 'localhost'
+  return `http://${host}:8080/api/v1`
+}
+
+export const API_URL = resolveApiUrl()
 
 const api = axios.create({
   baseURL: API_URL,

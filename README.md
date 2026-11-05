@@ -5,16 +5,17 @@ App móvil de DEVUTEC, hecha con React Native y Expo (SDK 58) y navegación con 
 ## Cómo correrla
 
 ```bash
-cp .env.example .env
 npm install
 npx expo start
 ```
 
 Escanea el QR con la app **Expo Go** (Android o iOS); el celular y la computadora deben estar en la misma red. También se puede abrir en el navegador con `npm run web`.
 
+Sin `.env`, la app usa el backend local (`http://<IP de tu compu>:8080/api/v1`): toma la IP de la dirección con la que Expo Go abrió la app, así que funciona aunque cambies de wifi. Para usar otro backend, por ejemplo el de AWS, copia `.env.example` a `.env`:
+
 | Variable | Descripción |
 |---|---|
-| `EXPO_PUBLIC_API_URL` | URL base de la API, con `/api/v1` al final |
+| `EXPO_PUBLIC_API_URL` | URL base de la API, con `/api/v1` al final. Opcional en desarrollo |
 
 ## Estructura
 
