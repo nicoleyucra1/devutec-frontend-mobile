@@ -40,6 +40,8 @@ function RootNavigator() {
     >
       <Stack.Protected guard={user !== null} redirectTo="/welcome">
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="projects/[id]" />
+        <Stack.Screen name="projects/new" />
       </Stack.Protected>
       <Stack.Protected guard={user === null} redirectTo="/">
         <Stack.Screen name="welcome" />
