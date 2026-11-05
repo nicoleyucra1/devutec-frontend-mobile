@@ -1,16 +1,36 @@
-import { StyleSheet, Text, TextInput, View } from 'react-native'
+import { useState } from 'react'
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { colors } from '../theme'
 
-// Campo de formulario con su etiqueta y el mensaje de error debajo
-export default function FormField({ label, error, ...inputProps }) {
+// Campo de formulario con su etiqueta y el mensaje de error debajo.
+// Si es de contraseña (secureTextEntry), muestra un ojito para verla u ocultarla.
+export default function FormField({ label, error, secureTextEntry, style, ...inputProps }) {
+  const [visible, setVisible] = useState(false)
+  const isPassword = Boolean(secureTextEntry)
+
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={[styles.input, error && styles.inputError]}
-        placeholderTextColor={colors.muted}
-        {...inputProps}
-      />
+      <View>
+        <TextInput
+          style={[styles.input, isPassword && styles.inputWithIcon, error && styles.inputError, style]}
+          placeholderTextColor={colors.muted}
+          secureTextEntry={isPassword && !visible}
+          {...inputProps}
+        />
+        {isPassword ? (
+          <Pressable
+            onPress={() => setVisible((current) => !current)}
+            style={styles.eye}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+          >
+            <Ionicons name={visible ? 'eye-off-outline' : 'eye-outline'} size={22} color={colors.muted} />
+          </Pressable>
+        ) : null}
+      </View>
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   )
@@ -29,6 +49,8 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: colors.white,
   },
+  inputWithIcon: { paddingRight: 44 },
   inputError: { borderColor: colors.error },
+  eye: { position: 'absolute', right: 12, top: 0, bottom: 0, justifyContent: 'center' },
   error: { color: colors.error, fontSize: 13, marginTop: 4 },
 })

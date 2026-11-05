@@ -8,7 +8,7 @@ import { useAuth } from '../src/hooks/useAuth'
 function RootNavigator() {
   const { user, loading } = useAuth()
 
-  // Se espera a leer la sesión guardada para no mostrar el login un instante
+  //Se espera a leer la sesión guardada para no mostrar el login un instante
   if (loading) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -17,13 +17,15 @@ function RootNavigator() {
     )
   }
 
-  // Con sesión solo se puede entrar a las pestañas; sin sesión, solo a login y registro
+  //Con sesión solo se puede entrar a las pestañas; sin sesión, solo a login y registro
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={user !== null}>
         <Stack.Screen name="projects/[id]" />
         <Stack.Screen name="projects/new" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, title: 'Postular' }} />
+        <Stack.Screen name="contracts/[id]" options={{ headerShown: true, title: 'Contrato' }} />
       </Stack.Protected>
       <Stack.Protected guard={user === null}>
         <Stack.Screen name="login" />
