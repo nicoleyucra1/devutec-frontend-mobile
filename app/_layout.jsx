@@ -12,7 +12,7 @@ import { InstrumentSerif_400Regular_Italic } from '@expo-google-fonts/instrument
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import AnimatedSplash from '../src/components/AnimatedSplash'
-import OfflineBanner from '../src/components/OfflineBanner'
+import OfflineScreen from '../src/components/OfflineScreen'
 import { AuthProvider } from '../src/contexts/AuthProvider'
 import { IntroContext } from '../src/contexts/introContext'
 import { ThemeProvider } from '../src/contexts/ThemeProvider'
@@ -91,7 +91,7 @@ export default function RootLayout() {
       <AuthProvider>
         <IntroGate>
           <RootNavigator />
-          <OfflineBanner />
+          <OfflineScreen />
         </IntroGate>
         <ThemedStatusBar />
       </AuthProvider>

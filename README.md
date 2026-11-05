@@ -69,7 +69,7 @@ const { user, login, register, logout } = useAuth()
 ## Sin conexión y timeouts
 
 - `src/utils/network.js` usa NetInfo para saber si hay internet. Cuenta como sin conexión no tener red o tener wifi que no llega a internet.
-- `OfflineBanner` muestra una tarjeta arriba de la pantalla con Cuyi durmiendo mientras no hay conexión, y se quita sola al volver.
+- `OfflineScreen` muestra una pantalla completa con Cuyi durmiendo mientras no hay conexión, con un botón **Reintentar** que vuelve a revisarla. Va en un `Modal`, así queda encima de todo sin perder la pantalla donde estaba la persona, y se quita sola al volver el internet.
 - Sin conexión, el cliente `api` corta las peticiones al instante (código `ERR_OFFLINE`) en vez de esperar el timeout.
 - Cada petición tiene un timeout de 15 segundos. Los GET que fallan por timeout o con 502/503/504 se reintentan solos hasta dos veces (a 1 s y a 2 s).
 - Si la renovación del token falla por la red, la sesión no se cierra; solo se cierra si el backend rechaza el refresh token.
