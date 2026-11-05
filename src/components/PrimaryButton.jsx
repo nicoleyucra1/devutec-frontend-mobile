@@ -1,32 +1,51 @@
 import { ActivityIndicator, Pressable, Text } from 'react-native'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 
-// Botón del diseño. variant "primary": tinta (lima en modo oscuro); "secondary": con borde.
-// Mientras carga se deshabilita para evitar doble envío.
-export default function PrimaryButton({ title, onPress, loading = false, variant = 'primary', style }) {
+// Botón del diseño (alto 54, radio 16). variant "primary": tinta (lima en modo oscuro); "secondary": con borde.
+// Mientras carga o si está deshabilitado no se puede tocar, para evitar doble envío.
+export default function PrimaryButton({ title, onPress, loading = false, disabled = false, variant = 'primary', icon, style }) {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
   const isPrimary = variant === 'primary'
+  const textColor = isPrimary ? colors.onPrimary : colors.text
 
   return (
     <Pressable
       onPress={onPress}
-      disabled={loading}
-      style={({ pressed }) => [styles.button, isPrimary ? styles.primary : styles.secondary, (pressed || loading) && styles.pressed, style]}
+      disabled={loading || disabled}
+      style={({ pressed }) => [
+        styles.button,
+        isPrimary ? styles.primary : styles.secondary,
+        pressed && styles.pressed,
+        (loading || disabled) && styles.disabled,
+        style,
+      ]}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? colors.onPrimary : colors.text} />
+        <ActivityIndicator color={textColor} />
       ) : (
-        <Text style={[styles.text, { color: isPrimary ? colors.onPrimary : colors.text }]}>{title}</Text>
+        <>
+          {icon}
+          <Text style={[styles.text, { color: textColor }]}>{title}</Text>
+        </>
       )}
     </Pressable>
   )
 }
 
 const createStyles = ({ colors, fonts, radius }) => ({
-  button: { borderRadius: radius.md, paddingVertical: 15, alignItems: 'center', marginTop: 8 },
+  button: {
+    height: 54,
+    borderRadius: radius.lg,
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
   primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.inputBorder },
-  pressed: { opacity: 0.7 },
-  text: { fontFamily: fonts.bold, fontSize: 16 },
+  secondary: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.inputBorder },
+  pressed: { opacity: 0.75 },
+  disabled: { opacity: 0.38 },
+  text: { fontFamily: fonts.semibold, fontSize: 15 },
 })
