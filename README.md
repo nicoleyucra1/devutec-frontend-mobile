@@ -85,8 +85,8 @@ try {
 
 ## Animaciones
 
-- `AnimatedSplash`: al abrir la app, sobre tinta, el logo lima gira -135° y vuelve con rebote; luego se corre a la izquierda mientras "DEV U TEC" sale desde detrás de él, el fondo pasa a un degradado verde escrow (`expo-linear-gradient`) y la pantalla sube como una cortina.
-- `IntroContext` avisa cuando esa cortina empieza a subir. `FadeInUp` lo usa para que las animaciones de una pantalla no ocurran escondidas detrás de la intro:
+- `AnimatedSplash`: al abrir la app, sobre negro, el logo DU crece en el centro mientras gira -135°, vuelve a su tamaño y a 0° con un pequeño rebote y luego se agranda hacia la pantalla mientras el negro se desvanece. Es igual en modo claro y oscuro.
+- `IntroContext` avisa cuando la animación empieza a abrirse. `FadeInUp` lo usa para que las animaciones de una pantalla no ocurran escondidas detrás de la intro:
 
 ```jsx
 <FadeInUp delay={150}>
