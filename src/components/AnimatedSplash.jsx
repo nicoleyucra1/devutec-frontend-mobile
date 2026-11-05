@@ -33,12 +33,12 @@ export default function AnimatedSplash({ ready, onFinish }) {
     // La pantalla ya está dibujada con el mismo logo y fondo que el splash nativo
     SplashScreen.hideAsync().catch(() => {})
 
-    // Con tiempos fijos dura lo mismo en todos los celulares (alrededor de 1.5 s)
+    // Con tiempos fijos dura lo mismo en todos los celulares (unos 3 s, para que se aprecie)
     Animated.sequence([
-      Animated.delay(150),
-      Animated.timing(spin, { toValue: 1, duration: 520, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-      Animated.timing(spin, { toValue: 0, duration: 560, easing: Easing.out(Easing.back(2)), useNativeDriver: true }),
-      Animated.delay(250),
+      Animated.delay(400),
+      Animated.timing(spin, { toValue: 1, duration: 900, easing: Easing.inOut(Easing.cubic), useNativeDriver: true }),
+      Animated.timing(spin, { toValue: 0, duration: 900, easing: Easing.out(Easing.back(1.8)), useNativeDriver: true }),
+      Animated.delay(600),
     ]).start(() => {
       introDone.current = true
       if (readyRef.current) exit()
