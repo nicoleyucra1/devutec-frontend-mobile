@@ -28,6 +28,12 @@
         {
           "faceIDPermission": "DevUTEC usa Face ID para confirmar acciones importantes, como liberar un pago."
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "DevUTEC usa tu ubicación para sugerir el distrito del proyecto que publicas."
+        }
       ]
     ],
     "scheme": "devutec"

@@ -20,6 +20,8 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={user !== null}>
+        <Stack.Screen name="projects/[id]" />
+        <Stack.Screen name="projects/new" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, title: 'Postular' }} />
         <Stack.Screen name="contracts/[id]" options={{ headerShown: true, title: 'Contrato' }} />
