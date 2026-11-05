@@ -1,21 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
-import { Animated, Easing, StyleSheet, Text, useWindowDimensions, View } from 'react-native'
+import { Animated, Easing, StyleSheet, useWindowDimensions, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
-import { colors } from '../theme'
+import Wordmark from './brand/Wordmark'
+import { LOGO_ASPECT_RATIO } from './brand/LogoMark'
 
 // Mismo tamaño y color de fondo que el splash nativo (app.json), así el cambio no se nota
-const LOGO_WIDTH = 72
-// Ancho dividido entre alto de logo-white.png
-const LOGO_ASPECT_RATIO = 800 / 699
-const LOGO_TEXT_GAP = 12
-const logo = require('../../assets/images/logo-white.png')
+const LOGO_WIDTH = 96
+const LOGO_TEXT_GAP = 16
+const logo = require('../../assets/images/logo-mark.png')
 
 // Animación de entrada en tres fases:
 // 1. Sobre negro, el logo crece y gira -135° y vuelve con rebote a su lugar.
-// 2. El logo se corre a la izquierda y "Devutec" sale desde detrás de él hasta quedar el conjunto centrado.
-// 3. Mientras tanto el negro se funde en el degradado morado. Al final la pantalla sube como una cortina.
+// 2. El logo se corre a la izquierda y "DEV U TEC" sale desde detrás de él hasta quedar el conjunto centrado.
+// 3. Mientras tanto el negro se funde en un degradado verde escrow. Al final la pantalla sube como una cortina.
 // No termina hasta que `ready` sea true (por ejemplo, cuando ya se leyó la sesión guardada).
 // onReveal avisa cuando la cortina empieza a subir; onFinish, cuando ya no se ve.
 export default function AnimatedSplash({ ready, onReveal, onFinish }) {
@@ -95,12 +94,12 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
     >
       <StatusBar style="light" />
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: background }]}>
-        <LinearGradient colors={['#6d28d9', colors.primary, '#312e81']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+        <LinearGradient colors={['#1F6F4A', '#14472F', '#0E0E0C']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
       </Animated.View>
 
       {/* La fila [logo + máscara] se centra sola: al crecer la máscara, el logo se corre a la izquierda */}
       <View style={styles.row}>
-        <Animated.Image source={logo} style={logoStyle} resizeMode="contain" accessibilityLabel="Logo de Devutec" />
+        <Animated.Image source={logo} style={logoStyle} resizeMode="contain" accessibilityLabel="Logo de DEV U TEC" />
         <Animated.View
           style={[
             styles.mask,
@@ -108,21 +107,18 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
           ]}
         >
           {/* El texto empieza escondido detrás del logo y se desliza hacia la derecha */}
-          <Animated.Text
-            style={[
-              styles.name,
-              { transform: [{ translateX: reveal.interpolate({ inputRange: [0, 1], outputRange: [-textWidth, 0] }) }] },
-            ]}
+          <Animated.View
+            style={{ transform: [{ translateX: reveal.interpolate({ inputRange: [0, 1], outputRange: [-textWidth, 0] }) }] }}
           >
-            Dev<Text style={styles.nameAccent}>utec</Text>
-          </Animated.Text>
+            <Wordmark size={30} color="#F5F3EE" />
+          </Animated.View>
         </Animated.View>
       </View>
 
-      {/* Copia invisible para medir cuánto mide el texto */}
-      <Text style={[styles.name, styles.measure]} onLayout={(event) => setTextWidth(Math.ceil(event.nativeEvent.layout.width))}>
-        Dev<Text style={styles.nameAccent}>utec</Text>
-      </Text>
+      {/* Copia invisible para medir cuánto mide el nombre */}
+      <View style={styles.measure} onLayout={(event) => setTextWidth(Math.ceil(event.nativeEvent.layout.width))}>
+        <Wordmark size={30} color="#F5F3EE" />
+      </View>
     </Animated.View>
   )
 }
@@ -131,13 +127,11 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 100,
-    backgroundColor: '#000000',
+    backgroundColor: '#0E0E0C',
     alignItems: 'center',
     justifyContent: 'center',
   },
   row: { flexDirection: 'row', alignItems: 'center' },
   mask: { overflow: 'hidden', alignItems: 'flex-end' },
-  name: { fontSize: 40, fontWeight: '800', color: colors.white, letterSpacing: 0.3 },
-  nameAccent: { color: '#c7d2fe' },
   measure: { position: 'absolute', opacity: 0 },
 })
