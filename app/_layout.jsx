@@ -16,7 +16,15 @@ function RootNavigator() {
 
   // Con sesión solo se puede entrar a las pestañas; sin sesión, a la bienvenida, login y registro
   return (
-    <Stack screenOptions={{ headerShown: false }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        // Las pantallas entran desde la derecha y se puede volver deslizando hacia la derecha
+        animation: 'slide_from_right',
+        gestureEnabled: true,
+        fullScreenGestureEnabled: true,
+      }}
+    >
       <Stack.Protected guard={user !== null} redirectTo="/welcome">
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
