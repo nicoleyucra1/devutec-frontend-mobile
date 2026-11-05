@@ -114,7 +114,13 @@ export default function NewProjectScreen() {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Stack.Screen options={{ headerShown: true, title: 'Publicar proyecto', headerBackTitle: 'Volver' }} />
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        // En iOS la barra de arriba es transparente: así el formulario empieza debajo de ella
+        contentInsetAdjustmentBehavior="automatic"
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <Field label="Título *" error={errors.title}>
           <TextInput
             style={[styles.input, errors.title && styles.inputError]}

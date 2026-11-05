@@ -30,7 +30,12 @@ export default function ProjectDetailScreen() {
       {loading ? <StateView loading message="Cargando proyecto..." /> : null}
       {!loading && error ? <StateView title="No se pudo cargar" message={error} actionLabel="Reintentar" onAction={reload} /> : null}
       {!loading && !error && project ? (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <ScrollView
+          // En iOS la barra de arriba es transparente: así el contenido empieza debajo de ella
+          contentInsetAdjustmentBehavior="automatic"
+          style={styles.container}
+          contentContainerStyle={styles.content}
+        >
           <View style={styles.header}>
             <Text style={styles.title}>{project.title}</Text>
             <StatusBadge status={project.status} />
