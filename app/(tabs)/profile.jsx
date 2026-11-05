@@ -1,6 +1,7 @@
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import GithubRepos from '../../src/components/GithubRepos'
+import ProfileQr from '../../src/components/ProfileQr'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useMyFreelancerProfile } from '../../src/hooks/useMyFreelancerProfile'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
@@ -22,8 +23,8 @@ function initials(name) {
     .join('')
 }
 
-// Datos del perfil de freelancer que se muestran en el celular; por ahora, sus repos de GitHub
-function FreelancerSection() {
+// Datos del perfil de freelancer que se muestran en el celular: su QR y sus repos de GitHub
+function FreelancerSection({ userId }) {
   const { data: profile, error, loading, reload } = useMyFreelancerProfile()
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
@@ -42,7 +43,10 @@ function FreelancerSection() {
   }
 
   return (
-    <GithubRepos username={profile.githubUsername} />
+    <>
+      <ProfileQr userId={userId} />
+      <GithubRepos username={profile.githubUsername} />
+    </>
   )
 }
 
@@ -64,7 +68,7 @@ export default function ProfileScreen() {
         <Text style={styles.badge}>{ROLE_LABELS[user.rol] ?? user.rol}</Text>
       </View>
 
-      {user.rol === 'FREELANCER' && <FreelancerSection />}
+      {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} />}
 
       <Text style={styles.section}>APARIENCIA</Text>
       {/* Sistema sigue el modo del celular; Claro y Oscuro lo fijan y se recuerda al volver a abrir la app */}

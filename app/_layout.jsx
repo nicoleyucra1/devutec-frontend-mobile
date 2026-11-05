@@ -26,7 +26,8 @@ function RootNavigator() {
   // Mientras se lee la sesión guardada, la animación de entrada tapa la pantalla
   if (loading) return null
 
-  // Con sesión solo se puede entrar a las pestañas; sin sesión, a la bienvenida, login y registro
+  // Con sesión: las pestañas, proyectos, postular, contratos, el escáner de QR y el perfil público;
+  // sin sesión, la bienvenida, login y registro
   return (
     <Stack
       screenOptions={{
@@ -49,6 +50,8 @@ function RootNavigator() {
         <Stack.Screen name="projects/new" />
         <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, title: 'Postular' }} />
         <Stack.Screen name="contracts/[id]" options={{ headerShown: true, title: 'Contrato' }} />
+        <Stack.Screen name="scan" />
+        <Stack.Screen name="freelancers/[userId]" />
       </Stack.Protected>
       <Stack.Protected guard={user === null} redirectTo="/">
         <Stack.Screen name="welcome" />

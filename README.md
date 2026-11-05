@@ -97,6 +97,19 @@ try {
 - En la bienvenida, `PaymentFlow` muestra cómo funciona la app: una moneda S/ sale del cliente, queda en la garantía (el escudo late) y llega al developer (Cuyi). El resto entra en cascada.
 - Las pantallas entran desde la derecha y se puede volver deslizando; login y registro además tienen un botón con flecha.
 
+## QR del perfil y escáner
+
+- En la pestaña **Perfil**, cada freelancer ve su código QR (`src/components/ProfileQr.jsx`) y puede compartir el enlace.
+- El QR guarda `devutec://freelancers/{userId}`. `src/utils/profileLink.js` arma ese enlace y lo lee; también acepta la URL del perfil en la web o solo el número.
+- En **Inicio**, el botón "Escanear el QR de un freelancer" abre `app/scan.jsx`, que usa la cámara trasera (`expo-camera`) y abre `app/freelancers/[userId].jsx` con el perfil público y sus repos de GitHub.
+- Si un QR no es de DevUTEC, se avisa en la pantalla y se puede volver a escanear a los 2 segundos.
+
+### Permisos denegados y alternativas
+
+- Antes de pedir la cámara se explica para qué se usa. `src/components/PermissionNotice.jsx` sirve para cualquier permiso: si todavía se puede preguntar, muestra "Permitir acceso"; si el usuario lo negó para siempre, muestra "Abrir ajustes".
+- Si se niega el permiso, el dispositivo no tiene cámara o la cámara falla al abrir, se puede pegar el enlace o escribir el número del perfil (`src/components/ManualProfileEntry.jsx`).
+- La biometría (`useBiometricAuth`) tiene su propia alternativa: el código del celular o una confirmación con dos botones.
+
 ## Cómo agregar una pantalla
 
 - **Una pestaña nueva:** crear el archivo en `app/(tabs)/` y agregarlo en `app/(tabs)/_layout.jsx` con su título e ícono.
