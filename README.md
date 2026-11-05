@@ -65,6 +65,23 @@ const { user, login, register, logout } = useAuth()
 - `app/_layout.jsx` usa `Stack.Protected`: con sesión solo se puede ver `(tabs)`; sin sesión, solo `login` y `register`. Al iniciar o cerrar sesión, la navegación cambia sola.
 - El access token dura 15 minutos. Cuando una petición recibe 401, el interceptor de `services/api.js` lo renueva con `/auth/refresh` y reintenta la petición una vez. Si varias peticiones fallan a la vez, todas esperan la misma renovación.
 
+## Sin conexión y timeouts
+
+- `src/utils/network.js` usa NetInfo para saber si hay internet. Cuenta como sin conexión no tener red o tener wifi que no llega a internet.
+- `OfflineBanner` muestra una franja arriba de la pantalla mientras no hay conexión y se quita sola al volver.
+- Sin conexión, el cliente `api` corta las peticiones al instante (código `ERR_OFFLINE`) en vez de esperar el timeout.
+- Cada petición tiene un timeout de 15 segundos. Los GET que fallan por timeout o con 502/503/504 se reintentan solos hasta dos veces (a 1 s y a 2 s).
+- Si la renovación del token falla por la red, la sesión no se cierra; solo se cierra si el backend rechaza el refresh token.
+- `src/utils/errorMessage.js` convierte cualquier error en un mensaje para la pantalla:
+
+```js
+try {
+  await projectService.create(data)
+} catch (error) {
+  setError(errorMessage(error))
+}
+```
+
 ## Cómo agregar una pantalla
 
 - **Una pestaña nueva:** crear el archivo en `app/(tabs)/` y agregarlo en `app/(tabs)/_layout.jsx` con su título e ícono.
