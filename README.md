@@ -85,7 +85,7 @@ try {
 
 ## Animaciones
 
-- `AnimatedSplash`: al abrir la app, el logo aparece sobre el morado de la marca con dos ondas, luego el nombre, y la pantalla sube como una cortina.
+- `AnimatedSplash`: al abrir la app, sobre negro, el logo gira -135° y vuelve con rebote; luego se corre a la izquierda mientras "Devutec" sale desde detrás de él, el fondo pasa a un degradado morado (`expo-linear-gradient`) y la pantalla sube como una cortina.
 - `IntroContext` avisa cuando esa cortina empieza a subir. `FadeInUp` lo usa para que las animaciones de una pantalla no ocurran escondidas detrás de la intro:
 
 ```jsx
@@ -104,7 +104,7 @@ try {
 
 ## Logo
 
-Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `favicon.png`, `images/logo.png` (bienvenida) e `images/logo-white.png` (animación de entrada). El splash nativo es solo el color `#4f46e5` (definido en `app.json`, con `splash-icon.png` transparente) y enseguida empieza la animación de `src/components/AnimatedSplash.jsx`. Si se cambia el logo, hay que actualizar `LOGO_ASPECT_RATIO` en ese archivo.
+Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `favicon.png`, `images/logo.png` (bienvenida) e `images/logo-white.png` (animación de entrada). El splash nativo es el logo blanco (`splash-icon.png`, 72 de ancho) sobre negro, definido en `app.json`, y enseguida empieza la animación de `src/components/AnimatedSplash.jsx` con el mismo logo en el mismo lugar. Si se cambia el logo, hay que actualizar `LOGO_ASPECT_RATIO` en ese archivo.
 
 ## Build con EAS
 

@@ -1,42 +1,33 @@
-import { useEffect, useRef } from 'react'
-import { Animated, Easing, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { Animated, Easing, StyleSheet, Text, useWindowDimensions, View } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { colors } from '../theme'
 
-const LOGO_WIDTH = 150
+// Mismo tamaño y color de fondo que el splash nativo (app.json), así el cambio no se nota
+const LOGO_WIDTH = 72
 // Ancho dividido entre alto de logo-white.png
 const LOGO_ASPECT_RATIO = 800 / 699
+const LOGO_TEXT_GAP = 12
 const logo = require('../../assets/images/logo-white.png')
 
-// Onda que sale del centro y se desvanece, detrás del logo
-function Ripple({ progress }) {
-  return (
-    <Animated.View
-      style={[
-        styles.ripple,
-        {
-          opacity: progress.interpolate({ inputRange: [0, 0.2, 1], outputRange: [0, 0.35, 0] }),
-          transform: [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.4, 2.6] }) }],
-        },
-      ]}
-    />
-  )
-}
-
-// Animación de entrada sobre el color de la marca: el logo aparece con un "pop", salen dos ondas,
-// aparece el nombre y la pantalla sube como una cortina para mostrar la app.
+// Animación de entrada en tres fases:
+// 1. Sobre negro, el logo crece y gira -135° y vuelve con rebote a su lugar.
+// 2. El logo se corre a la izquierda y "Devutec" sale desde detrás de él hasta quedar el conjunto centrado.
+// 3. Mientras tanto el negro se funde en el degradado morado. Al final la pantalla sube como una cortina.
 // No termina hasta que `ready` sea true (por ejemplo, cuando ya se leyó la sesión guardada).
 // onReveal avisa cuando la cortina empieza a subir; onFinish, cuando ya no se ve.
 export default function AnimatedSplash({ ready, onReveal, onFinish }) {
   const { height } = useWindowDimensions()
-  const logoScale = useRef(new Animated.Value(0.3)).current
-  const logoOpacity = useRef(new Animated.Value(0)).current
-  const ripple1 = useRef(new Animated.Value(0)).current
-  const ripple2 = useRef(new Animated.Value(0)).current
-  const nameOpacity = useRef(new Animated.Value(0)).current
-  const nameShift = useRef(new Animated.Value(16)).current
+  // Ancho real del texto, medido antes de animar
+  const [textWidth, setTextWidth] = useState(0)
+
+  const spin = useRef(new Animated.Value(0)).current
+  const reveal = useRef(new Animated.Value(0)).current
+  const background = useRef(new Animated.Value(0)).current
   const curtain = useRef(new Animated.Value(0)).current
+  const started = useRef(false)
   const introDone = useRef(false)
   const exiting = useRef(false)
   // Se guarda en un ref para leer el valor actual cuando termina la animación
@@ -56,32 +47,31 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
   }
 
   useEffect(() => {
-    // El splash nativo es solo el color de fondo, así que se puede ocultar sin que se note el cambio
+    // La pantalla ya está dibujada con el mismo logo y fondo que el splash nativo
     SplashScreen.hideAsync().catch(() => {})
+  }, [])
 
-    const wave = (value) => Animated.timing(value, { toValue: 1, duration: 1100, easing: Easing.out(Easing.quad), useNativeDriver: true })
+  useEffect(() => {
+    if (!textWidth || started.current) return
+    started.current = true
 
-    // Con tiempos fijos dura lo mismo en todos los celulares (unos 2 s con la salida)
     Animated.sequence([
+      // Fase 1: giro y rebote (spin va de 0 a 1 y vuelve a 0 con efecto de resorte)
+      Animated.timing(spin, { toValue: 1, duration: 280, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.timing(spin, { toValue: 0, duration: 520, easing: Easing.out(Easing.back(2.2)), useNativeDriver: true }),
+      // Fases 2 y 3: se abre espacio para el texto mientras el fondo pasa a morado
       Animated.parallel([
-        Animated.timing(logoOpacity, { toValue: 1, duration: 250, useNativeDriver: true }),
-        Animated.timing(logoScale, { toValue: 1, duration: 550, easing: Easing.out(Easing.back(2.5)), useNativeDriver: true }),
-        Animated.stagger(250, [wave(ripple1), wave(ripple2)]),
-        Animated.sequence([
-          Animated.delay(350),
-          Animated.parallel([
-            Animated.timing(nameOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
-            Animated.timing(nameShift, { toValue: 0, duration: 350, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
-          ]),
-        ]),
+        // El ancho de la máscara es una propiedad de layout: no puede ir con el driver nativo
+        Animated.timing(reveal, { toValue: 1, duration: 650, easing: Easing.out(Easing.cubic), useNativeDriver: false }),
+        Animated.timing(background, { toValue: 1, duration: 800, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
       ]),
-      Animated.delay(150),
+      Animated.delay(450),
     ]).start(() => {
       introDone.current = true
       if (readyRef.current) exit()
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [textWidth])
 
   // Si la sesión termina de cargar después de la animación, se sale en ese momento
   useEffect(() => {
@@ -89,30 +79,50 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready])
 
+  const logoStyle = {
+    width: LOGO_WIDTH,
+    height: LOGO_WIDTH / LOGO_ASPECT_RATIO,
+    transform: [
+      { scale: spin.interpolate({ inputRange: [0, 1], outputRange: [1, 1.18] }) },
+      { rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-135deg'] }) },
+    ],
+  }
+
   return (
     <Animated.View
       pointerEvents="none"
       style={[styles.container, { transform: [{ translateY: curtain.interpolate({ inputRange: [0, 1], outputRange: [0, -height] }) }] }]}
     >
       <StatusBar style="light" />
-      <View style={styles.center}>
-        <Ripple progress={ripple1} />
-        <Ripple progress={ripple2} />
-        <Animated.Image
-          source={logo}
-          style={{
-            width: LOGO_WIDTH,
-            height: LOGO_WIDTH / LOGO_ASPECT_RATIO,
-            opacity: logoOpacity,
-            transform: [{ scale: logoScale }],
-          }}
-          resizeMode="contain"
-          accessibilityLabel="Logo de Devutec"
-        />
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: background }]}>
+        <LinearGradient colors={['#6d28d9', colors.primary, '#312e81']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+      </Animated.View>
+
+      {/* La fila [logo + máscara] se centra sola: al crecer la máscara, el logo se corre a la izquierda */}
+      <View style={styles.row}>
+        <Animated.Image source={logo} style={logoStyle} resizeMode="contain" accessibilityLabel="Logo de Devutec" />
+        <Animated.View
+          style={[
+            styles.mask,
+            { width: reveal.interpolate({ inputRange: [0, 1], outputRange: [0, textWidth + LOGO_TEXT_GAP] }) },
+          ]}
+        >
+          {/* El texto empieza escondido detrás del logo y se desliza hacia la derecha */}
+          <Animated.Text
+            style={[
+              styles.name,
+              { transform: [{ translateX: reveal.interpolate({ inputRange: [0, 1], outputRange: [-textWidth, 0] }) }] },
+            ]}
+          >
+            Dev<Text style={styles.nameAccent}>utec</Text>
+          </Animated.Text>
+        </Animated.View>
       </View>
-      <Animated.Text style={[styles.name, { opacity: nameOpacity, transform: [{ translateY: nameShift }] }]}>
-        Dev<Animated.Text style={styles.nameAccent}>utec</Animated.Text>
-      </Animated.Text>
+
+      {/* Copia invisible para medir cuánto mide el texto */}
+      <Text style={[styles.name, styles.measure]} onLayout={(event) => setTextWidth(Math.ceil(event.nativeEvent.layout.width))}>
+        Dev<Text style={styles.nameAccent}>utec</Text>
+      </Text>
     </Animated.View>
   )
 }
@@ -121,19 +131,13 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 100,
-    backgroundColor: colors.primary,
+    backgroundColor: '#000000',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  center: { alignItems: 'center', justifyContent: 'center' },
-  ripple: {
-    position: 'absolute',
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    borderWidth: 2,
-    borderColor: colors.white,
-  },
-  name: { marginTop: 28, fontSize: 32, fontWeight: '800', color: colors.white, letterSpacing: 0.5 },
+  row: { flexDirection: 'row', alignItems: 'center' },
+  mask: { overflow: 'hidden', alignItems: 'flex-end' },
+  name: { fontSize: 40, fontWeight: '800', color: colors.white, letterSpacing: 0.3 },
   nameAccent: { color: '#c7d2fe' },
+  measure: { position: 'absolute', opacity: 0 },
 })
