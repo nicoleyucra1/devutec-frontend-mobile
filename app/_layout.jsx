@@ -1,6 +1,7 @@
 import { ActivityIndicator, View } from 'react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import OfflineBanner from '../src/components/OfflineBanner'
 import { AuthProvider } from '../src/contexts/AuthProvider'
 import { useAuth } from '../src/hooks/useAuth'
 
@@ -20,6 +21,8 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={user !== null}>
+        <Stack.Screen name="projects/[id]" />
+        <Stack.Screen name="projects/new" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="scan" />
         <Stack.Screen name="freelancers/[userId]" />
@@ -36,6 +39,7 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <RootNavigator />
+      <OfflineBanner />
       <StatusBar style="dark" />
     </AuthProvider>
   )
