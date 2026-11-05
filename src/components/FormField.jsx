@@ -2,12 +2,12 @@ import { StyleSheet, Text, TextInput, View } from 'react-native'
 import { colors } from '../theme'
 
 // Campo de formulario con su etiqueta y el mensaje de error debajo
-export default function FormField({ label, error, ...inputProps }) {
+export default function FormField({ label, error, style, ...inputProps }) {
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
-        style={[styles.input, error && styles.inputError]}
+        style={[styles.input, error && styles.inputError, style]}
         placeholderTextColor={colors.muted}
         {...inputProps}
       />
