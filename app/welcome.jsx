@@ -1,8 +1,10 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import FadeInUp from '../src/components/FadeInUp'
 import PrimaryButton from '../src/components/PrimaryButton'
+import WelcomeIllustration from '../src/components/welcome/WelcomeIllustration'
 import { colors } from '../src/theme'
 
 // Le habla a los dos tipos de usuario: quien contrata y quien trabaja
@@ -12,33 +14,42 @@ const FEATURES = [
   { icon: 'shield-checkmark-outline', text: 'El pago queda en garantía hasta que se confirma la entrega.' },
 ]
 
-// Primera pantalla que ve quien no tiene sesión
+// Primera pantalla que ve quien no tiene sesión. Todo entra en cascada: dibujo, título, puntos y botones.
 export default function WelcomeScreen() {
   const router = useRouter()
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.hero}>
-        <Image source={require('../assets/images/logo.png')} style={styles.logo} accessibilityLabel="Logo de Devutec" />
-        <Text style={styles.title}>Devutec</Text>
-        <Text style={styles.tagline}>
-          Conecta negocios que necesitan software con desarrolladores junior, con el pago en garantía.
-        </Text>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <FadeInUp distance={30}>
+          <WelcomeIllustration />
+        </FadeInUp>
+
+        <FadeInUp delay={150}>
+          <Text style={styles.title}>
+            Dev<Text style={styles.titleAccent}>utec</Text>
+          </Text>
+          <Text style={styles.tagline}>
+            Conecta negocios que necesitan software con desarrolladores junior, con el pago en garantía.
+          </Text>
+        </FadeInUp>
 
         <View style={styles.features}>
-          {FEATURES.map((feature) => (
-            <View key={feature.icon} style={styles.feature}>
-              <Ionicons name={feature.icon} size={22} color={colors.primary} />
+          {FEATURES.map((feature, index) => (
+            <FadeInUp key={feature.icon} delay={300 + index * 120} style={styles.feature}>
+              <View style={styles.featureIcon}>
+                <Ionicons name={feature.icon} size={20} color={colors.primary} />
+              </View>
               <Text style={styles.featureText}>
                 {feature.title ? <Text style={styles.featureTitle}>{feature.title} </Text> : null}
                 {feature.text}
               </Text>
-            </View>
+            </FadeInUp>
           ))}
         </View>
-      </View>
+      </ScrollView>
 
-      <View style={styles.actions}>
+      <FadeInUp delay={700} style={styles.actions}>
         <PrimaryButton title="Crear cuenta" onPress={() => router.push('/register')} />
         <Pressable
           onPress={() => router.push('/login')}
@@ -46,23 +57,30 @@ export default function WelcomeScreen() {
         >
           <Text style={styles.secondaryText}>Ya tengo cuenta</Text>
         </Pressable>
-      </View>
+      </FadeInUp>
     </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.background, paddingHorizontal: 24 },
-  hero: { flex: 1, justifyContent: 'center' },
-  // El logo es más ancho que alto (proporción 1.14)
-  logo: { width: 110, height: 96 },
-  title: { fontSize: 34, fontWeight: '800', color: colors.text, marginTop: 20 },
-  tagline: { fontSize: 17, color: colors.muted, marginTop: 8, lineHeight: 24 },
-  features: { marginTop: 32, gap: 16 },
-  feature: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  featureText: { flex: 1, fontSize: 15, color: colors.text, lineHeight: 21 },
+  safe: { flex: 1, backgroundColor: colors.background },
+  content: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingTop: 8 },
+  title: { fontSize: 34, fontWeight: '800', color: colors.text, marginTop: 8 },
+  titleAccent: { color: colors.primary },
+  tagline: { fontSize: 16, color: colors.muted, marginTop: 6, lineHeight: 23 },
+  features: { marginTop: 22, gap: 12 },
+  feature: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  featureIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: colors.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  featureText: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
   featureTitle: { fontWeight: '700' },
-  actions: { paddingBottom: 16 },
+  actions: { paddingHorizontal: 24, paddingBottom: 16, paddingTop: 8 },
   secondary: {
     marginTop: 12,
     borderWidth: 1,
