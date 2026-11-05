@@ -11,14 +11,12 @@ const logo = require('../../assets/images/logo-mark.png')
 // Animación de entrada, igual en modo claro y oscuro:
 // 1. Sobre negro, el logo crece en el centro mientras gira -135°.
 // 2. Vuelve a su tamaño normal y a 0° con un pequeño rebote.
-// 3. Abre: el logo se agranda hacia la pantalla mientras el negro se desvanece y aparece la app.
+// 3. Abre de frente: la pantalla negra se quita de golpe, sin transparencias, y aparece la app.
 // No termina hasta que `ready` sea true (por ejemplo, cuando ya se leyó la sesión guardada).
-// onReveal avisa cuando empieza a abrirse; onFinish, cuando ya no se ve.
+// onReveal avisa cuando se abre (para que la pantalla de abajo haga su entrada); onFinish la quita.
 export default function AnimatedSplash({ ready, onReveal, onFinish }) {
-  // spin va de 0 a 1 (crece y gira) y vuelve a 0 (tamaño normal); al abrir, open agranda el logo
+  // spin va de 0 a 1 (crece y gira) y vuelve a 0 (tamaño normal)
   const spin = useRef(new Animated.Value(0)).current
-  const open = useRef(new Animated.Value(1)).current
-  const opacity = useRef(new Animated.Value(1)).current
   const introDone = useRef(false)
   const exiting = useRef(false)
   // Se guarda en un ref para leer el valor actual cuando termina la animación
@@ -29,17 +27,14 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
     if (exiting.current) return
     exiting.current = true
     onReveal?.()
-    Animated.parallel([
-      Animated.timing(open, { toValue: 9, duration: 600, easing: Easing.in(Easing.cubic), useNativeDriver: true }),
-      Animated.timing(opacity, { toValue: 0, duration: 600, easing: Easing.in(Easing.quad), useNativeDriver: true }),
-    ]).start(() => onFinish())
+    onFinish()
   }
 
   useEffect(() => {
     // La pantalla ya está dibujada con el mismo logo y fondo que el splash nativo
     SplashScreen.hideAsync().catch(() => {})
 
-    // Con tiempos fijos dura lo mismo en todos los celulares (unos 2 s con la apertura)
+    // Con tiempos fijos dura lo mismo en todos los celulares (alrededor de 1.5 s)
     Animated.sequence([
       Animated.delay(150),
       Animated.timing(spin, { toValue: 1, duration: 520, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
@@ -59,7 +54,7 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
   }, [ready])
 
   return (
-    <Animated.View pointerEvents="none" style={[styles.container, { opacity }]}>
+    <Animated.View pointerEvents="none" style={styles.container}>
       <StatusBar style="light" />
       <Animated.Image
         source={logo}
@@ -67,7 +62,6 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
           width: LOGO_WIDTH,
           height: LOGO_WIDTH / LOGO_ASPECT_RATIO,
           transform: [
-            { scale: open },
             { scale: spin.interpolate({ inputRange: [0, 1], outputRange: [1, 1.45] }) },
             { rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-135deg'] }) },
           ],

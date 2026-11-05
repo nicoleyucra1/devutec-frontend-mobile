@@ -85,8 +85,8 @@ try {
 
 ## Animaciones
 
-- `AnimatedSplash`: al abrir la app, sobre negro, el logo DU crece en el centro mientras gira -135°, vuelve a su tamaño y a 0° con un pequeño rebote y luego se agranda hacia la pantalla mientras el negro se desvanece. Es igual en modo claro y oscuro.
-- `IntroContext` avisa cuando la animación empieza a abrirse. `FadeInUp` lo usa para que las animaciones de una pantalla no ocurran escondidas detrás de la intro:
+- `AnimatedSplash`: al abrir la app, sobre negro, el logo DU crece en el centro mientras gira -135°, vuelve a su tamaño y a 0° con un pequeño rebote, y la pantalla negra se quita de golpe para mostrar la app. Es igual en modo claro y oscuro.
+- `IntroContext` avisa cuando la animación termina y la app ya se ve. `FadeInUp` lo usa para que las animaciones de una pantalla no ocurran escondidas detrás de la intro:
 
 ```jsx
 <FadeInUp delay={150}>
