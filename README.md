@@ -69,7 +69,7 @@ const { user, login, register, logout } = useAuth()
 ## Sin conexión y timeouts
 
 - `src/utils/network.js` usa NetInfo para saber si hay internet. Cuenta como sin conexión no tener red o tener wifi que no llega a internet.
-- `OfflineBanner` muestra una franja arriba de la pantalla mientras no hay conexión y se quita sola al volver.
+- `OfflineBanner` muestra una tarjeta arriba de la pantalla con Cuyi durmiendo mientras no hay conexión, y se quita sola al volver.
 - Sin conexión, el cliente `api` corta las peticiones al instante (código `ERR_OFFLINE`) en vez de esperar el timeout.
 - Cada petición tiene un timeout de 15 segundos. Los GET que fallan por timeout o con 502/503/504 se reintentan solos hasta dos veces (a 1 s y a 2 s).
 - Si la renovación del token falla por la red, la sesión no se cierra; solo se cierra si el backend rechaza el refresh token.
@@ -131,7 +131,7 @@ const createStyles = ({ colors, fonts, radius }) => ({
 | `lime` | Destacados de la marca |
 | `error`, `pending`, `progress` | Estados |
 
-Tipografías (`fonts`): Inter Tight (`regular`, `medium`, `semibold`, `bold`, `extrabold`) y Instrument Serif cursiva (`serifItalic`) para las palabras destacadas, como "*Pago protegido.*". `import { colors } from '../src/theme'` sigue funcionando, pero siempre da la paleta clara.
+Tipografías (`fonts`): Geist (`regular`, `medium`, `semibold`, `bold`, `extrabold`) y Instrument Serif cursiva (`serifItalic`) para las palabras destacadas, como "*Pago protegido.*". `import { colors } from '../src/theme'` sigue funcionando, pero siempre da la paleta clara.
 
 ## Marca
 
