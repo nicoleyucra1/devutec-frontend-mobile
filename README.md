@@ -1,6 +1,6 @@
-# Devutec — Mobile
+# DEV U TEC — Mobile
 
-App móvil de Devutec, hecha con React Native y Expo (SDK 58) y navegación con expo-router.
+App móvil de DEV U TEC, hecha con React Native y Expo (SDK 58) y navegación con expo-router.
 
 ## Cómo correrla
 
@@ -35,7 +35,7 @@ src/
 ├── hooks/            hooks propios (useAuth...)
 ├── services/         llamadas a la API, una por módulo
 ├── utils/            tokenStorage, validaciones, mensajes de error
-└── theme.js          colores compartidos
+└── theme.js          paleta clara y oscura, tipografías y radios
 ```
 
 ## Cómo llamar a la API
@@ -85,7 +85,7 @@ try {
 
 ## Animaciones
 
-- `AnimatedSplash`: al abrir la app, sobre negro, el logo gira -135° y vuelve con rebote; luego se corre a la izquierda mientras "Devutec" sale desde detrás de él, el fondo pasa a un degradado morado (`expo-linear-gradient`) y la pantalla sube como una cortina.
+- `AnimatedSplash`: al abrir la app, sobre tinta, el logo lima gira -135° y vuelve con rebote; luego se corre a la izquierda mientras "DEV U TEC" sale desde detrás de él, el fondo pasa a un degradado verde escrow (`expo-linear-gradient`) y la pantalla sube como una cortina.
 - `IntroContext` avisa cuando esa cortina empieza a subir. `FadeInUp` lo usa para que las animaciones de una pantalla no ocurran escondidas detrás de la intro:
 
 ```jsx
@@ -94,7 +94,7 @@ try {
 </FadeInUp>
 ```
 
-- En la bienvenida, `WelcomeIllustration` muestra el logo con íconos que flotan (`FloatingIcon`) y el resto entra en cascada.
+- En la bienvenida, `WelcomeIllustration` muestra a Cuyi en una tarjeta lima con burbujas que flotan (`Floating`) y el resto entra en cascada.
 - Las pantallas entran desde la derecha y se puede volver deslizando; login y registro además tienen un botón con flecha.
 
 ## Cómo agregar una pantalla
@@ -102,9 +102,43 @@ try {
 - **Una pestaña nueva:** crear el archivo en `app/(tabs)/` y agregarlo en `app/(tabs)/_layout.jsx` con su título e ícono.
 - **Una pantalla de detalle** (por ejemplo `/projects/5`): crear `app/projects/[id].jsx` y abrirla con `router.push('/projects/5')`.
 
-## Logo
+## Tema: modo claro y oscuro
 
-Las imágenes del logo están en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo de Android), `favicon.png`, `images/logo.png` (bienvenida) e `images/logo-white.png` (animación de entrada). El splash nativo es el logo blanco (`splash-icon.png`, 72 de ancho) sobre negro, definido en `app.json`, y enseguida empieza la animación de `src/components/AnimatedSplash.jsx` con el mismo logo en el mismo lugar. Si se cambia el logo, hay que actualizar `LOGO_ASPECT_RATIO` en ese archivo.
+La paleta es la de Fundamentos del diseño (Ink, Paper, Surface, Line, Escrow, Lime, Pending, Error y Progress) y está en `src/theme.js` en dos versiones, `lightColors` y `darkColors`. La app sigue el modo del celular y en **Perfil → Apariencia** se puede fijar Sistema, Claro u Oscuro (se recuerda al volver a abrir la app).
+
+Para que una pantalla cambie con el modo, toma los colores de `useTheme()` y crea los estilos con `useThemedStyles()`:
+
+```jsx
+import { useTheme, useThemedStyles } from '../src/hooks/useTheme'
+
+export default function MiPantalla() {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
+  return <Text style={styles.title}>Hola</Text>
+}
+
+const createStyles = ({ colors, fonts, radius }) => ({
+  title: { fontFamily: fonts.bold, color: colors.text },
+})
+```
+
+| Color | Para qué |
+|---|---|
+| `background`, `card`, `border` | Fondo de pantalla, tarjetas y bordes |
+| `text`, `muted` | Texto principal y secundario |
+| `primary` + `onPrimary` | Botón principal (tinta en claro, lima en oscuro) y su texto |
+| `accent`, `accentLight` | Verde de confianza: estados positivos y pago protegido |
+| `lime` | Destacados de la marca |
+| `error`, `pending`, `progress` | Estados |
+
+Tipografías (`fonts`): Inter Tight (`regular`, `medium`, `semibold`, `bold`, `extrabold`) y Instrument Serif cursiva (`serifItalic`) para las palabras destacadas, como "*Pago protegido.*". `import { colors } from '../src/theme'` sigue funcionando, pero siempre da la paleta clara.
+
+## Marca
+
+- `src/components/brand/LogoMark.jsx`: el isotipo DU (tinta en claro, lima en oscuro).
+- `src/components/brand/Wordmark.jsx`: el nombre DEV U TEC con la U en un círculo lima.
+- `src/components/brand/Cuyi.jsx`: la mascota en pixel art (14 × 13), dibujada con vistas para que se vea nítida en cualquier tamaño. Parpadea cada tanto.
+- Imágenes en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo y monocromo de Android), `favicon.png`, `splash-icon.png` e `images/logo-mark*.png`. El splash nativo es el logo lima sobre tinta (96 de ancho, en `app.json`) y enseguida empieza la animación con el mismo logo en el mismo lugar.
 
 ## Build con EAS
 
