@@ -1,12 +1,18 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
-import { Stack, useLocalSearchParams } from 'expo-router'
+import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
+import PrimaryButton from '../../src/components/PrimaryButton'
 import SkillChips from '../../src/components/projects/SkillChips'
 import StateView from '../../src/components/projects/StateView'
 import StatusBadge from '../../src/components/projects/StatusBadge'
 import { colors } from '../../src/theme'
+import { useAuth } from '../../src/hooks/useAuth'
 import { useProject } from '../../src/hooks/useProject'
 import { formatBudget, formatDate } from '../../src/utils/format'
+
+// En iOS la barra de arriba es transparente por defecto y tapaba el contenido; con fondo sólido
+// la pantalla empieza debajo de ella
+const HEADER_OPTIONS = { headerShown: true, headerTransparent: false, headerStyle: { backgroundColor: colors.white } }
 
 function Meta({ icon, label, value }) {
   return (
@@ -22,11 +28,12 @@ function Meta({ icon, label, value }) {
 
 export default function ProjectDetailScreen() {
   const { id } = useLocalSearchParams()
+  const { user } = useAuth()
   const { data: project, loading, error, reload } = useProject(id)
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Proyecto', headerBackTitle: 'Volver' }} />
+      <Stack.Screen options={{ ...HEADER_OPTIONS, title: 'Proyecto', headerBackTitle: 'Volver' }} />
       {loading ? <StateView loading message="Cargando proyecto..." /> : null}
       {!loading && error ? <StateView title="No se pudo cargar" message={error} actionLabel="Reintentar" onAction={reload} /> : null}
       {!loading && !error && project ? (
@@ -53,6 +60,11 @@ export default function ProjectDetailScreen() {
               <Text style={styles.sectionTitle}>Habilidades requeridas</Text>
               <SkillChips skills={project.skills} />
             </View>
+          ) : null}
+
+          {/* Solo un freelancer puede postular, y solo mientras el proyecto siga abierto */}
+          {user?.rol === 'FREELANCER' && project.status === 'OPEN' ? (
+            <PrimaryButton title="Postular" onPress={() => router.push(`/apply/${project.id}`)} />
           ) : null}
         </ScrollView>
       ) : null}
