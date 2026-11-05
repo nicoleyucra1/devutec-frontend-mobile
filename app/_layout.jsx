@@ -20,6 +20,8 @@ function RootNavigator() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={user !== null}>
+        <Stack.Screen name="projects/[id]" />
+        <Stack.Screen name="projects/new" />
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
       <Stack.Protected guard={user === null}>
