@@ -1,6 +1,8 @@
-import { ActivityIndicator, View } from 'react-native'
+import { useState } from 'react'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import * as SplashScreen from 'expo-splash-screen'
+import AnimatedSplash from '../src/components/AnimatedSplash'
 import OfflineBanner from '../src/components/OfflineBanner'
 import { AuthProvider } from '../src/contexts/AuthProvider'
 import { useAuth } from '../src/hooks/useAuth'
@@ -8,14 +10,8 @@ import { useAuth } from '../src/hooks/useAuth'
 function RootNavigator() {
   const { user, loading } = useAuth()
 
-  // Se espera a leer la sesión guardada para no mostrar el login un instante
-  if (loading) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <ActivityIndicator size="large" color="#4f46e5" />
-      </View>
-    )
-  }
+  // Mientras se lee la sesión guardada, la animación de entrada tapa la pantalla
+  if (loading) return null
 
   // Con sesión solo se puede entrar a las pestañas; sin sesión, a la bienvenida, login y registro
   return (
@@ -32,11 +28,23 @@ function RootNavigator() {
   )
 }
 
+// El splash nativo se queda visible hasta que la animación de entrada lo reemplaza
+SplashScreen.preventAutoHideAsync().catch(() => {})
+
+function Intro() {
+  const { loading } = useAuth()
+  const [visible, setVisible] = useState(true)
+
+  if (!visible) return null
+  return <AnimatedSplash ready={!loading} onFinish={() => setVisible(false)} />
+}
+
 export default function RootLayout() {
   return (
     <AuthProvider>
       <RootNavigator />
       <OfflineBanner />
+      <Intro />
       <StatusBar style="dark" />
     </AuthProvider>
   )
