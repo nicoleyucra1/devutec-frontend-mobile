@@ -94,7 +94,7 @@ try {
 </FadeInUp>
 ```
 
-- En la bienvenida, `WelcomeIllustration` muestra a Cuyi en una tarjeta lima con burbujas que flotan (`Floating`) y el resto entra en cascada.
+- En la bienvenida, `PaymentFlow` muestra cómo funciona la app: una moneda S/ sale del cliente, queda en la garantía (el escudo late) y llega al developer (Cuyi). El resto entra en cascada.
 - Las pantallas entran desde la derecha y se puede volver deslizando; login y registro además tienen un botón con flecha.
 
 ## Cómo agregar una pantalla
@@ -136,7 +136,8 @@ Tipografías (`fonts`): Inter Tight (`regular`, `medium`, `semibold`, `bold`, `e
 ## Marca
 
 - `src/components/brand/LogoMark.jsx`: el isotipo DU (tinta en claro, lima en oscuro).
-- `src/components/brand/Wordmark.jsx`: el nombre DEV U TEC con la U en un círculo lima.
+- `src/components/brand/Wordmark.jsx`: el nombre DEV U TEC en texto.
+- `src/components/brand/BrandLockup.jsx`: el logo completo, símbolo DU + nombre (se usa arriba de la bienvenida, login y registro).
 - `src/components/brand/Cuyi.jsx`: la mascota en pixel art (14 × 13), dibujada con vistas para que se vea nítida en cualquier tamaño. Parpadea cada tanto.
 - Imágenes en `assets/`: `icon.png` (ícono de la app), `android-icon-*.png` (ícono adaptativo y monocromo de Android), `favicon.png`, `splash-icon.png` e `images/logo-mark*.png`. El splash nativo es el logo lima sobre tinta (96 de ancho, en `app.json`) y enseguida empieza la animación con el mismo logo en el mismo lugar.
 
