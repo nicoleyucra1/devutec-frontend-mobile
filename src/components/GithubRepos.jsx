@@ -1,7 +1,20 @@
-import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, Linking, Pressable, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useGithubRepos } from '../hooks/useGithubRepos'
-import { colors } from '../theme'
+import { useTheme, useThemedStyles } from '../hooks/useTheme'
+
+// Color del puntito de cada lenguaje; los que no están usan el gris del texto secundario
+const LANGUAGE_COLORS = {
+  JavaScript: '#E0B000',
+  TypeScript: '#2E5BDA',
+  Java: '#B42318',
+  Python: '#B7791F',
+  HTML: '#E34C26',
+  CSS: '#563D7C',
+  Kotlin: '#A97BFF',
+  Swift: '#F05138',
+  'C++': '#F34B7D',
+}
 
 // GitHub responde 404 si el usuario no existe y 403 o 429 cuando se pasa el límite de consultas
 function githubError(status, username, fallback) {
@@ -21,24 +34,36 @@ async function openUrl(url) {
 // Repos públicos del freelancer, sacados de la API de GitHub con su githubUsername
 export default function GithubRepos({ username }) {
   const { data: repos, error, status, loading, reload } = useGithubRepos(username)
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
 
   return (
-    <View style={styles.card}>
+    <View style={styles.wrapper}>
       <View style={styles.header}>
-        <Ionicons name="logo-github" size={20} color={colors.text} />
-        <Text style={styles.title}>Repos de GitHub</Text>
+        <Text style={styles.title}>Repositorios</Text>
+        {username && (
+          <Pressable onPress={() => openUrl(`https://github.com/${username}`)} accessibilityRole="link" hitSlop={8}>
+            <Text style={styles.profileLink}>github.com/{username}</Text>
+          </Pressable>
+        )}
       </View>
 
       {!username && (
-        <Text style={styles.muted}>
-          Todavía no agregaste tu usuario de GitHub. Agrégalo desde tu perfil en la web para mostrar tus repos.
-        </Text>
+        <View style={styles.card}>
+          <Text style={styles.message}>
+            Todavía no agregaste tu usuario de GitHub. Agrégalo desde tu perfil en la web para mostrar tus repos.
+          </Text>
+        </View>
       )}
 
-      {username && loading && <ActivityIndicator style={styles.loading} color={colors.primary} />}
+      {username && loading && (
+        <View style={styles.card}>
+          <ActivityIndicator style={styles.loading} color={colors.text} />
+        </View>
+      )}
 
       {username && error && (
-        <View>
+        <View style={styles.card}>
           <Text style={styles.error}>{githubError(status, username, error)}</Text>
           <Pressable onPress={reload} style={({ pressed }) => [styles.retry, pressed && styles.pressed]}>
             <Text style={styles.retryText}>Reintentar</Text>
@@ -47,68 +72,93 @@ export default function GithubRepos({ username }) {
       )}
 
       {username && repos?.length === 0 && (
-        <Text style={styles.muted}>@{username} todavía no tiene repos públicos.</Text>
+        <View style={styles.card}>
+          <Text style={styles.message}>@{username} todavía no tiene repos públicos.</Text>
+        </View>
       )}
 
-      {repos?.map((repo) => (
-        <Pressable
-          key={repo.id}
-          onPress={() => openUrl(repo.url)}
-          accessibilityRole="link"
-          style={({ pressed }) => [styles.repo, pressed && styles.pressed]}
-        >
-          <Text style={styles.repoName}>
-            {repo.name}
-            {repo.fork && <Text style={styles.muted}> · fork</Text>}
-          </Text>
-          {repo.description && (
-            <Text style={styles.description} numberOfLines={2}>
-              {repo.description}
-            </Text>
-          )}
-          <Text style={styles.meta}>
-            {[repo.language, `★ ${repo.stars}`].filter(Boolean).join('  ·  ')}
-          </Text>
-        </Pressable>
-      ))}
-
       {repos?.length > 0 && (
-        <Pressable onPress={() => openUrl(`https://github.com/${username}`)} accessibilityRole="link">
-          <Text style={styles.link}>Ver todo en GitHub →</Text>
-        </Pressable>
+        <View style={[styles.card, styles.list]}>
+          {repos.map((repo, index) => (
+            <Pressable
+              key={repo.id}
+              onPress={() => openUrl(repo.url)}
+              accessibilityRole="link"
+              style={({ pressed }) => [styles.repo, index > 0 && styles.divider, pressed && styles.pressed]}
+            >
+              <View style={styles.repoIcon}>
+                <Ionicons name="code-slash-outline" size={17} color={colors.text} />
+              </View>
+              <View style={styles.repoInfo}>
+                <Text style={styles.repoName} numberOfLines={1}>
+                  {repo.name}
+                  {repo.fork && <Text style={styles.meta}> · fork</Text>}
+                </Text>
+                {repo.description && (
+                  <Text style={styles.description} numberOfLines={2}>
+                    {repo.description}
+                  </Text>
+                )}
+                <View style={styles.metaRow}>
+                  {repo.language && (
+                    <>
+                      <View style={[styles.dot, { backgroundColor: LANGUAGE_COLORS[repo.language] ?? colors.muted }]} />
+                      <Text style={styles.meta}>{repo.language} · </Text>
+                    </>
+                  )}
+                  <Text style={styles.meta}>★ {repo.stars}</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.muted} />
+            </Pressable>
+          ))}
+        </View>
       )}
     </View>
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts, radius }) => ({
+  wrapper: { marginTop: 24 },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 10 },
+  title: { fontFamily: fonts.semibold, fontSize: 19, letterSpacing: -0.4, color: colors.text },
+  profileLink: { fontFamily: fonts.semibold, fontSize: 12, color: colors.accent },
   card: {
-    backgroundColor: colors.white,
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
     padding: 16,
-    marginTop: 16,
   },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
-  title: { fontSize: 16, fontWeight: '700', color: colors.text },
-  muted: { color: colors.muted },
-  loading: { marginVertical: 16 },
-  error: { color: colors.error },
+  list: { padding: 0, overflow: 'hidden' },
+  message: { fontFamily: fonts.regular, color: colors.muted, lineHeight: 20 },
+  loading: { marginVertical: 8 },
+  error: { fontFamily: fonts.medium, color: colors.error, lineHeight: 20 },
   retry: {
     alignSelf: 'flex-start',
     marginTop: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
+    borderColor: colors.inputBorder,
+    borderRadius: radius.md,
+    paddingHorizontal: 14,
     paddingVertical: 8,
   },
-  retryText: { color: colors.text, fontWeight: '600' },
-  repo: { paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#f3f4f6' },
-  repoName: { fontWeight: '600', color: colors.primary, fontSize: 15 },
-  description: { color: colors.muted, marginTop: 2 },
-  meta: { color: colors.muted, fontSize: 12, marginTop: 4 },
-  link: { color: colors.primary, fontWeight: '600', marginTop: 12 },
-  pressed: { opacity: 0.6 },
+  retryText: { fontFamily: fonts.semibold, color: colors.text },
+  repo: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 14 },
+  divider: { borderTopWidth: 1, borderTopColor: colors.border },
+  repoIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  repoInfo: { flex: 1, minWidth: 0 },
+  repoName: { fontFamily: fonts.medium, fontSize: 14, color: colors.text },
+  description: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted, marginTop: 2 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
+  dot: { width: 7, height: 7, borderRadius: 4, marginRight: 5 },
+  meta: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
+  pressed: { opacity: 0.7 },
 })
