@@ -1,52 +1,57 @@
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { colors } from '../theme'
+import { darkColors as colors, fonts, radius } from '../theme'
 
-// Aviso para cuando la app no tiene un permiso (cámara, ubicación...).
+// Aviso para cuando la app no tiene un permiso (cámara, ubicación...), sobre fondo oscuro como el escáner.
 // Si todavía se puede preguntar, muestra el botón para pedirlo; si el usuario lo negó
 // para siempre, el sistema ya no vuelve a preguntar y solo queda activarlo desde los ajustes.
-export default function PermissionNotice({ icon = 'lock-closed-outline', title, message, canAskAgain, onRequest }) {
+export default function PermissionNotice({ icon = 'lock-closed-outline', kicker, title, highlight, message, canAskAgain, onRequest }) {
   const openSettings = () => Linking.openSettings().catch(() => {})
 
   return (
-    <View style={styles.card}>
-      <Ionicons name={icon} size={32} color={colors.primary} />
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.message}>{message}</Text>
-      {canAskAgain ? (
-        <Pressable onPress={onRequest} style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
-          <Text style={styles.buttonText}>Permitir acceso</Text>
-        </Pressable>
-      ) : (
-        <>
-          <Text style={styles.message}>Negaste el permiso antes. Puedes activarlo en los ajustes del celular.</Text>
-          <Pressable onPress={openSettings} style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
-            <Text style={styles.buttonText}>Abrir ajustes</Text>
-          </Pressable>
-        </>
-      )}
+    <View>
+      <View style={styles.icon}>
+        <Ionicons name={icon} size={30} color={colors.lime} />
+      </View>
+      {kicker && <Text style={styles.kicker}>{kicker}</Text>}
+      <Text style={styles.title}>
+        {title} {highlight && <Text style={styles.highlight}>{highlight}</Text>}
+      </Text>
+      <Text style={styles.message}>
+        {message}
+        {!canAskAgain && ' Como negaste el permiso antes, actívalo en los ajustes del celular.'}
+      </Text>
+      <Pressable
+        onPress={canAskAgain ? onRequest : openSettings}
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      >
+        <Text style={styles.buttonText}>{canAskAgain ? 'Permitir acceso' : 'Abrir ajustes'}</Text>
+      </Pressable>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 20,
+  icon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  title: { fontSize: 17, fontWeight: '700', color: colors.text, marginTop: 8, textAlign: 'center' },
-  message: { color: colors.muted, marginTop: 6, textAlign: 'center' },
+  kicker: { fontFamily: fonts.semibold, fontSize: 11, letterSpacing: 1.3, color: colors.lime, marginTop: 28 },
+  title: { fontFamily: fonts.semibold, fontSize: 32, lineHeight: 34, letterSpacing: -1.2, color: '#FFFFFF', marginTop: 10 },
+  highlight: { fontFamily: fonts.serifItalic, color: colors.lime, letterSpacing: 0 },
+  message: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22, color: '#AAA8A0', marginTop: 10 },
   button: {
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    marginTop: 16,
+    height: 54,
+    borderRadius: radius.lg,
+    backgroundColor: colors.lime,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 28,
   },
-  buttonText: { color: colors.white, fontWeight: '600' },
-  pressed: { opacity: 0.7 },
+  buttonText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.ink },
+  pressed: { opacity: 0.8 },
 })
