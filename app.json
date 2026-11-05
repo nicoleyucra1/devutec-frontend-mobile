@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "DevUTEC",
+    "name": "DEVUTEC",
     "slug": "devutec-mobile",
     "owner": "devutec",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "pe.edu.utec.devutec"
@@ -14,7 +14,7 @@
     "android": {
       "package": "pe.edu.utec.devutec",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#0E0E0C",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -33,15 +33,24 @@
       "expo-router",
       "expo-secure-store",
       [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 96,
+          "resizeMode": "contain",
+          "backgroundColor": "#0E0E0C"
+        }
+      ],
+      [
         "expo-local-authentication",
         {
-          "faceIDPermission": "DevUTEC usa Face ID para confirmar acciones importantes, como liberar un pago."
+          "faceIDPermission": "DEVUTEC usa Face ID para confirmar acciones importantes, como liberar un pago."
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "DevUTEC usa tu ubicación para sugerir el distrito del proyecto que publicas."
+          "locationWhenInUsePermission": "DEVUTEC usa tu ubicación para sugerir el distrito del proyecto que publicas."
         }
       ],
       [

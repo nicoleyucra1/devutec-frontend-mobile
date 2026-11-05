@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
-import { Link } from 'expo-router'
+import { Text } from 'react-native'
 import AuthLayout from '../src/components/AuthLayout'
 import FormField from '../src/components/FormField'
 import PrimaryButton from '../src/components/PrimaryButton'
 import { useAuth } from '../src/hooks/useAuth'
 import { errorMessage } from '../src/utils/errorMessage'
 import { validateLogin } from '../src/utils/validation'
-import { colors } from '../src/theme'
+import { useThemedStyles } from '../src/hooks/useTheme'
 
 export default function LoginScreen() {
+  const styles = useThemedStyles(createStyles)
   const { login } = useAuth()
   const [values, setValues] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({})
@@ -43,9 +43,10 @@ export default function LoginScreen() {
   }
 
   return (
-    <AuthLayout title="Iniciar sesión" subtitle="Entra para ver proyectos y postulaciones">
+    <AuthLayout tab="login">
       <FormField
-        label="Correo"
+        label="Correo electrónico"
+        placeholder="tu@correo.com"
         value={values.email}
         onChangeText={(text) => handleChange('email', text)}
         error={errors.email}
@@ -56,6 +57,7 @@ export default function LoginScreen() {
       />
       <FormField
         label="Contraseña"
+        placeholder="Tu contraseña"
         value={values.password}
         onChangeText={(text) => handleChange('password', text)}
         error={errors.password}
@@ -66,27 +68,19 @@ export default function LoginScreen() {
 
       {submitError ? <Text style={styles.alert}>{submitError}</Text> : null}
 
-      <PrimaryButton title="Entrar" onPress={handleSubmit} loading={submitting} />
-
-      <View style={styles.footer}>
-        <Text style={styles.muted}>¿No tienes cuenta? </Text>
-        <Link href="/register" style={styles.link}>
-          Regístrate
-        </Link>
-      </View>
+      <PrimaryButton title="Ingresar" onPress={handleSubmit} loading={submitting} />
     </AuthLayout>
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts, radius }) => ({
   alert: {
+    fontFamily: fonts.medium,
     backgroundColor: colors.errorLight,
     color: colors.error,
     padding: 12,
-    borderRadius: 10,
+    borderRadius: radius.md,
     marginBottom: 8,
+    overflow: 'hidden',
   },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  muted: { color: colors.muted },
-  link: { color: colors.primary, fontWeight: '600' },
 })

@@ -15,6 +15,13 @@ export function validatePassword(password) {
   return null
 }
 
+// Requisitos de la contraseña que se muestran como chips mientras se escribe
+export const PASSWORD_RULES = [
+  { label: '8+ caracteres', test: (password) => password.length >= 8 },
+  { label: 'Una letra', test: (password) => /[A-Za-z]/.test(password) },
+  { label: 'Un número', test: (password) => /\d/.test(password) },
+]
+
 export function validateLogin({ email, password }) {
   const errors = {}
   const emailError = validateEmail(email)
@@ -23,14 +30,14 @@ export function validateLogin({ email, password }) {
   return errors
 }
 
-export function validateRegister({ nombre, email, password, confirmPassword, rol }) {
+export function validateRegister({ nombre, email, password, rol, terms }) {
   const errors = {}
   if (!nombre.trim()) errors.nombre = 'El nombre es obligatorio'
   const emailError = validateEmail(email)
   if (emailError) errors.email = emailError
   const passwordError = validatePassword(password)
   if (passwordError) errors.password = passwordError
-  if (confirmPassword !== password) errors.confirmPassword = 'Las contraseñas no coinciden'
   if (!rol) errors.rol = 'Elige si quieres contratar o trabajar'
+  if (!terms) errors.terms = 'Acepta los términos para crear tu cuenta'
   return errors
 }

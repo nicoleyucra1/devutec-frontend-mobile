@@ -1,14 +1,27 @@
 import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '../../src/hooks/useAuth'
-
-const PRIMARY = '#4f46e5'
+import { useTheme } from '../../src/hooks/useTheme'
 
 // Pestañas principales de la app. Cada módulo agrega aquí su pestaña.
 export default function TabsLayout() {
+  const { colors, fonts } = useTheme()
   const { user } = useAuth()
+
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: PRIMARY, headerTitleAlign: 'center' }}>
+    <Tabs
+      screenOptions={{
+        headerTitleAlign: 'center',
+        headerStyle: { backgroundColor: colors.background },
+        headerShadowVisible: false,
+        headerTitleStyle: { fontFamily: fonts.bold, color: colors.text },
+        sceneStyle: { backgroundColor: colors.background },
+        tabBarStyle: { backgroundColor: colors.card, borderTopColor: colors.border },
+        tabBarActiveTintColor: colors.text,
+        tabBarInactiveTintColor: colors.muted,
+        tabBarLabelStyle: { fontFamily: fonts.semibold },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{

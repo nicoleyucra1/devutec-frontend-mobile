@@ -1,56 +1,61 @@
 import { useState } from 'react'
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
+import { Pressable, Text, TextInput, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { colors } from '../theme'
+import { useTheme, useThemedStyles } from '../hooks/useTheme'
 
-// Campo de formulario con su etiqueta y el mensaje de error debajo.
-// Si es de contraseña (secureTextEntry), muestra un ojito para verla u ocultarla.
-export default function FormField({ label, error, secureTextEntry, style, ...inputProps }) {
+// Campo de formulario (alto 52, radio 14) con su etiqueta y el error debajo.
+// Con secureTextEntry muestra un ojito para ver u ocultar la contraseña. Con multiline crece hacia abajo;
+// style se aplica al texto (por ejemplo { minHeight: 120 } para un mensaje largo).
+export default function FormField({ label, error, secureTextEntry, multiline, style, children, ...inputProps }) {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
   const [visible, setVisible] = useState(false)
-  const isPassword = Boolean(secureTextEntry)
 
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
-      <View>
+      <View style={[styles.box, multiline && styles.boxMultiline, error && styles.boxError]}>
         <TextInput
-          style={[styles.input, isPassword && styles.inputWithIcon, error && styles.inputError, style]}
+          style={[styles.input, multiline && styles.inputMultiline, style]}
+          multiline={multiline}
           placeholderTextColor={colors.muted}
-          secureTextEntry={isPassword && !visible}
+          secureTextEntry={secureTextEntry && !visible}
           {...inputProps}
         />
-        {isPassword ? (
+        {secureTextEntry ? (
           <Pressable
-            onPress={() => setVisible((current) => !current)}
-            style={styles.eye}
-            hitSlop={8}
+            onPress={() => setVisible((v) => !v)}
+            hitSlop={10}
             accessibilityRole="button"
             accessibilityLabel={visible ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           >
-            <Ionicons name={visible ? 'eye-off-outline' : 'eye-outline'} size={22} color={colors.muted} />
+            <Ionicons name={visible ? 'eye-off-outline' : 'eye-outline'} size={20} color={colors.muted} />
           </Pressable>
         ) : null}
       </View>
+      {children}
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts, radius }) => ({
   field: { marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: '500', color: colors.text, marginBottom: 6 },
-  input: {
+  label: { fontFamily: fonts.semibold, fontSize: 12, color: colors.text, marginBottom: 8 },
+  box: {
+    height: 52,
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.white,
+    borderColor: colors.inputBorder,
+    borderRadius: radius.md,
+    paddingHorizontal: 16,
+    backgroundColor: colors.card,
   },
-  inputWithIcon: { paddingRight: 44 },
-  inputError: { borderColor: colors.error },
-  eye: { position: 'absolute', right: 12, top: 0, bottom: 0, justifyContent: 'center' },
-  error: { color: colors.error, fontSize: 13, marginTop: 4 },
+  boxMultiline: { height: 'auto', minHeight: 52, alignItems: 'flex-start', paddingVertical: 12 },
+  boxError: { borderColor: colors.error },
+  // outlineStyle quita el borde de foco que agrega el navegador en la versión web
+  input: { flex: 1, height: '100%', fontFamily: fonts.regular, fontSize: 16, color: colors.text, outlineStyle: 'none' },
+  inputMultiline: { height: undefined, textAlignVertical: 'top' },
+  error: { fontFamily: fonts.medium, color: colors.error, fontSize: 13, marginTop: 6 },
 })
