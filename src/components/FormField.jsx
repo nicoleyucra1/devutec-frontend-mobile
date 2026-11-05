@@ -5,7 +5,7 @@ import { colors } from '../theme'
 
 // Campo de formulario con su etiqueta y el mensaje de error debajo.
 // Si es de contraseña (secureTextEntry), muestra un ojito para verla u ocultarla.
-export default function FormField({ label, error, secureTextEntry, ...inputProps }) {
+export default function FormField({ label, error, secureTextEntry, style, ...inputProps }) {
   const [visible, setVisible] = useState(false)
   const isPassword = Boolean(secureTextEntry)
 
@@ -14,7 +14,7 @@ export default function FormField({ label, error, secureTextEntry, ...inputProps
       <Text style={styles.label}>{label}</Text>
       <View>
         <TextInput
-          style={[styles.input, isPassword && styles.inputWithIcon, error && styles.inputError]}
+          style={[styles.input, isPassword && styles.inputWithIcon, error && styles.inputError, style]}
           placeholderTextColor={colors.muted}
           secureTextEntry={isPassword && !visible}
           {...inputProps}
