@@ -25,9 +25,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-    backgroundColor: '#374151',
+    backgroundColor: '#0E0E0C',
     paddingBottom: 8,
     paddingHorizontal: 16,
   },
-  text: { color: '#ffffff', textAlign: 'center', fontSize: 13, fontWeight: '500' },
+  text: { color: '#F5F3EE', textAlign: 'center', fontSize: 13, fontFamily: 'InterTight_600SemiBold' },
 })

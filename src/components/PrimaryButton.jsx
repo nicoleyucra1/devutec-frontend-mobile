@@ -1,27 +1,32 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native'
-import { colors } from '../theme'
+import { ActivityIndicator, Pressable, Text } from 'react-native'
+import { useTheme, useThemedStyles } from '../hooks/useTheme'
 
-// Botón principal; mientras carga se deshabilita para evitar doble envío
-export default function PrimaryButton({ title, onPress, loading = false }) {
+// Botón del diseño. variant "primary": tinta (lima en modo oscuro); "secondary": con borde.
+// Mientras carga se deshabilita para evitar doble envío.
+export default function PrimaryButton({ title, onPress, loading = false, variant = 'primary', style }) {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
+  const isPrimary = variant === 'primary'
+
   return (
     <Pressable
       onPress={onPress}
       disabled={loading}
-      style={({ pressed }) => [styles.button, (pressed || loading) && styles.pressed]}
+      style={({ pressed }) => [styles.button, isPrimary ? styles.primary : styles.secondary, (pressed || loading) && styles.pressed, style]}
     >
-      {loading ? <ActivityIndicator color={colors.white} /> : <Text style={styles.text}>{title}</Text>}
+      {loading ? (
+        <ActivityIndicator color={isPrimary ? colors.onPrimary : colors.text} />
+      ) : (
+        <Text style={[styles.text, { color: isPrimary ? colors.onPrimary : colors.text }]}>{title}</Text>
+      )}
     </Pressable>
   )
 }
 
-const styles = StyleSheet.create({
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: 10,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 8,
-  },
+const createStyles = ({ colors, fonts, radius }) => ({
+  button: { borderRadius: radius.md, paddingVertical: 15, alignItems: 'center', marginTop: 8 },
+  primary: { backgroundColor: colors.primary },
+  secondary: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.inputBorder },
   pressed: { opacity: 0.7 },
-  text: { color: colors.white, fontSize: 16, fontWeight: '600' },
+  text: { fontFamily: fonts.bold, fontSize: 16 },
 })
