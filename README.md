@@ -83,6 +83,20 @@ try {
 }
 ```
 
+## Animaciones
+
+- `AnimatedSplash`: al abrir la app, el logo aparece sobre el morado de la marca con dos ondas, luego el nombre, y la pantalla sube como una cortina.
+- `IntroContext` avisa cuando esa cortina empieza a subir. `FadeInUp` lo usa para que las animaciones de una pantalla no ocurran escondidas detrás de la intro:
+
+```jsx
+<FadeInUp delay={150}>
+  <Text>Aparece subiendo un poco</Text>
+</FadeInUp>
+```
+
+- En la bienvenida, `WelcomeIllustration` muestra el logo con íconos que flotan (`FloatingIcon`) y el resto entra en cascada.
+- Las pantallas entran desde la derecha y se puede volver deslizando; login y registro además tienen un botón con flecha.
+
 ## Cómo agregar una pantalla
 
 - **Una pestaña nueva:** crear el archivo en `app/(tabs)/` y agregarlo en `app/(tabs)/_layout.jsx` con su título e ícono.
