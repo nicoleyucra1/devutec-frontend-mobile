@@ -6,11 +6,13 @@ import { preferenceStorage } from '../utils/preferenceStorage'
 
 const PREFERENCE_KEY = 'devutec.theme'
 
-// Modo claro u oscuro. Por defecto sigue al celular; en Perfil se puede fijar "Claro" u "Oscuro".
+// Modo claro u oscuro. Por ahora arranca en "Claro" porque varias pantallas todavía usan colores fijos;
+// cuando todas usen useTheme(), el valor inicial vuelve a ser 'system' para seguir al celular.
+// En Perfil se puede elegir Sistema, Claro u Oscuro.
 export function ThemeProvider({ children }) {
   const systemScheme = useColorScheme()
   // 'system' | 'light' | 'dark'
-  const [preference, setPreferenceState] = useState('system')
+  const [preference, setPreferenceState] = useState('light')
 
   useEffect(() => {
     preferenceStorage.get(PREFERENCE_KEY).then((saved) => {

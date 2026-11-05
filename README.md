@@ -117,7 +117,7 @@ try {
 
 ## Tema: modo claro y oscuro
 
-La paleta es la de Fundamentos del diseño (Ink, Paper, Surface, Line, Escrow, Lime, Pending, Error y Progress) y está en `src/theme.js` en dos versiones, `lightColors` y `darkColors`. La app sigue el modo del celular y en **Perfil → Apariencia** se puede fijar Sistema, Claro u Oscuro (se recuerda al volver a abrir la app).
+La paleta es la de Fundamentos del diseño (Ink, Paper, Surface, Line, Escrow, Lime, Pending, Error y Progress) y está en `src/theme.js` en dos versiones, `lightColors` y `darkColors`. Por ahora la app arranca en **Claro**, porque algunas pantallas todavía usan colores fijos; en **Perfil → Apariencia** se puede elegir Sistema, Claro u Oscuro (se recuerda al volver a abrir la app). Cuando todas las pantallas usen `useTheme()`, el valor inicial en `ThemeProvider.jsx` vuelve a ser `'system'` para seguir el modo del celular.
 
 Para que una pantalla cambie con el modo, toma los colores de `useTheme()` y crea los estilos con `useThemedStyles()`:
 
