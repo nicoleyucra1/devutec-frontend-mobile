@@ -20,6 +20,10 @@ import { useAuth } from '../../src/hooks/useAuth'
 import { useSkills } from '../../src/hooks/useSkills'
 import { detectDistrict } from '../../src/utils/location'
 
+// En iOS la barra de arriba es transparente por defecto y tapaba el contenido; con fondo sólido
+// la pantalla empieza debajo de ella
+const HEADER_OPTIONS = { headerShown: true, headerTransparent: false, headerStyle: { backgroundColor: colors.white } }
+
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
 function validate(values) {
@@ -105,7 +109,7 @@ export default function NewProjectScreen() {
   if (user && user.rol !== 'CLIENT') {
     return (
       <>
-        <Stack.Screen options={{ headerShown: true, title: 'Publicar proyecto' }} />
+        <Stack.Screen options={{ ...HEADER_OPTIONS, title: 'Publicar proyecto' }} />
         <StateView title="Solo para clientes" message="Necesitas una cuenta de cliente para publicar proyectos." />
       </>
     )
@@ -113,7 +117,7 @@ export default function NewProjectScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Stack.Screen options={{ headerShown: true, title: 'Publicar proyecto', headerBackTitle: 'Volver' }} />
+      <Stack.Screen options={{ ...HEADER_OPTIONS, title: 'Publicar proyecto', headerBackTitle: 'Volver' }} />
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Field label="Título *" error={errors.title}>
           <TextInput

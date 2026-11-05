@@ -1,6 +1,8 @@
-import { Pressable, ScrollView, Text, View } from 'react-native'
+import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import GithubRepos from '../../src/components/GithubRepos'
 import { useAuth } from '../../src/hooks/useAuth'
+import { useMyFreelancerProfile } from '../../src/hooks/useMyFreelancerProfile'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { ROLE_LABELS } from '../../src/utils/roles'
 
@@ -20,6 +22,30 @@ function initials(name) {
     .join('')
 }
 
+// Datos del perfil de freelancer que se muestran en el celular; por ahora, sus repos de GitHub
+function FreelancerSection() {
+  const { data: profile, error, loading, reload } = useMyFreelancerProfile()
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
+
+  if (loading) return <ActivityIndicator style={styles.loading} color={colors.text} />
+
+  if (error) {
+    return (
+      <View style={styles.errorBox}>
+        <Text style={styles.errorText}>{error}</Text>
+        <Pressable onPress={reload} style={({ pressed }) => pressed && styles.pressed}>
+          <Text style={styles.retryText}>Reintentar</Text>
+        </Pressable>
+      </View>
+    )
+  }
+
+  return (
+    <GithubRepos username={profile.githubUsername} />
+  )
+}
+
 export default function ProfileScreen() {
   const { user, logout } = useAuth()
   const { colors, preference, setPreference } = useTheme()
@@ -37,6 +63,8 @@ export default function ProfileScreen() {
         </View>
         <Text style={styles.badge}>{ROLE_LABELS[user.rol] ?? user.rol}</Text>
       </View>
+
+      {user.rol === 'FREELANCER' && <FreelancerSection />}
 
       <Text style={styles.section}>APARIENCIA</Text>
       {/* Sistema sigue el modo del celular; Claro y Oscuro lo fijan y se recuerda al volver a abrir la app */}
@@ -122,4 +150,8 @@ const createStyles = ({ colors, fonts, radius }) => ({
   },
   pressed: { opacity: 0.7 },
   logoutText: { fontFamily: fonts.bold, color: colors.error, fontSize: 16 },
+  loading: { marginTop: 24 },
+  errorBox: { marginTop: 16, backgroundColor: colors.errorLight, borderRadius: radius.md, padding: 16 },
+  errorText: { fontFamily: fonts.medium, color: colors.error },
+  retryText: { fontFamily: fonts.bold, color: colors.text, marginTop: 8, textDecorationLine: 'underline' },
 })
