@@ -1,21 +1,26 @@
 import { useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { Link } from 'expo-router'
 import AuthLayout from '../src/components/AuthLayout'
 import FormField from '../src/components/FormField'
 import PrimaryButton from '../src/components/PrimaryButton'
 import { useAuth } from '../src/hooks/useAuth'
 import { errorMessage } from '../src/utils/errorMessage'
-import { validateRegister } from '../src/utils/validation'
+import { PASSWORD_RULES, validateRegister } from '../src/utils/validation'
 import { useTheme, useThemedStyles } from '../src/hooks/useTheme'
 
 const ROLES = [
-  { value: 'CLIENT', icon: 'storefront-outline', title: 'Quiero contratar', description: 'Publico proyectos' },
-  { value: 'FREELANCER', icon: 'code-slash-outline', title: 'Quiero trabajar', description: 'Postulo a proyectos' },
+  { value: 'CLIENT', icon: 'storefront-outline', title: 'Soy cliente', description: 'Publico y pago al aprobar.' },
+  { value: 'FREELANCER', icon: 'code-slash-outline', title: 'Soy freelancer', description: 'Postulo y cobro seguro.' },
 ]
 
-const INITIAL_VALUES = { nombre: '', email: '', password: '', confirmPassword: '', rol: '' }
+// Textos que cambian según el rol elegido
+const COPY = {
+  CLIENT: { nameLabel: 'Nombre del negocio', namePh: 'Pizzería Don Mario', mailPh: 'tu@negocio.pe', cta: 'Crear cuenta como cliente' },
+  FREELANCER: { nameLabel: 'Nombres y apellidos', namePh: 'Camila Ríos', mailPh: 'tu@utec.edu.pe', cta: 'Crear cuenta como freelancer' },
+}
+
+const INITIAL_VALUES = { nombre: '', email: '', password: '', rol: 'CLIENT', terms: false }
 
 export default function RegisterScreen() {
   const { colors } = useTheme()
@@ -26,6 +31,7 @@ export default function RegisterScreen() {
   const [submitted, setSubmitted] = useState(false)
   const [submitError, setSubmitError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const copy = COPY[values.rol]
 
   const handleChange = (name, value) => {
     const next = { ...values, [name]: value }
@@ -57,9 +63,8 @@ export default function RegisterScreen() {
   }
 
   return (
-    <AuthLayout title="Crea tu cuenta." highlight="Es gratis." subtitle="Elige cómo vas a usar DEVUTEC. Te toma menos de un minuto.">
-      <Text style={styles.label}>¿Qué quieres hacer?</Text>
-      <View style={styles.roles}>
+    <AuthLayout tab="register">
+      <View style={styles.roles} accessibilityRole="radiogroup">
         {ROLES.map((role) => {
           const selected = values.rol === role.value
           return (
@@ -71,25 +76,26 @@ export default function RegisterScreen() {
               accessibilityState={{ checked: selected }}
             >
               <View style={[styles.roleIcon, selected && styles.roleIconSelected]}>
-                <Ionicons name={role.icon} size={18} color={selected ? colors.limeText : colors.text} />
+                <Ionicons name={role.icon} size={18} color={selected ? colors.ink : colors.text} />
               </View>
               <Text style={styles.roleTitle}>{role.title}</Text>
-              <Text style={styles.muted}>{role.description}</Text>
+              <Text style={styles.roleText}>{role.description}</Text>
             </Pressable>
           )
         })}
       </View>
-      {errors.rol ? <Text style={styles.error}>{errors.rol}</Text> : null}
 
       <FormField
-        label="Nombre completo"
+        label={copy.nameLabel}
+        placeholder={copy.namePh}
         value={values.nombre}
         onChangeText={(text) => handleChange('nombre', text)}
         error={errors.nombre}
         autoComplete="name"
       />
       <FormField
-        label="Correo"
+        label="Correo electrónico"
+        placeholder={copy.mailPh}
         value={values.email}
         onChangeText={(text) => handleChange('email', text)}
         error={errors.email}
@@ -99,70 +105,108 @@ export default function RegisterScreen() {
       />
       <FormField
         label="Contraseña"
+        placeholder="Crea una contraseña"
         value={values.password}
         onChangeText={(text) => handleChange('password', text)}
-        error={errors.password}
-        placeholder="Mínimo 8 caracteres, con letras y números"
+        error={submitted ? errors.password : null}
         secureTextEntry
         autoComplete="new-password"
-      />
-      <FormField
-        label="Repite la contraseña"
-        value={values.confirmPassword}
-        onChangeText={(text) => handleChange('confirmPassword', text)}
-        error={errors.confirmPassword}
-        secureTextEntry
-        autoComplete="new-password"
-      />
+      >
+        {/* Requisitos que se van marcando mientras se escribe */}
+        <View style={styles.rules}>
+          {PASSWORD_RULES.map((rule) => {
+            const ok = rule.test(values.password)
+            return (
+              <Text key={rule.label} style={[styles.rule, ok && styles.ruleOk]}>
+                {ok ? '✓' : '·'} {rule.label}
+              </Text>
+            )
+          })}
+        </View>
+      </FormField>
+
+      <Pressable
+        onPress={() => handleChange('terms', !values.terms)}
+        style={styles.terms}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: values.terms }}
+      >
+        <View style={[styles.checkbox, values.terms && styles.checkboxOn]}>
+          {values.terms ? <Ionicons name="checkmark" size={14} color={colors.onPrimary} /> : null}
+        </View>
+        <Text style={styles.termsText}>
+          Acepto los <Text style={styles.termsBold}>Términos y condiciones</Text> y la{' '}
+          <Text style={styles.termsBold}>Política de privacidad</Text>.
+        </Text>
+      </Pressable>
+      {errors.terms ? <Text style={styles.error}>{errors.terms}</Text> : null}
 
       {submitError ? <Text style={styles.alert}>{submitError}</Text> : null}
 
-      <PrimaryButton title="Crear cuenta" onPress={handleSubmit} loading={submitting} />
-
-      <View style={styles.footer}>
-        <Text style={styles.muted}>¿Ya tienes cuenta? </Text>
-        <Link href="/login" style={styles.link}>
-          Inicia sesión
-        </Link>
-      </View>
+      <PrimaryButton title={copy.cta} onPress={handleSubmit} loading={submitting} />
     </AuthLayout>
   )
 }
 
 const createStyles = ({ colors, fonts, radius }) => ({
-  label: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text, marginBottom: 8 },
-  roles: { marginBottom: 16, flexDirection: 'row', gap: 12 },
+  roles: { flexDirection: 'row', gap: 12, marginBottom: 20 },
   role: {
     flex: 1,
+    minHeight: 132,
+    gap: 8,
+    padding: 16,
+    borderRadius: radius.lg,
+    backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.lg,
-    padding: 14,
-    backgroundColor: colors.card,
   },
-  roleSelected: { borderColor: colors.text, borderWidth: 2, padding: 13 },
+  roleSelected: { borderWidth: 2, borderColor: colors.text, padding: 15 },
   roleIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
   },
   roleIconSelected: { backgroundColor: colors.lime },
-  roleTitle: { fontFamily: fonts.bold, color: colors.text, fontSize: 15 },
-  error: { fontFamily: fonts.medium, color: colors.error, fontSize: 13, marginBottom: 12 },
+  roleTitle: { fontFamily: fonts.bold, fontSize: 15, color: colors.text },
+  roleText: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.muted },
+  rules: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
+  rule: {
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    color: colors.muted,
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 100,
+    overflow: 'hidden',
+  },
+  ruleOk: { color: colors.accent, backgroundColor: colors.accentLight },
+  terms: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 4 },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: colors.inputBorder,
+    backgroundColor: colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkboxOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+  termsText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, color: colors.muted },
+  termsBold: { fontFamily: fonts.semibold, color: colors.text },
+  error: { fontFamily: fonts.medium, color: colors.error, fontSize: 13, marginTop: 4 },
   alert: {
     fontFamily: fonts.medium,
     backgroundColor: colors.errorLight,
     color: colors.error,
     padding: 12,
     borderRadius: radius.md,
-    marginBottom: 8,
+    marginTop: 12,
     overflow: 'hidden',
   },
-  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
-  muted: { fontFamily: fonts.regular, color: colors.muted },
-  link: { fontFamily: fonts.bold, color: colors.text, textDecorationLine: 'underline' },
 })

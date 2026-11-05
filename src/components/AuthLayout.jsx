@@ -3,40 +3,73 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import BrandLockup from './brand/BrandLockup'
+import Cuyi from './brand/Cuyi'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 
-// Contenedor de login y registro: evita que el teclado tape los campos.
-// highlight es la parte del título en serif cursiva verde, como en el diseño.
-export default function AuthLayout({ title, highlight, subtitle, children }) {
+const TABS = [
+  { key: 'login', label: 'Ingresar', href: '/login' },
+  { key: 'register', label: 'Crear cuenta', href: '/register' },
+]
+
+// Pantalla de ingreso del diseño (M1): marca, Cuyi saludando, el título y las pestañas
+// Ingresar / Crear cuenta. Cada pestaña es su propia ruta; al cambiar se reemplaza la pantalla.
+export default function AuthLayout({ tab, children }) {
   const router = useRouter()
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Botón visible para volver; también se puede deslizar desde el borde izquierdo */}
-      {router.canGoBack() && (
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => [styles.back, pressed && styles.backPressed]}
-          accessibilityRole="button"
-          accessibilityLabel="Volver"
-          hitSlop={8}
-        >
-          <View style={styles.backCircle}>
-            <Ionicons name="arrow-back" size={20} color={colors.text} />
-          </View>
-          <Text style={styles.backText}>Volver</Text>
-        </Pressable>
-      )}
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <BrandLockup size={16} />
+          <View style={styles.header}>
+            {/* Botón visible para volver; también se puede deslizar desde el borde izquierdo */}
+            {router.canGoBack() && (
+              <Pressable
+                onPress={() => router.back()}
+                style={({ pressed }) => [styles.back, pressed && styles.pressed]}
+                accessibilityRole="button"
+                accessibilityLabel="Volver"
+                hitSlop={8}
+              >
+                <Ionicons name="arrow-back" size={20} color={colors.text} />
+              </Pressable>
+            )}
+            <BrandLockup size={15} />
+            <View style={styles.flex} />
+            <View style={styles.protected}>
+              <Ionicons name="shield-checkmark-outline" size={14} color={colors.accent} />
+              <Text style={styles.protectedText}>Pagos protegidos</Text>
+            </View>
+          </View>
+
+          <View style={styles.cuyi}>
+            <Cuyi anim="saluda" size={48} />
+          </View>
+
           <Text style={styles.title}>
-            {title}
-            {highlight ? <Text style={styles.highlight}> {highlight}</Text> : null}
+            Trabajo junior,{'\n'}
+            <Text style={styles.highlight}>pago protegido.</Text>
           </Text>
-          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+          <Text style={styles.subtitle}>Ningún pago se mueve sin tu confirmación.</Text>
+
+          <View style={styles.tabs} accessibilityRole="tablist">
+            {TABS.map((item) => {
+              const selected = item.key === tab
+              return (
+                <Pressable
+                  key={item.key}
+                  onPress={() => !selected && router.replace(item.href)}
+                  style={[styles.tab, selected && styles.tabSelected]}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected }}
+                >
+                  <Text style={[styles.tabText, selected && styles.tabTextSelected]}>{item.label}</Text>
+                </Pressable>
+              )
+            })}
+          </View>
+
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -44,24 +77,53 @@ export default function AuthLayout({ title, highlight, subtitle, children }) {
   )
 }
 
-const createStyles = ({ colors, fonts }) => ({
+const createStyles = ({ colors, fonts, radius, isDark }) => ({
   safe: { flex: 1, backgroundColor: colors.background },
-  back: { flexDirection: 'row', alignItems: 'center', gap: 8, alignSelf: 'flex-start', marginLeft: 16, marginTop: 8 },
-  backPressed: { opacity: 0.6 },
-  backCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+  flex: { flex: 1 },
+  content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 32 },
+  header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  back: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backText: { fontFamily: fonts.semibold, color: colors.text, fontSize: 16 },
-  flex: { flex: 1 },
-  content: { flexGrow: 1, justifyContent: 'center', padding: 24 },
-  title: { fontFamily: fonts.bold, fontSize: 32, lineHeight: 36, letterSpacing: -0.8, color: colors.text, marginTop: 20 },
-  highlight: { fontFamily: fonts.serifItalic, fontSize: 36, letterSpacing: -0.5, color: colors.accent },
-  subtitle: { fontFamily: fonts.regular, fontSize: 15, lineHeight: 22, color: colors.muted, marginTop: 8, marginBottom: 24 },
+  pressed: { opacity: 0.6 },
+  protected: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  protectedText: { fontFamily: fonts.semibold, fontSize: 11, color: colors.accent },
+  cuyi: {
+    width: 76,
+    height: 76,
+    borderRadius: 18,
+    backgroundColor: colors.lime,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 28,
+  },
+  title: { fontFamily: fonts.bold, fontSize: 32, lineHeight: 35, letterSpacing: -1.2, color: colors.text, marginTop: 20 },
+  highlight: { fontFamily: fonts.serifItalic, fontSize: 36, letterSpacing: -0.6, color: colors.accent },
+  subtitle: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 20, color: colors.muted, marginTop: 8 },
+  tabs: {
+    flexDirection: 'row',
+    backgroundColor: colors.primaryLight,
+    borderRadius: radius.md,
+    padding: 4,
+    marginTop: 24,
+    marginBottom: 20,
+  },
+  tab: { flex: 1, height: 40, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  tabSelected: {
+    backgroundColor: isDark ? colors.border : colors.card,
+    shadowColor: '#0E0E0C',
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 2,
+  },
+  tabText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.muted },
+  tabTextSelected: { color: colors.text },
 })
