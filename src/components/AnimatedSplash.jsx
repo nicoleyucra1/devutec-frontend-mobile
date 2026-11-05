@@ -20,6 +20,9 @@ export default function AnimatedSplash({ ready, onFinish }) {
   const screenOpacity = useRef(new Animated.Value(1)).current
   const introDone = useRef(false)
   const exiting = useRef(false)
+  // Se guarda en un ref para leer el valor actual cuando termina la animación
+  const readyRef = useRef(ready)
+  readyRef.current = ready
 
   const exit = () => {
     if (exiting.current) return
@@ -34,17 +37,18 @@ export default function AnimatedSplash({ ready, onFinish }) {
     // La pantalla ya está dibujada encima: se puede ocultar el splash nativo sin parpadeo
     SplashScreen.hideAsync().catch(() => {})
 
+    // Con tiempos fijos la animación dura lo mismo en todos los celulares (unos 1.7 s con la salida)
     Animated.sequence([
-      Animated.spring(logoScale, { toValue: 1.12, friction: 4, tension: 80, useNativeDriver: true }),
+      Animated.timing(logoScale, { toValue: 1.12, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true }),
       Animated.parallel([
-        Animated.spring(logoScale, { toValue: 1, friction: 5, useNativeDriver: true }),
+        Animated.timing(logoScale, { toValue: 1, duration: 380, easing: Easing.out(Easing.back(3)), useNativeDriver: true }),
         Animated.timing(nameOpacity, { toValue: 1, duration: 350, useNativeDriver: true }),
         Animated.timing(nameShift, { toValue: 0, duration: 350, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
       ]),
-      Animated.delay(450),
+      Animated.delay(350),
     ]).start(() => {
       introDone.current = true
-      if (ready) exit()
+      if (readyRef.current) exit()
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
