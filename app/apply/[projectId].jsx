@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from 'react-native'
+import { KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import FormField from '../../src/components/FormField'
 import PrimaryButton from '../../src/components/PrimaryButton'
@@ -9,7 +9,7 @@ import api from '../../src/services/api'
 import { applicationService } from '../../src/services/applicationService'
 import { errorMessage } from '../../src/utils/errorMessage'
 import { formatBudget } from '../../src/utils/format'
-import { colors } from '../../src/theme'
+import { useThemedStyles } from '../../src/hooks/useTheme'
 
 // Mismas reglas que ApplicationRequestDTO en el backend
 function validate({ message, proposedPrice }) {
@@ -23,6 +23,7 @@ function validate({ message, proposedPrice }) {
 
 // Se abre desde el detalle de un proyecto con router.push(`/apply/${project.id}`)
 export default function ApplyScreen() {
+  const styles = useThemedStyles(createStyles)
   const { projectId } = useLocalSearchParams()
   const { data: project, loading, error, reload } = useAsync(
     ({ signal }) => api.get(`/projects/${projectId}`, { signal }).then((res) => res.data),
@@ -90,10 +91,10 @@ export default function ApplyScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   flex: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: colors.text },
+  title: { fontSize: 20, fontFamily: fonts.bold, color: colors.text },
   muted: { color: colors.muted, marginTop: 4, marginBottom: 16 },
   textarea: { minHeight: 120, textAlignVertical: 'top' },
   counter: { alignSelf: 'flex-end', color: colors.muted, fontSize: 12, marginTop: -12, marginBottom: 8 },
