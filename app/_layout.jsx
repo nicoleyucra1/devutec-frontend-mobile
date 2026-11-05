@@ -55,20 +55,16 @@ function RootNavigator() {
 // El splash nativo se queda visible hasta que la animación de entrada lo reemplaza
 SplashScreen.preventAutoHideAsync().catch(() => {})
 
-// Muestra la animación de entrada encima de la app y avisa a las pantallas cuando ya se ven
+// Mientras dura la animación de entrada se muestra solo ella, a pantalla completa. Recién al terminar
+// se dibujan las pantallas: así la navegación nativa no puede taparla, y las animaciones de la
+// pantalla de abajo (FadeInUp) empiezan cuando ya se ve.
 function IntroGate({ children }) {
   const { loading } = useAuth()
-  const [revealed, setRevealed] = useState(false)
-  const [finished, setFinished] = useState(false)
+  const [done, setDone] = useState(false)
 
-  return (
-    <IntroContext.Provider value={revealed}>
-      {children}
-      {!finished && (
-        <AnimatedSplash ready={!loading} onReveal={() => setRevealed(true)} onFinish={() => setFinished(true)} />
-      )}
-    </IntroContext.Provider>
-  )
+  if (!done) return <AnimatedSplash ready={!loading} onFinish={() => setDone(true)} />
+
+  return <IntroContext.Provider value={true}>{children}</IntroContext.Provider>
 }
 
 // Íconos de la barra de estado claros en modo oscuro y oscuros en modo claro

@@ -13,8 +13,8 @@ const logo = require('../../assets/images/logo-mark.png')
 // 2. Vuelve a su tamaño normal y a 0° con un pequeño rebote.
 // 3. Abre de frente: la pantalla negra se quita de golpe, sin transparencias, y aparece la app.
 // No termina hasta que `ready` sea true (por ejemplo, cuando ya se leyó la sesión guardada).
-// onReveal avisa cuando se abre (para que la pantalla de abajo haga su entrada); onFinish la quita.
-export default function AnimatedSplash({ ready, onReveal, onFinish }) {
+// onFinish avisa que terminó, para mostrar la app.
+export default function AnimatedSplash({ ready, onFinish }) {
   // spin va de 0 a 1 (crece y gira) y vuelve a 0 (tamaño normal)
   const spin = useRef(new Animated.Value(0)).current
   const introDone = useRef(false)
@@ -26,7 +26,6 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
   const exit = () => {
     if (exiting.current) return
     exiting.current = true
-    onReveal?.()
     onFinish()
   }
 
@@ -74,9 +73,9 @@ export default function AnimatedSplash({ ready, onReveal, onFinish }) {
 }
 
 const styles = StyleSheet.create({
+  // Ocupa toda la pantalla por sí sola: no va encima de otras vistas
   container: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 100,
+    flex: 1,
     backgroundColor: '#0E0E0C',
     alignItems: 'center',
     justifyContent: 'center',
