@@ -153,6 +153,6 @@ const createStyles = ({ colors, fonts }) => ({
   paymentBox: { backgroundColor: colors.background, borderRadius: 10, padding: 12, gap: 6, marginBottom: 8 },
   paymentText: { color: colors.text, fontSize: 13 },
   message: { padding: 12, borderRadius: 10 },
-  success: { backgroundColor: '#dcfce7', color: '#166534' },
+  success: { backgroundColor: colors.accentLight, color: colors.accent },
   error: { backgroundColor: colors.errorLight, color: colors.error },
 })

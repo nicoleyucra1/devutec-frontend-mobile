@@ -48,8 +48,9 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="projects/[id]" />
         <Stack.Screen name="projects/new" />
-        <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, title: 'Postular' }} />
-        <Stack.Screen name="contracts/[id]" options={{ headerShown: true, title: 'Contrato' }} />
+        {/* headerTransparent: false para que en iOS la barra sea sólida y tome el color del tema */}
+        <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, headerTransparent: false, title: 'Postular' }} />
+        <Stack.Screen name="contracts/[id]" options={{ headerShown: true, headerTransparent: false, title: 'Contrato' }} />
         <Stack.Screen name="scan" />
         <Stack.Screen name="freelancers/[userId]" />
       </Stack.Protected>
@@ -63,7 +64,7 @@ function RootNavigator() {
 }
 
 // El splash nativo se queda visible hasta que la animación de entrada lo reemplaza
-SplashScreen.preventAutoHideAsync().catch(() => {})
+SplashScreen.preventAutoHideAsync().catch(() => { })
 
 // Mientras dura la animación de entrada se muestra solo ella, a pantalla completa. Recién al terminar
 // se dibujan las pantallas: así la navegación nativa no puede taparla, y las animaciones de la
