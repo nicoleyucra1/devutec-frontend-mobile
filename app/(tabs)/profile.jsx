@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import FreelancerHero from '../../src/components/FreelancerHero'
 import GithubRepos from '../../src/components/GithubRepos'
 import ProfileQr from '../../src/components/ProfileQr'
 import { useAuth } from '../../src/hooks/useAuth'
@@ -23,7 +24,7 @@ function initials(name) {
     .join('')
 }
 
-// Datos del perfil de freelancer que se muestran en el celular: su QR y sus repos de GitHub
+// Datos del perfil de freelancer que se muestran en el celular: su tarjeta con la tarifa, su QR y sus repos de GitHub
 function FreelancerSection({ userId }) {
   const { data: profile, error, loading, reload } = useMyFreelancerProfile()
   const { colors } = useTheme()
@@ -44,6 +45,7 @@ function FreelancerSection({ userId }) {
 
   return (
     <>
+      <FreelancerHero profile={profile} />
       <ProfileQr userId={userId} />
       <GithubRepos username={profile.githubUsername} />
     </>
@@ -57,16 +59,19 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <View style={styles.card}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials(user.nombre ?? user.email)}</Text>
+      {/* El freelancer ve su tarjeta con la tarifa (FreelancerHero); los demás roles, su nombre y correo */}
+      {user.rol !== 'FREELANCER' && (
+        <View style={styles.card}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials(user.nombre ?? user.email)}</Text>
+          </View>
+          <View style={styles.flex}>
+            <Text style={styles.name}>{user.nombre ?? 'Sin nombre'}</Text>
+            <Text style={styles.muted}>{user.email}</Text>
+          </View>
+          <Text style={styles.badge}>{ROLE_LABELS[user.rol] ?? user.rol}</Text>
         </View>
-        <View style={styles.flex}>
-          <Text style={styles.name}>{user.nombre ?? 'Sin nombre'}</Text>
-          <Text style={styles.muted}>{user.email}</Text>
-        </View>
-        <Text style={styles.badge}>{ROLE_LABELS[user.rol] ?? user.rol}</Text>
-      </View>
+      )}
 
       {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} />}
 
