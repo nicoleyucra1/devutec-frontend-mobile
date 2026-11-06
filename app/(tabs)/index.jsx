@@ -20,8 +20,9 @@ export default function HomeScreen() {
         <View style={styles.heroText}>
           <Text style={styles.eyebrow}>CUENTA DE {(ROLE_LABELS[user.rol] ?? user.rol).toUpperCase()}</Text>
           <Text style={styles.title}>
-            Hola, {firstName}.
-            <Text style={styles.highlight}> {user.rol === 'FREELANCER' ? 'A programar.' : 'Manos a la obra.'}</Text>
+            Hola, {firstName}.{'\n'}
+            {/* La frase destacada va en su propia línea para que no se parta a la mitad */}
+            <Text style={styles.highlight}>{user.rol === 'FREELANCER' ? 'A programar.' : 'Manos a la obra.'}</Text>
           </Text>
         </View>
         <View style={styles.cuyi}>
@@ -54,7 +55,8 @@ const createStyles = ({ colors, fonts, radius }) => ({
   },
   heroText: { flex: 1 },
   eyebrow: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.2, color: colors.muted },
-  title: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 28, letterSpacing: -0.6, color: colors.text, marginTop: 6 },
+  // Alto de línea de 34 para que la cursiva (más alta que Geist) no se corte arriba ni abajo
+  title: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 34, letterSpacing: -0.6, color: colors.text, marginTop: 6 },
   highlight: { fontFamily: fonts.serifItalic, fontSize: 27, color: colors.accent },
   scan: { marginTop: 16 },
   cuyi: { width: 92, height: 92, borderRadius: radius.lg, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
