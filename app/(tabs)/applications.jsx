@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, StyleSheet, Text, View } from 'react-native'
+import { FlatList, RefreshControl, Text, View } from 'react-native'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
@@ -9,9 +9,10 @@ import { confirmAlert } from '../../src/utils/confirmAlert'
 import { errorMessage } from '../../src/utils/errorMessage'
 import { formatDate, formatBudget } from '../../src/utils/format'
 import { APPLICATION_STATUS } from '../../src/utils/status'
-import { colors } from '../../src/theme'
+import { useThemedStyles } from '../../src/hooks/useTheme'
 
 export default function MyApplicationsScreen() {
+  const styles = useThemedStyles(createStyles)
   const { data: applications, loading, error, reload } = useMyApplications()
   // id de la postulación que se está retirando, para mostrar su botón cargando
   const [withdrawingId, setWithdrawingId] = useState(null)
@@ -79,12 +80,12 @@ export default function MyApplicationsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   list: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, gap: 12, flexGrow: 1 },
-  card: { backgroundColor: colors.white, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 16 },
+  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 16 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
-  title: { flex: 1, fontSize: 16, fontWeight: '600', color: colors.text },
+  title: { flex: 1, fontSize: 16, fontFamily: fonts.semibold, color: colors.text },
   muted: { color: colors.muted, marginTop: 4, fontSize: 13 },
   message: { color: colors.text, marginTop: 8 },
   error: { color: colors.error, backgroundColor: colors.errorLight, padding: 10, borderRadius: 8 },

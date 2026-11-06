@@ -1,9 +1,11 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Text, View } from 'react-native'
 import PrimaryButton from './PrimaryButton'
-import { colors } from '../theme'
+import { useTheme, useThemedStyles } from '../hooks/useTheme'
 
 // Pantalla de carga, de error (con Reintentar) o de lista vacía
 export default function ScreenState({ loading, error, onRetry, emptyTitle, emptyMessage }) {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
   if (loading) {
     return (
       <View style={styles.center}>
@@ -27,9 +29,9 @@ export default function ScreenState({ loading, error, onRetry, emptyTitle, empty
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   error: { color: colors.error, textAlign: 'center', marginBottom: 8 },
-  title: { fontSize: 16, fontWeight: '600', color: colors.text, textAlign: 'center' },
+  title: { fontSize: 16, fontFamily: fonts.semibold, color: colors.text, textAlign: 'center' },
   message: { color: colors.muted, textAlign: 'center', marginTop: 6 },
 })

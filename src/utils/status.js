@@ -1,19 +1,20 @@
-// Texto y colores de cada estado para el StatusBadge
+//Texto y tono de cada estado. El StatusBadge convierte el tono en los colores del tema (claro u oscuro):
+//pending = ámbar, success = verde escrow, danger = rojo, progress = azul, neutral = gris
 export const APPLICATION_STATUS = {
-  PENDING: { label: 'Pendiente', color: '#92400e', background: '#fef3c7' },
-  ACCEPTED: { label: 'Aceptada', color: '#166534', background: '#dcfce7' },
-  REJECTED: { label: 'Rechazada', color: '#991b1b', background: '#fee2e2' },
+  PENDING: { label: 'Pendiente', tone: 'pending' },
+  ACCEPTED: { label: 'Aceptada', tone: 'success' },
+  REJECTED: { label: 'Rechazada', tone: 'danger' },
 }
 
 export const CONTRACT_STATUS = {
-  IN_PROGRESS: { label: 'En progreso', color: '#4338ca', background: '#e0e7ff' },
-  DELIVERED: { label: 'Entregado', color: '#92400e', background: '#fef3c7' },
-  CONFIRMED: { label: 'Completado', color: '#166534', background: '#dcfce7' },
-  CANCELLED: { label: 'Cancelado', color: '#991b1b', background: '#fee2e2' },
+  IN_PROGRESS: { label: 'En progreso', tone: 'progress' },
+  DELIVERED: { label: 'Entregado', tone: 'pending' },
+  CONFIRMED: { label: 'Completado', tone: 'success' },
+  CANCELLED: { label: 'Cancelado', tone: 'danger' },
 }
 
 export const PAYMENT_STATUS = {
-  HELD: { label: 'Pago retenido', color: '#92400e', background: '#fef3c7' },
-  RELEASED: { label: 'Pago liberado', color: '#166534', background: '#dcfce7' },
-  REFUNDED: { label: 'Pago reembolsado', color: '#374151', background: '#f3f4f6' },
+  HELD: { label: 'Pago retenido', tone: 'pending' },
+  RELEASED: { label: 'Pago liberado', tone: 'success' },
+  REFUNDED: { label: 'Pago reembolsado', tone: 'neutral' },
 }

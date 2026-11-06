@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { RefreshControl, ScrollView, Text, View } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import ScreenState from '../../src/components/ScreenState'
@@ -12,7 +12,7 @@ import { confirmAlert } from '../../src/utils/confirmAlert'
 import { errorMessage } from '../../src/utils/errorMessage'
 import { formatDate, formatBudget } from '../../src/utils/format'
 import { CONTRACT_STATUS, PAYMENT_STATUS } from '../../src/utils/status'
-import { colors } from '../../src/theme'
+import { useThemedStyles } from '../../src/hooks/useTheme'
 
 const PAYMENT_TEXT = {
   HELD: 'DevUTEC guarda el pago hasta que el cliente confirme la entrega.',
@@ -21,6 +21,7 @@ const PAYMENT_TEXT = {
 }
 
 export default function ContractDetailScreen() {
+  const styles = useThemedStyles(createStyles)
   const { id } = useLocalSearchParams()
   const { user } = useAuth()
   const biometric = useBiometricAuth()
@@ -130,6 +131,7 @@ export default function ContractDetailScreen() {
 }
 
 function Info({ label, value }) {
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.info}>
       <Text style={styles.infoLabel}>{label}</Text>
@@ -138,19 +140,19 @@ function Info({ label, value }) {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, gap: 12 },
-  card: { backgroundColor: colors.white, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 16 },
+  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 16 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
-  title: { flex: 1, fontSize: 20, fontWeight: '700', color: colors.text },
+  title: { flex: 1, fontSize: 20, fontFamily: fonts.bold, color: colors.text },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 16 },
   info: { width: '50%', marginBottom: 12 },
   infoLabel: { fontSize: 12, color: colors.muted },
-  infoValue: { fontSize: 15, fontWeight: '600', color: colors.text, marginTop: 2 },
+  infoValue: { fontSize: 15, fontFamily: fonts.semibold, color: colors.text, marginTop: 2 },
   paymentBox: { backgroundColor: colors.background, borderRadius: 10, padding: 12, gap: 6, marginBottom: 8 },
   paymentText: { color: colors.text, fontSize: 13 },
   message: { padding: 12, borderRadius: 10 },
-  success: { backgroundColor: '#dcfce7', color: '#166534' },
+  success: { backgroundColor: colors.accentLight, color: colors.accent },
   error: { backgroundColor: colors.errorLight, color: colors.error },
 })
