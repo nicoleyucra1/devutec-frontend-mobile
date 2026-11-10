@@ -100,15 +100,16 @@ try {
 
 ## QR del perfil y escáner
 
-- En la pestaña **Perfil**, cada freelancer ve su código QR (`src/components/ProfileQr.jsx`) y puede compartir el enlace.
+- En la pestaña **Perfil**, cada freelancer ve su código QR (`src/components/ProfileQr.jsx`) y puede compartir el enlace o ir al escáner. El QR siempre es negro sobre blanco, también en modo oscuro, para que lo lea cualquier cámara.
 - El QR guarda `devutec://freelancers/{userId}`. `src/utils/profileLink.js` arma ese enlace y lo lee; también acepta la URL del perfil en la web o solo el número.
-- En **Inicio**, el botón "Escanear el QR de un freelancer" abre `app/scan.jsx`, que usa la cámara trasera (`expo-camera`) y abre `app/freelancers/[userId].jsx` con el perfil público y sus repos de GitHub.
-- Si un QR no es de DevUTEC, se avisa en la pantalla y se puede volver a escanear a los 2 segundos.
+- En **Inicio**, el botón "Escanear el QR de un freelancer" abre `app/scan.jsx`, que usa la cámara trasera (`expo-camera`). El escáner siempre es oscuro, como una cámara, y tiene linterna.
+- Al leer un QR válido aparece una hoja con el nombre, la calificación y la tarifa del freelancer; "Ver perfil" abre `app/freelancers/[userId].jsx` con el perfil público y sus repos de GitHub, y "Escanear otro" vuelve a la cámara.
+- Si un QR no es de DevUTEC, el recuadro se pone rojo, se avisa en la pantalla y se puede volver a escanear a los 2 segundos.
 
 ### Permisos denegados y alternativas
 
 - Antes de pedir la cámara se explica para qué se usa. `src/components/PermissionNotice.jsx` sirve para cualquier permiso: si todavía se puede preguntar, muestra "Permitir acceso"; si el usuario lo negó para siempre, muestra "Abrir ajustes".
-- Si se niega el permiso, el dispositivo no tiene cámara o la cámara falla al abrir, se puede pegar el enlace o escribir el número del perfil (`src/components/ManualProfileEntry.jsx`).
+- Si se niega el permiso, el dispositivo no tiene cámara o la cámara falla al abrir, se puede pegar el enlace o escribir el número del perfil (`src/components/ManualProfileEntry.jsx`). Con la cámara funcionando, el mismo campo se abre con "Escribir enlace".
 - La biometría (`useBiometricAuth`) tiene su propia alternativa: el código del celular o una confirmación con dos botones.
 
 ## Cómo agregar una pantalla

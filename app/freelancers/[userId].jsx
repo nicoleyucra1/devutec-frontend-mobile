@@ -1,18 +1,10 @@
-import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ActivityIndicator, Alert, Linking, Pressable, ScrollView, Text, View } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { Stack, useLocalSearchParams } from 'expo-router'
+import FreelancerHero from '../../src/components/FreelancerHero'
 import GithubRepos from '../../src/components/GithubRepos'
 import { useFreelancerProfile } from '../../src/hooks/useFreelancerProfile'
-import { colors } from '../../src/theme'
-
-function formatRate(value) {
-  return value === null || value === undefined ? null : `S/ ${Number(value).toFixed(2)} por hora`
-}
-
-function studyLabel(profile) {
-  if (profile.egresado) return 'Egresado'
-  if (profile.ciclo) return `Ciclo ${profile.ciclo}`
-  return null
-}
+import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 
 async function openUrl(url) {
   try {
@@ -26,21 +18,34 @@ async function openUrl(url) {
 export default function FreelancerProfileScreen() {
   const { userId } = useLocalSearchParams()
   const { data: profile, error, status, loading, reload } = useFreelancerProfile(userId)
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
+  const notFound = status === 404 || status === 400
 
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Perfil del freelancer', headerBackTitle: 'Volver' }} />
-      <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
-        {loading && <ActivityIndicator style={styles.loading} size="large" color={colors.primary} />}
+      <Stack.Screen
+        options={{
+          headerShown: true,
+          title: 'Perfil',
+          headerBackTitle: 'Volver',
+          // Barra con fondo sólido para que en iOS no tape el contenido
+          headerTransparent: false,
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.text,
+        }}
+      />
+      <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+        {loading && <ActivityIndicator style={styles.loading} size="large" color={colors.text} />}
 
         {error && (
           <View style={styles.errorBox}>
-            <Text style={styles.errorText}>
-              {status === 404 || status === 400 ? 'Este freelancer no existe o ya no tiene perfil.' : error}
-            </Text>
-            {status !== 404 && status !== 400 && (
+            <Text style={styles.errorTitle}>{notFound ? 'Perfil no encontrado' : 'No se pudo cargar el perfil'}</Text>
+            <Text style={styles.errorText}>{notFound ? 'Este freelancer no existe o ya no tiene perfil.' : error}</Text>
+            {!notFound && (
               <Pressable onPress={reload} style={({ pressed }) => pressed && styles.pressed}>
-                <Text style={styles.link}>Reintentar</Text>
+                <Text style={styles.retryText}>Reintentar</Text>
               </Pressable>
             )}
           </View>
@@ -48,30 +53,19 @@ export default function FreelancerProfileScreen() {
 
         {profile && (
           <>
-            <View style={styles.card}>
-              <Text style={styles.name}>{profile.nombre}</Text>
-              {profile.universidad && <Text style={styles.muted}>{profile.universidad}</Text>}
+            <FreelancerHero profile={profile} />
 
-              <View style={styles.facts}>
-                {[studyLabel(profile), formatRate(profile.tarifaHora)].filter(Boolean).map((fact) => (
-                  <Text key={fact} style={styles.badge}>
-                    {fact}
-                  </Text>
-                ))}
-              </View>
-
-              <Text style={styles.rating}>
-                {profile.calificacionPromedio
-                  ? `★ ${Number(profile.calificacionPromedio).toFixed(1)} de calificación`
-                  : 'Todavía no tiene reseñas'}
-              </Text>
-
-              {profile.portafolioUrl && (
-                <Pressable onPress={() => openUrl(profile.portafolioUrl)} accessibilityRole="link">
-                  <Text style={styles.link}>Ver portafolio →</Text>
-                </Pressable>
-              )}
-            </View>
+            {profile.portafolioUrl && (
+              <Pressable
+                onPress={() => openUrl(profile.portafolioUrl)}
+                accessibilityRole="link"
+                style={({ pressed }) => [styles.portfolio, pressed && styles.pressed]}
+              >
+                <Ionicons name="globe-outline" size={18} color={colors.text} />
+                <Text style={styles.portfolioText}>Ver portafolio</Text>
+                <Ionicons name="open-outline" size={16} color={colors.muted} />
+              </Pressable>
+            )}
 
             <GithubRepos username={profile.githubUsername} />
           </>
@@ -81,32 +75,26 @@ export default function FreelancerProfileScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts, radius }) => ({
   screen: { flex: 1, backgroundColor: colors.background },
-  container: { padding: 24 },
+  content: { padding: 20, paddingBottom: 40 },
   loading: { marginTop: 48 },
-  card: {
-    backgroundColor: colors.white,
+  portfolio: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 14,
+    paddingHorizontal: 16,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 16,
+    borderColor: colors.border,
   },
-  name: { fontSize: 22, fontWeight: '700', color: colors.text },
-  muted: { color: colors.muted, marginTop: 4 },
-  facts: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
-  badge: {
-    backgroundColor: colors.primaryLight,
-    color: colors.primary,
-    fontWeight: '600',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    overflow: 'hidden',
-  },
-  rating: { marginTop: 12, color: colors.text, fontWeight: '600' },
-  link: { color: colors.primary, fontWeight: '600', marginTop: 12 },
-  errorBox: { backgroundColor: colors.errorLight, borderRadius: 12, padding: 16 },
-  errorText: { color: colors.error },
-  pressed: { opacity: 0.6 },
+  portfolioText: { flex: 1, fontFamily: fonts.semibold, fontSize: 15, color: colors.text },
+  errorBox: { backgroundColor: colors.errorLight, borderRadius: radius.lg, padding: 16 },
+  errorTitle: { fontFamily: fonts.bold, color: colors.error, fontSize: 16 },
+  errorText: { fontFamily: fonts.regular, color: colors.error, marginTop: 4 },
+  retryText: { fontFamily: fonts.bold, color: colors.text, marginTop: 10, textDecorationLine: 'underline' },
+  pressed: { opacity: 0.7 },
 })
