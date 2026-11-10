@@ -31,8 +31,9 @@ async function openUrl(url) {
   }
 }
 
-// Repos públicos del freelancer, sacados de la API de GitHub con su githubUsername
-export default function GithubRepos({ username }) {
+// Repos públicos del freelancer, sacados de la API de GitHub con su githubUsername.
+// isOwner indica que el freelancer está viendo su propio perfil: cambia el mensaje cuando no tiene GitHub.
+export default function GithubRepos({ username, isOwner = false }) {
   const { data: repos, error, status, loading, reload } = useGithubRepos(username)
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
@@ -51,7 +52,9 @@ export default function GithubRepos({ username }) {
       {!username && (
         <View style={styles.card}>
           <Text style={styles.message}>
-            Todavía no agregaste tu usuario de GitHub. Agrégalo desde tu perfil en la web para mostrar tus repos.
+            {isOwner
+              ? 'Todavía no agregaste tu usuario de GitHub. Agrégalo desde tu perfil en la web para mostrar tus repos.'
+              : 'Este freelancer todavía no agregó su usuario de GitHub.'}
           </Text>
         </View>
       )}

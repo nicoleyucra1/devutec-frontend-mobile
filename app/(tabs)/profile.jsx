@@ -47,7 +47,7 @@ function FreelancerSection({ userId }) {
     <>
       <FreelancerHero profile={profile} />
       <ProfileQr userId={userId} />
-      <GithubRepos username={profile.githubUsername} />
+      <GithubRepos username={profile.githubUsername} isOwner />
     </>
   )
 }
