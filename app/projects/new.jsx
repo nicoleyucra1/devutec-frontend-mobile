@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -14,15 +13,16 @@ import { Stack, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import SkillChips from '../../src/components/projects/SkillChips'
 import StateView from '../../src/components/projects/StateView'
-import { colors } from '../../src/theme'
+import { radius } from '../../src/theme'
+import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { useProjectActions } from '../../src/hooks/useProjectActions'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useSkills } from '../../src/hooks/useSkills'
 import { detectDistrict } from '../../src/utils/location'
 
 // En iOS la barra de arriba es transparente por defecto y tapaba el contenido; con fondo sólido
-// la pantalla empieza debajo de ella
-const HEADER_OPTIONS = { headerShown: true, headerTransparent: false, headerStyle: { backgroundColor: colors.white } }
+// la pantalla empieza debajo de ella. El color lo pone el tema desde _layout.
+const HEADER_OPTIONS = { headerShown: true, headerTransparent: false }
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
@@ -41,6 +41,7 @@ function validate(values) {
 }
 
 function Field({ label, error, children }) {
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -50,8 +51,11 @@ function Field({ label, error, children }) {
   )
 }
 
-// Publicar proyecto. Al abrir la pantalla se detecta el distrito con el GPS para llenar la ubicación.
+// Publicar proyecto. El distrito se detecta con el GPS solo cuando el usuario toca el botón de ubicación,
+// así el permiso se pide cuando tiene sentido y no apenas se abre la pantalla.
 export default function NewProjectScreen() {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
   const router = useRouter()
   const { user } = useAuth()
   const skills = useSkills()
@@ -76,10 +80,6 @@ export default function NewProjectScreen() {
       setGps({ status: 'error', message: result.error })
     }
   }
-
-  useEffect(() => {
-    fillLocation()
-  }, [])
 
   const toggleSkill = (skillId) =>
     setValues((prev) => ({
@@ -124,7 +124,7 @@ export default function NewProjectScreen() {
             style={[styles.input, errors.title && styles.inputError]}
             value={values.title}
             onChangeText={(text) => setField('title', text)}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.muted}
             placeholder="Ej.: Landing page para mi cafetería"
             maxLength={255}
           />
@@ -135,7 +135,7 @@ export default function NewProjectScreen() {
             style={[styles.input, styles.textarea]}
             value={values.description}
             onChangeText={(text) => setField('description', text)}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.muted}
             placeholder="Cuenta qué necesitas"
             multiline
             textAlignVertical="top"
@@ -149,7 +149,7 @@ export default function NewProjectScreen() {
                 style={[styles.input, errors.budget && styles.inputError]}
                 value={values.budget}
                 onChangeText={(text) => setField('budget', text)}
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.muted}
                 placeholder="500"
                 keyboardType="decimal-pad"
               />
@@ -161,7 +161,7 @@ export default function NewProjectScreen() {
                 style={[styles.input, errors.deadline && styles.inputError]}
                 value={values.deadline}
                 onChangeText={(text) => setField('deadline', text)}
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.muted}
                 placeholder="AAAA-MM-DD"
                 keyboardType="numbers-and-punctuation"
                 maxLength={10}
@@ -176,7 +176,7 @@ export default function NewProjectScreen() {
               style={[styles.input, styles.flex, errors.location && styles.inputError]}
               value={values.location}
               onChangeText={(text) => setField('location', text)}
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.muted}
               placeholder="Distrito"
               maxLength={100}
             />
@@ -212,45 +212,46 @@ export default function NewProjectScreen() {
           style={({ pressed }) => [styles.submit, (pressed || actions.saving) && styles.submitPressed]}
           accessibilityRole="button"
         >
-          {actions.saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>Publicar</Text>}
+          {actions.saving ? <ActivityIndicator color={colors.onPrimary} /> : <Text style={styles.submitText}>Publicar</Text>}
         </Pressable>
       </ScrollView>
     </KeyboardAvoidingView>
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   flex: { flex: 1 },
   container: { backgroundColor: colors.background, flex: 1 },
   content: { gap: 16, padding: 16, paddingBottom: 40 },
   field: { gap: 6 },
-  label: { color: colors.text, fontSize: 14, fontWeight: '500' },
+  label: { color: colors.text, fontFamily: fonts.medium, fontSize: 14 },
   input: {
-    backgroundColor: '#fff',
-    borderColor: '#d1d5db',
-    borderRadius: 8,
+    backgroundColor: colors.card,
+    borderColor: colors.inputBorder,
+    borderRadius: radius.md,
     borderWidth: 1,
     color: colors.text,
+    fontFamily: fonts.regular,
     fontSize: 15,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
   },
-  inputError: { borderColor: '#f87171' },
+  inputError: { borderColor: colors.error },
   textarea: { minHeight: 110 },
   row: { flexDirection: 'row', gap: 12 },
   locationRow: { alignItems: 'center', flexDirection: 'row', gap: 8 },
   gpsButton: {
     alignItems: 'center',
     backgroundColor: colors.primaryLight,
-    borderRadius: 8,
-    height: 44,
+    borderRadius: radius.md,
+    height: 46,
     justifyContent: 'center',
-    width: 44,
+    width: 46,
   },
-  hint: { color: colors.muted, fontSize: 13 },
-  error: { color: colors.error, fontSize: 13 },
-  serverError: { backgroundColor: colors.errorLight, borderRadius: 8, color: colors.error, padding: 12 },
-  submit: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 14 },
+  hint: { color: colors.muted, fontFamily: fonts.regular, fontSize: 13 },
+  error: { color: colors.error, fontFamily: fonts.regular, fontSize: 13 },
+  serverError: { backgroundColor: colors.errorLight, borderRadius: radius.sm, color: colors.error, fontFamily: fonts.regular, padding: 12 },
+  submit: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: radius.lg, paddingVertical: 16 },
   submitPressed: { opacity: 0.7 },
-  submitText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  submitText: { color: colors.onPrimary, fontFamily: fonts.semibold, fontSize: 16 },
 })
