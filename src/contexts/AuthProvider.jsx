@@ -17,6 +17,27 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [])
 
+  // Cambia los datos del usuario con sesión (por ejemplo, su foto nueva) en pantalla y en SecureStore
+  const updateUser = useCallback(async (next) => {
+    await tokenStorage.setUser(next)
+    setUser(next)
+  }, [])
+
+  // Con una sesión guardada se piden de nuevo los datos del usuario: así aparece su foto aunque la sesión
+  // se haya iniciado antes de subirla. Si falla (por ejemplo, sin internet), se sigue con lo guardado.
+  const sessionId = user?.id
+  useEffect(() => {
+    if (!sessionId) return
+    let active = true
+    userService
+      .getMe()
+      .then((me) => active && me.id === sessionId && updateUser(me))
+      .catch(() => {})
+    return () => {
+      active = false
+    }
+  }, [sessionId, updateUser])
+
   const logout = useCallback(async () => {
     await tokenStorage.clear()
     setUser(null)
@@ -56,6 +77,7 @@ export function AuthProvider({ children }) {
     register,
     loginWithGoogle,
     logout,
+    updateUser,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
