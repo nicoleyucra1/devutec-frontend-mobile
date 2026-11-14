@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AppState, Linking, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
+import * as ExpoLinking from 'expo-linking'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
@@ -100,7 +101,10 @@ export default function ContractDetailScreen() {
     setRunning('pay')
     setMessage(null)
     try {
-      const { sessionId, checkoutUrl } = await contractService.startCheckout(id)
+      // Link para que, al terminar en Stripe, la página puente de la web vuelva a abrir este contrato en la app.
+      // En el APK queda devutec://contracts/ID y en Expo Go exp://.../--/contracts/ID
+      const appReturnUrl = ExpoLinking.createURL(`/contracts/${id}`)
+      const { sessionId, checkoutUrl } = await contractService.startCheckout(id, appReturnUrl)
       rememberSession(sessionId)
       await Linking.openURL(checkoutUrl)
     } catch (err) {
