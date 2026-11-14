@@ -22,20 +22,12 @@ import { useAuth } from '../src/hooks/useAuth'
 import { useFreelancerProfile } from '../src/hooks/useFreelancerProfile'
 import { parseProfileLink } from '../src/utils/profileLink'
 import { darkColors, fonts, lightColors, radius } from '../src/theme'
+import Avatar from '../src/components/Avatar'
 
 // Tiempo que el mensaje de "QR no válido" queda en pantalla antes de volver a escanear
 const RETRY_DELAY_MS = 2000
 const FRAME_SIZE = 260
 const BACKGROUND = '#121210'
-
-function initials(name) {
-  return (name ?? '?')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('')
-}
 
 // Línea lima que sube y baja dentro del recuadro mientras se busca un código
 function ScanLine() {
@@ -92,9 +84,7 @@ function FoundProfileSheet({ userId, bottomInset, onOpen, onRescan }) {
       {profile && (
         <>
           <View style={styles.sheetIdentity}>
-            <View style={styles.sheetAvatar}>
-              <Text style={styles.sheetAvatarText}>{initials(profile.nombre)}</Text>
-            </View>
+            <Avatar name={profile.nombre} src={profile.avatarUrl} size={52} fallbackStyle={styles.sheetAvatar} textStyle={styles.sheetAvatarText} />
             <View style={styles.flex}>
               <Text style={styles.sheetName}>{profile.nombre}</Text>
               <Text style={styles.sheetMuted}>{[profile.universidad, study, rating].filter(Boolean).join(' · ')}</Text>
@@ -436,15 +426,9 @@ const styles = StyleSheet.create({
   sheetLoading: { marginVertical: 24 },
   sheetError: { fontFamily: fonts.medium, fontSize: 15, color: lightColors.error, marginBottom: 12 },
   sheetIdentity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  sheetAvatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: lightColors.lime,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sheetAvatarText: { fontFamily: fonts.bold, fontSize: 15, color: lightColors.ink },
+  // Sin foto: iniciales en tinta sobre un círculo lima
+  sheetAvatar: { backgroundColor: lightColors.lime },
+  sheetAvatarText: { fontSize: 15, color: lightColors.ink },
   sheetName: { fontFamily: fonts.semibold, fontSize: 17, color: lightColors.ink },
   sheetMuted: { fontFamily: fonts.regular, fontSize: 12, color: lightColors.muted, marginTop: 2 },
   sheetRate: {
