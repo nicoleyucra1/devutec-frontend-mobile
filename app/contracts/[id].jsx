@@ -9,6 +9,7 @@ import { useBiometricAuth } from '../../src/hooks/useBiometricAuth'
 import { useContract } from '../../src/hooks/useContracts'
 import { contractService } from '../../src/services/contractService'
 import { confirmAlert } from '../../src/utils/confirmAlert'
+import { preferenceStorage } from '../../src/utils/preferenceStorage'
 import { errorMessage } from '../../src/utils/errorMessage'
 import { formatDate, formatBudget } from '../../src/utils/format'
 import { CONTRACT_STATUS, PAYMENT_STATUS } from '../../src/utils/status'
@@ -31,31 +32,40 @@ export default function ContractDetailScreen() {
   const [running, setRunning] = useState(null)
   const [message, setMessage] = useState(null)
 
-  // Pago con tarjeta: la página de Stripe se abre en el navegador. Mientras tanto se guarda la sesión,
-  // y al volver a la app se le pregunta al backend si ya se pagó.
+  // Pago con tarjeta: la página de Stripe se abre en el navegador. La sesión de pago se guarda en el celular
+  // (por si el sistema cierra la app mientras se paga) y al volver se le pregunta al backend si ya se pagó.
   const pendingSession = useRef(null)
   const [awaitingPayment, setAwaitingPayment] = useState(false)
+  const storageKey = `devutec.checkout.${id}`
 
-  const verifyPayment = async () => {
+  const rememberSession = (sessionId) => {
+    pendingSession.current = sessionId
+    setAwaitingPayment(Boolean(sessionId))
+    preferenceStorage.set(storageKey, sessionId ?? '')
+  }
+
+  // quiet: al abrir la pantalla no se muestra el aviso de "todavía no vemos el pago", solo si se pagó
+  const verifyPayment = async ({ quiet = false } = {}) => {
     const sessionId = pendingSession.current
     if (!sessionId) return
     setRunning('pay')
-    setMessage(null)
+    if (!quiet) setMessage(null)
     try {
       await contractService.confirmCheckout(id, sessionId)
-      pendingSession.current = null
-      setAwaitingPayment(false)
+      rememberSession(null)
       setMessage({ ok: true, text: 'Pago recibido. El dinero queda en garantía hasta que confirmes la entrega.' })
       reload()
     } catch (err) {
       // 409: Stripe todavía no marca la sesión como pagada (se cerró la página o aún se está procesando)
-      setMessage({
-        ok: false,
-        text:
-          err.response?.status === 409
-            ? 'Todavía no vemos el pago. Si ya pagaste, toca "Ya pagué, verificar" en unos segundos.'
-            : errorMessage(err),
-      })
+      if (!quiet) {
+        setMessage({
+          ok: false,
+          text:
+            err.response?.status === 409
+              ? 'Todavía no vemos el pago. Si ya pagaste, toca "Ya pagué, verificar" en unos segundos.'
+              : errorMessage(err),
+        })
+      }
     } finally {
       setRunning(null)
     }
@@ -72,13 +82,26 @@ export default function ContractDetailScreen() {
     return () => subscription.remove()
   }, [])
 
+  // Al abrir el contrato: si quedó un pago pendiente guardado (por ejemplo, la app se reinició), se revisa
+  useEffect(() => {
+    let active = true
+    preferenceStorage.get(storageKey).then((sessionId) => {
+      if (!active || !sessionId) return
+      pendingSession.current = sessionId
+      setAwaitingPayment(true)
+      verifyRef.current({ quiet: true })
+    })
+    return () => {
+      active = false
+    }
+  }, [storageKey])
+
   const handlePay = async () => {
     setRunning('pay')
     setMessage(null)
     try {
       const { sessionId, checkoutUrl } = await contractService.startCheckout(id)
-      pendingSession.current = sessionId
-      setAwaitingPayment(true)
+      rememberSession(sessionId)
       await Linking.openURL(checkoutUrl)
     } catch (err) {
       setMessage({ ok: false, text: errorMessage(err) })
@@ -178,7 +201,7 @@ export default function ContractDetailScreen() {
                 title="Ya pagué, verificar"
                 variant="secondary"
                 loading={running === 'pay'}
-                onPress={verifyPayment}
+                onPress={() => verifyPayment()}
               />
             )}
             <Text style={styles.payHint}>Modo de prueba: tarjeta 4242 4242 4242 4242, cualquier fecha futura y CVC</Text>
