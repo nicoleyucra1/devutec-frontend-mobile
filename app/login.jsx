@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Text } from 'react-native'
 import AuthLayout from '../src/components/AuthLayout'
 import FormField from '../src/components/FormField'
+import GoogleSignInButton from '../src/components/GoogleSignInButton'
 import PrimaryButton from '../src/components/PrimaryButton'
 import { useAuth } from '../src/hooks/useAuth'
 import { errorMessage } from '../src/utils/errorMessage'
@@ -69,6 +70,7 @@ export default function LoginScreen() {
       {submitError ? <Text style={styles.alert}>{submitError}</Text> : null}
 
       <PrimaryButton title="Ingresar" onPress={handleSubmit} loading={submitting} />
+      <GoogleSignInButton />
     </AuthLayout>
   )
 }

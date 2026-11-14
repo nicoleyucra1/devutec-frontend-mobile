@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'
 import AuthLayout from '../src/components/AuthLayout'
 import FormField from '../src/components/FormField'
 import PrimaryButton from '../src/components/PrimaryButton'
+import GoogleSignInButton from '../src/components/GoogleSignInButton'
 import { useAuth } from '../src/hooks/useAuth'
 import { errorMessage } from '../src/utils/errorMessage'
 import { PASSWORD_RULES, validateRegister } from '../src/utils/validation'
@@ -144,6 +145,7 @@ export default function RegisterScreen() {
       {submitError ? <Text style={styles.alert}>{submitError}</Text> : null}
 
       <PrimaryButton title={copy.cta} onPress={handleSubmit} loading={submitting} />
+      <GoogleSignInButton rol={values.rol} />
     </AuthLayout>
   )
 }
