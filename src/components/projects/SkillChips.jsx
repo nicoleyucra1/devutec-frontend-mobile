@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native'
-import { colors } from '../../theme'
+import { Pressable, Text, View } from 'react-native'
+import { useThemedStyles } from '../../hooks/useTheme'
 
 // Sin onToggle solo muestra las habilidades; con onToggle se pueden elegir (formulario)
 export default function SkillChips({ skills, selectedIds, onToggle }) {
+  const styles = useThemedStyles(createStyles)
   if (!skills?.length) return null
   return (
     <View style={styles.row}>
@@ -26,18 +27,19 @@ export default function SkillChips({ skills, selectedIds, onToggle }) {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   chip: {
     backgroundColor: colors.primaryLight,
     borderColor: colors.primaryLight,
     borderRadius: 999,
     borderWidth: 1,
-    color: colors.primary,
+    color: colors.text,
+    fontFamily: fonts.medium,
     fontSize: 13,
     overflow: 'hidden',
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
-  selected: { backgroundColor: colors.primary, borderColor: colors.primary, color: '#fff' },
+  selected: { backgroundColor: colors.primary, borderColor: colors.primary, color: colors.onPrimary },
 })

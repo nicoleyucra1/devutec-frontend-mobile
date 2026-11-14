@@ -1,8 +1,10 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
-import { colors } from '../../theme'
+import { ActivityIndicator, Pressable, Text, View } from 'react-native'
+import { useTheme, useThemedStyles } from '../../hooks/useTheme'
 
 // Pantallas de carga, error y lista vacía, con un botón opcional
 export default function StateView({ loading, title, message, actionLabel, onAction }) {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.container}>
       {loading ? <ActivityIndicator size="large" color={colors.primary} /> : null}
@@ -17,10 +19,10 @@ export default function StateView({ loading, title, message, actionLabel, onActi
   )
 }
 
-const styles = StyleSheet.create({
-  container: { alignItems: 'center', flex: 1, gap: 8, justifyContent: 'center', padding: 32 },
-  title: { color: colors.text, fontSize: 16, fontWeight: '600', textAlign: 'center' },
-  message: { color: colors.muted, textAlign: 'center' },
-  button: { borderColor: colors.border, borderRadius: 8, borderWidth: 1, marginTop: 8, paddingHorizontal: 16, paddingVertical: 8 },
-  buttonText: { color: colors.text, fontWeight: '500' },
+const createStyles = ({ colors, fonts }) => ({
+  container: { alignItems: 'center', backgroundColor: colors.background, flex: 1, gap: 8, justifyContent: 'center', padding: 32 },
+  title: { color: colors.text, fontFamily: fonts.semibold, fontSize: 16, textAlign: 'center' },
+  message: { color: colors.muted, fontFamily: fonts.regular, textAlign: 'center' },
+  button: { borderColor: colors.border, borderRadius: 14, borderWidth: 1, marginTop: 8, paddingHorizontal: 16, paddingVertical: 8 },
+  buttonText: { color: colors.text, fontFamily: fonts.medium },
 })

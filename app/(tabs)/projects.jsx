@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, FlatList, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import ProjectCard from '../../src/components/projects/ProjectCard'
 import StateView from '../../src/components/projects/StateView'
-import { colors } from '../../src/theme'
+import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { useDebounce } from '../../src/hooks/useDebounce'
 import { useProjectFeed } from '../../src/hooks/useProjectFeed'
 import { useAuth } from '../../src/hooks/useAuth'
@@ -16,6 +16,8 @@ const STATUS_FILTERS = [['', 'Todos'], ...Object.entries(STATUS_LABELS)]
 export default function ProjectsScreen() {
   const router = useRouter()
   const { user } = useAuth()
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState('')
   const debouncedSearch = useDebounce(search, 400)
@@ -56,7 +58,7 @@ export default function ProjectsScreen() {
           <Ionicons name="search" size={18} color={colors.muted} />
           <TextInput
             style={styles.searchInput}
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={colors.muted}
             placeholder="Buscar por título o descripción"
             value={search}
             onChangeText={setSearch}
@@ -110,37 +112,37 @@ export default function ProjectsScreen() {
           accessibilityRole="button"
           accessibilityLabel="Publicar proyecto"
         >
-          <Ionicons name="add" size={28} color="#fff" />
+          <Ionicons name="add" size={28} color={colors.onPrimary} />
         </Pressable>
       ) : null}
     </View>
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   container: { backgroundColor: colors.background, flex: 1 },
-  filters: { backgroundColor: '#fff', borderBottomColor: colors.border, borderBottomWidth: 1, gap: 10, paddingTop: 12 },
+  filters: { backgroundColor: colors.card, borderBottomColor: colors.border, borderBottomWidth: 1, gap: 10, paddingTop: 12 },
   searchBox: {
     alignItems: 'center',
-    borderColor: colors.border,
-    borderRadius: 10,
+    borderColor: colors.inputBorder,
+    borderRadius: 14,
     borderWidth: 1,
     flexDirection: 'row',
     gap: 8,
     marginHorizontal: 16,
     paddingHorizontal: 12,
   },
-  searchInput: { color: colors.text, flex: 1, fontSize: 15, paddingVertical: 10 },
+  searchInput: { color: colors.text, flex: 1, fontFamily: fonts.regular, fontSize: 15, paddingVertical: 10 },
   chips: { gap: 8, paddingBottom: 12, paddingHorizontal: 16 },
   chip: { borderColor: colors.border, borderRadius: 999, borderWidth: 1, paddingHorizontal: 14, paddingVertical: 6 },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.text, fontSize: 13 },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
+  chipText: { color: colors.text, fontFamily: fonts.medium, fontSize: 13 },
+  chipTextActive: { color: colors.onPrimary, fontFamily: fonts.semibold },
   list: { padding: 16, paddingBottom: 96 },
   emptyList: { flexGrow: 1 },
   separator: { height: 12 },
   footer: { padding: 16 },
-  retry: { color: colors.error, textAlign: 'center' },
+  retry: { color: colors.error, fontFamily: fonts.regular, textAlign: 'center' },
   fab: {
     alignItems: 'center',
     backgroundColor: colors.primary,
