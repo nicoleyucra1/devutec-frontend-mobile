@@ -1,20 +1,22 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
 import { router, Stack, useLocalSearchParams } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import SkillChips from '../../src/components/projects/SkillChips'
 import StateView from '../../src/components/projects/StateView'
 import StatusBadge from '../../src/components/projects/StatusBadge'
-import { colors } from '../../src/theme'
+import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useProject } from '../../src/hooks/useProject'
 import { formatBudget, formatDate } from '../../src/utils/format'
 
 // En iOS la barra de arriba es transparente por defecto y tapaba el contenido; con fondo sólido
-// la pantalla empieza debajo de ella
-const HEADER_OPTIONS = { headerShown: true, headerTransparent: false, headerStyle: { backgroundColor: colors.white } }
+// la pantalla empieza debajo de ella. El color lo pone el tema desde _layout.
+const HEADER_OPTIONS = { headerShown: true, headerTransparent: false }
 
 function Meta({ icon, label, value }) {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
   return (
     <View style={styles.metaItem}>
       <Ionicons name={icon} size={18} color={colors.muted} />
@@ -30,6 +32,7 @@ export default function ProjectDetailScreen() {
   const { id } = useLocalSearchParams()
   const { user } = useAuth()
   const { data: project, loading, error, reload } = useProject(id)
+  const styles = useThemedStyles(createStyles)
 
   return (
     <>
@@ -72,16 +75,16 @@ export default function ProjectDetailScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const createStyles = ({ colors, fonts }) => ({
   container: { backgroundColor: colors.background, flex: 1 },
   content: { gap: 16, padding: 16 },
   header: { gap: 8 },
-  title: { color: colors.text, fontSize: 22, fontWeight: '700' },
-  card: { backgroundColor: '#fff', borderColor: colors.border, borderRadius: 12, borderWidth: 1, gap: 14, padding: 16 },
+  title: { color: colors.text, fontFamily: fonts.bold, fontSize: 22 },
+  card: { backgroundColor: colors.card, borderColor: colors.border, borderRadius: 16, borderWidth: 1, gap: 14, padding: 16 },
   metaItem: { alignItems: 'center', flexDirection: 'row', gap: 12 },
-  metaLabel: { color: colors.muted, fontSize: 12 },
-  metaValue: { color: colors.text, fontSize: 15, fontWeight: '600' },
+  metaLabel: { color: colors.muted, fontFamily: fonts.regular, fontSize: 12 },
+  metaValue: { color: colors.text, fontFamily: fonts.semibold, fontSize: 15 },
   section: { gap: 8 },
-  sectionTitle: { color: colors.text, fontSize: 15, fontWeight: '600' },
-  description: { color: colors.muted, fontSize: 15, lineHeight: 22 },
+  sectionTitle: { color: colors.text, fontFamily: fonts.semibold, fontSize: 15 },
+  description: { color: colors.muted, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
 })

@@ -15,7 +15,7 @@ export default function ProfileQr({ userId }) {
 
   const share = () => {
     // Si el usuario cierra la hoja de compartir no pasa nada, así que el error se ignora
-    Share.share({ message: `Mira mi perfil en DevUTEC: ${link}` }).catch(() => {})
+    Share.share({ message: `Mira mi perfil en DEVUTEC: ${link}` }).catch(() => {})
   }
 
   return (

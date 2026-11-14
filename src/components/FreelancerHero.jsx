@@ -41,7 +41,7 @@ export default function FreelancerHero({ profile }) {
         <View style={styles.flex}>
           <Text style={styles.name}>{profile.nombre}</Text>
           <Text style={styles.muted}>
-            {[profile.universidad, studyLabel(profile)].filter(Boolean).join(' · ') || 'Freelancer de DevUTEC'}
+            {[profile.universidad, studyLabel(profile)].filter(Boolean).join(' · ') || 'Freelancer de DEVUTEC'}
           </Text>
         </View>
       </View>

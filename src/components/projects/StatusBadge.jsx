@@ -1,15 +1,18 @@
 import { StyleSheet, Text } from 'react-native'
+import { useTheme } from '../../hooks/useTheme'
 import { STATUS_LABELS } from '../../utils/format'
 
-const STATUS_COLORS = {
-  OPEN: { backgroundColor: '#dcfce7', color: '#166534' },
-  IN_PROGRESS: { backgroundColor: '#fef9c3', color: '#854d0e' },
-  DONE: { backgroundColor: '#f3f4f6', color: '#374151' },
-}
+// Abierto en verde, en curso en ámbar y terminado en gris; los tonos cambian con el modo claro u oscuro
+const statusColors = (colors) => ({
+  OPEN: { backgroundColor: colors.accentLight, color: colors.accent },
+  IN_PROGRESS: { backgroundColor: colors.pendingLight, color: colors.pending },
+  DONE: { backgroundColor: colors.primaryLight, color: colors.muted },
+})
 
 export default function StatusBadge({ status }) {
-  const palette = STATUS_COLORS[status] ?? STATUS_COLORS.DONE
-  return <Text style={[styles.badge, palette]}>{STATUS_LABELS[status] ?? status}</Text>
+  const { colors, fonts } = useTheme()
+  const palette = statusColors(colors)[status] ?? statusColors(colors).DONE
+  return <Text style={[styles.badge, { fontFamily: fonts.semibold }, palette]}>{STATUS_LABELS[status] ?? status}</Text>
 }
 
 const styles = StyleSheet.create({
@@ -17,7 +20,6 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     borderRadius: 999,
     fontSize: 12,
-    fontWeight: '600',
     overflow: 'hidden',
     paddingHorizontal: 10,
     paddingVertical: 2,

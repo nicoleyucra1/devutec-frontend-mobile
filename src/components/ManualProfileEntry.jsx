@@ -12,7 +12,7 @@ export default function ManualProfileEntry({ onSubmit, autoFocus = false }) {
   const submit = () => {
     const userId = parseProfileLink(value)
     if (!userId) {
-      setError('Eso no es un enlace de perfil de DevUTEC. Revisa que esté completo.')
+      setError('Eso no es un enlace de perfil de DEVUTEC. Revisa que esté completo.')
       return
     }
     setError(null)
