@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Linking, Pressable, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import AuthLayout from '../src/components/AuthLayout'
 import FormField from '../src/components/FormField'
@@ -19,6 +19,10 @@ const COPY = {
   CLIENT: { nameLabel: 'Nombre del negocio', namePh: 'Pizzería Don Mario', mailPh: 'tu@negocio.pe', cta: 'Crear cuenta como cliente' },
   FREELANCER: { nameLabel: 'Nombres y apellidos', namePh: 'Camila Ríos', mailPh: 'tu@utec.edu.pe', cta: 'Crear cuenta como freelancer' },
 }
+
+// Páginas de términos y privacidad de la web
+const TERMS_URL = 'https://devutec.vercel.app/terminos'
+const PRIVACY_URL = 'https://devutec.vercel.app/privacidad'
 
 const INITIAL_VALUES = { nombre: '', email: '', password: '', rol: 'CLIENT', terms: false }
 
@@ -135,8 +139,15 @@ export default function RegisterScreen() {
           {values.terms ? <Ionicons name="checkmark" size={14} color={colors.onPrimary} /> : null}
         </View>
         <Text style={styles.termsText}>
-          Acepto los <Text style={styles.termsBold}>Términos y condiciones</Text> y la{' '}
-          <Text style={styles.termsBold}>Política de privacidad</Text>.
+          Acepto los{' '}
+          <Text style={styles.termsLink} onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link">
+            Términos y condiciones
+          </Text>{' '}
+          y la{' '}
+          <Text style={styles.termsLink} onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link">
+            Política de privacidad
+          </Text>
+          .
         </Text>
       </Pressable>
       {errors.terms ? <Text style={styles.error}>{errors.terms}</Text> : null}
@@ -198,7 +209,7 @@ const createStyles = ({ colors, fonts, radius }) => ({
   },
   checkboxOn: { backgroundColor: colors.primary, borderColor: colors.primary },
   termsText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, color: colors.muted },
-  termsBold: { fontFamily: fonts.semibold, color: colors.text },
+  termsLink: { fontFamily: fonts.semibold, color: colors.text, textDecorationLine: 'underline' },
   error: { fontFamily: fonts.medium, color: colors.error, fontSize: 13, marginTop: 4 },
   alert: {
     fontFamily: fonts.medium,
