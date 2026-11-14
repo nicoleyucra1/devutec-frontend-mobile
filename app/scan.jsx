@@ -187,12 +187,12 @@ export default function ScanScreen() {
   else if (invalidCode) frameColor = darkColors.error
 
   let hint = 'Apunta al código QR'
-  let subhint = 'de un perfil DevUTEC, dentro del recuadro'
+  let subhint = 'de un perfil DEVUTEC, dentro del recuadro'
   if (foundId) {
     hint = 'Perfil detectado'
     subhint = `devutec://freelancers/${foundId}`
   } else if (invalidCode) {
-    hint = 'Ese QR no es de un perfil de DevUTEC'
+    hint = 'Ese QR no es de un perfil de DEVUTEC'
     subhint = 'Prueba con otro código'
   }
 
@@ -254,7 +254,7 @@ export default function ScanScreen() {
               <PermissionNotice
                 icon="camera-outline"
                 kicker={permission.canAskAgain ? 'PERMISO DE CÁMARA' : 'CÁMARA DESACTIVADA'}
-                title={permission.canAskAgain ? 'Escanea perfiles con' : 'DevUTEC no puede'}
+                title={permission.canAskAgain ? 'Escanea perfiles con' : 'DEVUTEC no puede'}
                 highlight={permission.canAskAgain ? 'tu cámara.' : 'ver el código.'}
                 message="Solo la usamos para leer el QR del perfil de un freelancer, mientras esta pantalla está abierta. No guardamos fotos."
                 canAskAgain={permission.canAskAgain}

@@ -6,7 +6,7 @@ export function buildProfileLink(userId) {
   return `${PREFIX}${userId}`
 }
 
-// Devuelve el id de usuario del perfil, o null si el texto no es un perfil de DevUTEC.
+// Devuelve el id de usuario del perfil, o null si el texto no es un perfil de DEVUTEC.
 // Acepta el enlace del QR, la URL del perfil en la web (.../freelancers/49) o solo el número.
 export function parseProfileLink(text) {
   const value = String(text ?? '').trim()

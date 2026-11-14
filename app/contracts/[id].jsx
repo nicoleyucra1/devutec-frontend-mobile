@@ -15,7 +15,7 @@ import { CONTRACT_STATUS, PAYMENT_STATUS } from '../../src/utils/status'
 import { useThemedStyles } from '../../src/hooks/useTheme'
 
 const PAYMENT_TEXT = {
-  HELD: 'DevUTEC guarda el pago hasta que el cliente confirme la entrega.',
+  HELD: 'DEVUTEC guarda el pago hasta que el cliente confirme la entrega.',
   RELEASED: 'El pago ya fue entregado al freelancer.',
   REFUNDED: 'El pago fue devuelto al cliente.',
 }
