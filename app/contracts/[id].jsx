@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { RefreshControl, ScrollView, Text, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { AppState, Linking, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import ScreenState from '../../src/components/ScreenState'
@@ -30,6 +30,62 @@ export default function ContractDetailScreen() {
   // Acción en curso ('deliver', 'confirm' o 'cancel'); su botón muestra que está cargando
   const [running, setRunning] = useState(null)
   const [message, setMessage] = useState(null)
+
+  // Pago con tarjeta: la página de Stripe se abre en el navegador. Mientras tanto se guarda la sesión,
+  // y al volver a la app se le pregunta al backend si ya se pagó.
+  const pendingSession = useRef(null)
+  const [awaitingPayment, setAwaitingPayment] = useState(false)
+
+  const verifyPayment = async () => {
+    const sessionId = pendingSession.current
+    if (!sessionId) return
+    setRunning('pay')
+    setMessage(null)
+    try {
+      await contractService.confirmCheckout(id, sessionId)
+      pendingSession.current = null
+      setAwaitingPayment(false)
+      setMessage({ ok: true, text: 'Pago recibido. El dinero queda en garantía hasta que confirmes la entrega.' })
+      reload()
+    } catch (err) {
+      // 409: Stripe todavía no marca la sesión como pagada (se cerró la página o aún se está procesando)
+      setMessage({
+        ok: false,
+        text:
+          err.response?.status === 409
+            ? 'Todavía no vemos el pago. Si ya pagaste, toca "Ya pagué, verificar" en unos segundos.'
+            : errorMessage(err),
+      })
+    } finally {
+      setRunning(null)
+    }
+  }
+
+  // Se guarda la última versión de verifyPayment para usarla desde el listener sin volver a registrarlo
+  const verifyRef = useRef(verifyPayment)
+  verifyRef.current = verifyPayment
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && pendingSession.current) verifyRef.current()
+    })
+    return () => subscription.remove()
+  }, [])
+
+  const handlePay = async () => {
+    setRunning('pay')
+    setMessage(null)
+    try {
+      const { sessionId, checkoutUrl } = await contractService.startCheckout(id)
+      pendingSession.current = sessionId
+      setAwaitingPayment(true)
+      await Linking.openURL(checkoutUrl)
+    } catch (err) {
+      setMessage({ ok: false, text: errorMessage(err) })
+    } finally {
+      setRunning(null)
+    }
+  }
 
   // Llama al endpoint de la acción y muestra el resultado arriba
   const run = async (type, request, successText) => {
@@ -80,6 +136,12 @@ export default function ContractDetailScreen() {
   const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS'
   const canCancel = isClient && contract.status === 'IN_PROGRESS'
   const canConfirm = isClient && contract.status === 'DELIVERED'
+  // El cliente puede pagar con tarjeta mientras el contrato siga abierto y no lo haya pagado antes
+  const canPay =
+    isClient &&
+    (contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED') &&
+    contract.paymentStatus === 'HELD' &&
+    !contract.paidWithCard
 
   return (
     <ScrollView
@@ -105,7 +167,23 @@ export default function ContractDetailScreen() {
         <View style={styles.paymentBox}>
           <StatusBadge status={PAYMENT_STATUS[contract.paymentStatus]} fallback={contract.paymentStatus} />
           <Text style={styles.paymentText}>{PAYMENT_TEXT[contract.paymentStatus]}</Text>
+          {contract.paidWithCard && <Text style={styles.paidText}>Pagado con tarjeta ✓</Text>}
         </View>
+
+        {canPay && (
+          <View style={styles.payBox}>
+            <PrimaryButton title="Pagar con tarjeta" loading={running === 'pay' && !awaitingPayment} onPress={handlePay} />
+            {awaitingPayment && (
+              <PrimaryButton
+                title="Ya pagué, verificar"
+                variant="secondary"
+                loading={running === 'pay'}
+                onPress={verifyPayment}
+              />
+            )}
+            <Text style={styles.payHint}>Modo de prueba: tarjeta 4242 4242 4242 4242, cualquier fecha futura y CVC</Text>
+          </View>
+        )}
 
         {canDeliver && (
           <PrimaryButton title="Marcar como entregado" loading={running === 'deliver'} onPress={handleDeliver} />
@@ -152,6 +230,9 @@ const createStyles = ({ colors, fonts }) => ({
   infoValue: { fontSize: 15, fontFamily: fonts.semibold, color: colors.text, marginTop: 2 },
   paymentBox: { backgroundColor: colors.background, borderRadius: 10, padding: 12, gap: 6, marginBottom: 8 },
   paymentText: { color: colors.text, fontSize: 13 },
+  paidText: { color: colors.accent, fontSize: 13, fontFamily: fonts.semibold },
+  payBox: { gap: 8, marginBottom: 8 },
+  payHint: { color: colors.muted, fontSize: 11, textAlign: 'center' },
   message: { padding: 12, borderRadius: 10 },
   success: { backgroundColor: colors.accentLight, color: colors.accent },
   error: { backgroundColor: colors.errorLight, color: colors.error },
