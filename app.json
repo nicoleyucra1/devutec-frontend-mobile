@@ -56,11 +56,12 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "DevUTEC usa la cámara para escanear el código QR del perfil de un freelancer.",
+          "cameraPermission": "DEVUTEC usa la cámara para escanear el código QR del perfil de un freelancer.",
           "microphonePermission": false,
           "recordAudioAndroid": false
         }
-      ]
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "scheme": "devutec",
     "extra": {
