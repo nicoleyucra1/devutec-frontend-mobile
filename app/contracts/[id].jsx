@@ -62,7 +62,7 @@ export default function ContractDetailScreen() {
           ok: false,
           text:
             err.response?.status === 409
-              ? 'Todavía no vemos el pago. Si ya pagaste, toca "Ya pagué, verificar" en unos segundos.'
+              ? 'Todavía no vemos el pago. Si cancelaste, no se hizo ningún cobro. Si ya pagaste, toca "Ya pagué, verificar" en unos segundos.'
               : errorMessage(err),
         })
       }
