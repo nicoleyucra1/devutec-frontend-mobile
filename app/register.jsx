@@ -58,6 +58,8 @@ export default function RegisterScreen() {
         email: values.email.trim(),
         password: values.password,
         rol: values.rol,
+        // El backend guarda la fecha en que se aceptaron los términos y rechaza el registro sin esta casilla
+        acceptedTerms: values.terms,
       })
     } catch (error) {
       setSubmitError(error.response?.status === 409 ? 'Ya existe una cuenta con ese correo' : errorMessage(error))
