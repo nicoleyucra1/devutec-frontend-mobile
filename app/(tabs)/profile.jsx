@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'
 import EditableAvatar from '../../src/components/EditableAvatar'
 import FreelancerHero from '../../src/components/FreelancerHero'
 import GithubRepos from '../../src/components/GithubRepos'
+import PhoneEditor from '../../src/components/PhoneEditor'
 import ProfileQr from '../../src/components/ProfileQr'
 import { useAuth } from '../../src/hooks/useAuth'
 import { userService } from '../../src/services/userService'
@@ -91,6 +92,15 @@ export default function ProfileScreen() {
 
       {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} refreshKey={refreshKey} />}
 
+      {user.rol !== 'ADMIN' && (
+        <>
+          <Text style={styles.section}>CELULAR PARA WHATSAPP</Text>
+          <View style={styles.phoneCard}>
+            <PhoneEditor help="Solo lo ve la otra persona cuando tienen un contrato, para escribirte por WhatsApp." />
+          </View>
+        </>
+      )}
+
       <Text style={styles.section}>APARIENCIA</Text>
       {/* Sistema sigue el modo del celular; Claro y Oscuro lo fijan y se recuerda al volver a abrir la app */}
       <View style={styles.segmented} accessibilityRole="radiogroup">
@@ -146,6 +156,7 @@ const createStyles = ({ colors, fonts, radius }) => ({
     borderRadius: 999,
     overflow: 'hidden',
   },
+  phoneCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: radius.xl, padding: 16 },
   section: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.2, color: colors.muted, marginTop: 28, marginBottom: 10 },
   segmented: {
     flexDirection: 'row',
