@@ -1,5 +1,6 @@
 import { Image } from 'react-native'
 import { useTheme } from '../../hooks/useTheme'
+import PropTypes from 'prop-types'
 
 // Ancho dividido entre alto de logo-mark.png
 export const LOGO_ASPECT_RATIO = 800 / 566
@@ -16,4 +17,9 @@ export default function LogoMark({ width = 48, variant }) {
       accessibilityLabel="Logo de DEVUTEC"
     />
   )
+}
+
+LogoMark.propTypes = {
+  width: PropTypes.number,
+  variant: PropTypes.string,
 }

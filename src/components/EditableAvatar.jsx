@@ -4,6 +4,8 @@ import Avatar from './Avatar'
 import { useAuth } from '../hooks/useAuth'
 import { useAvatarActions } from '../hooks/useAvatarActions'
 import { useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
+import { styleType } from '../utils/propShapes'
 
 // La foto de la persona con sesión, con un ícono de cámara: al tocarla se puede cambiar o quitar.
 // Muestra la foto del usuario actualizado (no la que venía en el perfil), así cambia apenas termina de subir.
@@ -66,3 +68,10 @@ const createStyles = ({ colors }) => ({
     justifyContent: 'center',
   },
 })
+
+EditableAvatar.propTypes = {
+  size: PropTypes.number,
+  fallbackStyle: styleType,
+  textStyle: styleType,
+  badgeBorder: PropTypes.string,
+}

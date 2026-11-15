@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import BrandLockup from './brand/BrandLockup'
 import Cuyi from './brand/Cuyi'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
 
 const TABS = [
   { key: 'login', label: 'Ingresar', href: '/login' },
@@ -127,3 +128,8 @@ const createStyles = ({ colors, fonts, radius, isDark }) => ({
   tabText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.muted },
   tabTextSelected: { color: colors.text },
 })
+
+AuthLayout.propTypes = {
+  tab: PropTypes.oneOf(['login', 'register']).isRequired,
+  children: PropTypes.node,
+}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AccessibilityInfo, View } from 'react-native'
+import PropTypes from 'prop-types'
 
 // Cuyi, la mascota: pixel art de 16 × 16 con cinco animaciones (del sistema de diseño de Ari).
 //   saluda     → bienvenida, login y registro
@@ -171,4 +172,9 @@ export default function Cuyi({ anim = 'saluda', size = 128 }) {
       {rows}
     </View>
   )
+}
+
+Cuyi.propTypes = {
+  anim: PropTypes.oneOf(Object.keys(ANIMATIONS)),
+  size: PropTypes.number,
 }

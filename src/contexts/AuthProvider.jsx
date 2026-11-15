@@ -4,6 +4,7 @@ import { authService } from '../services/authService'
 import { userService } from '../services/userService'
 import { setSessionExpiredHandler } from '../services/api'
 import { tokenStorage } from '../utils/tokenStorage'
+import PropTypes from 'prop-types'
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -81,4 +82,8 @@ export function AuthProvider({ children }) {
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+AuthProvider.propTypes = {
+  children: PropTypes.node,
 }

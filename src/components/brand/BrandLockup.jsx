@@ -1,6 +1,7 @@
 import { View } from 'react-native'
 import LogoMark from './LogoMark'
 import Wordmark from './Wordmark'
+import PropTypes from 'prop-types'
 
 // Logo completo: el símbolo DU y el nombre al lado
 export default function BrandLockup({ size = 16 }) {
@@ -10,4 +11,8 @@ export default function BrandLockup({ size = 16 }) {
       <Wordmark size={size} />
     </View>
   )
+}
+
+BrandLockup.propTypes = {
+  size: PropTypes.number,
 }

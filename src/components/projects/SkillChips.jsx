@@ -1,5 +1,7 @@
 import { Pressable, Text, View } from 'react-native'
 import { useThemedStyles } from '../../hooks/useTheme'
+import PropTypes from 'prop-types'
+import { idType, skillShape } from '../../utils/propShapes'
 
 // Sin onToggle solo muestra las habilidades; con onToggle se pueden elegir (formulario)
 export default function SkillChips({ skills, selectedIds, onToggle }) {
@@ -43,3 +45,9 @@ const createStyles = ({ colors, fonts }) => ({
   },
   selected: { backgroundColor: colors.primary, borderColor: colors.primary, color: colors.onPrimary },
 })
+
+SkillChips.propTypes = {
+  skills: PropTypes.arrayOf(skillShape),
+  selectedIds: PropTypes.arrayOf(idType),
+  onToggle: PropTypes.func,
+}

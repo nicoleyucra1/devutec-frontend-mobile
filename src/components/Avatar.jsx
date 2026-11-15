@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Image, Text, View } from 'react-native'
 import { useThemedStyles } from '../hooks/useTheme'
 import { avatarSrc } from '../utils/avatar'
+import PropTypes from 'prop-types'
+import { styleType } from '../utils/propShapes'
 
 // Iniciales para cuando no hay foto ("CR" para Camila Ríos)
 export function initials(name) {
@@ -46,3 +48,12 @@ const createStyles = ({ colors, fonts }) => ({
   fallback: { backgroundColor: colors.escrow, alignItems: 'center', justifyContent: 'center' },
   text: { fontFamily: fonts.bold, color: '#FFFFFF' },
 })
+
+Avatar.propTypes = {
+  name: PropTypes.string,
+  src: PropTypes.string,
+  size: PropTypes.number,
+  style: styleType,
+  fallbackStyle: styleType,
+  textStyle: styleType,
+}

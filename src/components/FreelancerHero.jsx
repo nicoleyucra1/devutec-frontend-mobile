@@ -3,6 +3,8 @@ import { Ionicons } from '@expo/vector-icons'
 import Avatar from './Avatar'
 import EditableAvatar from './EditableAvatar'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
+import { freelancerProfileShape } from '../utils/propShapes'
 
 function studyLabel(profile) {
   if (profile.egresado) return 'Egresado'
@@ -108,3 +110,8 @@ const createStyles = ({ colors, fonts, isDark }) => ({
   statValue: { fontFamily: fonts.semibold, fontSize: 18, color: '#FFFFFF' },
   statLabel: { fontFamily: fonts.regular, fontSize: 11, color: '#8F8D86', marginTop: 2 },
 })
+
+FreelancerHero.propTypes = {
+  profile: freelancerProfileShape.isRequired,
+  editable: PropTypes.bool,
+}

@@ -1,6 +1,7 @@
 import { StyleSheet, Text } from 'react-native'
 import { useTheme } from '../../hooks/useTheme'
 import { STATUS_LABELS } from '../../utils/format'
+import PropTypes from 'prop-types'
 
 // Abierto en verde, en curso en ámbar y terminado en gris; los tonos cambian con el modo claro u oscuro
 const statusColors = (colors) => ({
@@ -25,3 +26,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
 })
+
+StatusBadge.propTypes = {
+  status: PropTypes.string,
+}
