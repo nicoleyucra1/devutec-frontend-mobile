@@ -1,9 +1,12 @@
-import { ActivityIndicator, Pressable, ScrollView, Text, View } from 'react-native'
+import { useEffect, useState } from 'react'
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import EditableAvatar from '../../src/components/EditableAvatar'
 import FreelancerHero from '../../src/components/FreelancerHero'
 import GithubRepos from '../../src/components/GithubRepos'
 import ProfileQr from '../../src/components/ProfileQr'
 import { useAuth } from '../../src/hooks/useAuth'
+import { userService } from '../../src/services/userService'
 import { useMyFreelancerProfile } from '../../src/hooks/useMyFreelancerProfile'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { ROLE_LABELS } from '../../src/utils/roles'
@@ -14,19 +17,13 @@ const THEME_OPTIONS = [
   { value: 'dark', label: 'Oscuro', icon: 'moon-outline' },
 ]
 
-// Iniciales para el avatar, como en el diseño ("CR" para Camila Ríos)
-function initials(name) {
-  return (name ?? '?')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('')
-}
-
 // Datos del perfil de freelancer que se muestran en el celular: su tarjeta con la tarifa, su QR y sus repos de GitHub
-function FreelancerSection({ userId }) {
+// refreshKey cambia al deslizar hacia abajo para actualizar: ahí se vuelve a pedir el perfil
+function FreelancerSection({ userId, refreshKey }) {
   const { data: profile, error, loading, reload } = useMyFreelancerProfile()
+  useEffect(() => {
+    if (refreshKey > 0) reload()
+  }, [refreshKey, reload])
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
 
@@ -45,7 +42,7 @@ function FreelancerSection({ userId }) {
 
   return (
     <>
-      <FreelancerHero profile={profile} />
+      <FreelancerHero profile={profile} editable />
       <ProfileQr userId={userId} />
       <GithubRepos username={profile.githubUsername} isOwner />
     </>
@@ -53,18 +50,35 @@ function FreelancerSection({ userId }) {
 }
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUser } = useAuth()
   const { colors, preference, setPreference } = useTheme()
   const styles = useThemedStyles(createStyles)
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Al deslizar hacia abajo se piden de nuevo los datos del usuario (su foto) y, si es freelancer, su perfil
+  const refresh = async () => {
+    setRefreshing(true)
+    setRefreshKey((key) => key + 1)
+    try {
+      await updateUser(await userService.getMe())
+    } catch {
+      // Sin conexión se sigue mostrando lo que ya estaba
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={styles.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.text} />}
+    >
       {/* El freelancer ve su tarjeta con la tarifa (FreelancerHero); los demás roles, su nombre y correo */}
       {user.rol !== 'FREELANCER' && (
         <View style={styles.card}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>{initials(user.nombre ?? user.email)}</Text>
-          </View>
+          <EditableAvatar size={48} badgeBorder={colors.card} />
           <View style={styles.flex}>
             <Text style={styles.name}>{user.nombre ?? 'Sin nombre'}</Text>
             <Text style={styles.muted}>{user.email}</Text>
@@ -73,7 +87,7 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} />}
+      {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} refreshKey={refreshKey} />}
 
       <Text style={styles.section}>APARIENCIA</Text>
       {/* Sistema sigue el modo del celular; Claro y Oscuro lo fijan y se recuerda al volver a abrir la app */}
@@ -118,8 +132,6 @@ const createStyles = ({ colors, fonts, radius }) => ({
     borderRadius: radius.xl,
     padding: 16,
   },
-  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.escrow, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontFamily: fonts.bold, color: '#FFFFFF', fontSize: 16 },
   name: { fontFamily: fonts.bold, fontSize: 18, color: colors.text },
   muted: { fontFamily: fonts.regular, color: colors.muted, marginTop: 2 },
   badge: {

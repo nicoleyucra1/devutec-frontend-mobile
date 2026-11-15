@@ -1,16 +1,8 @@
-import { Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import Avatar from './Avatar'
+import EditableAvatar from './EditableAvatar'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
-
-// Iniciales para el avatar ("CR" para Camila Ríos)
-function initials(name) {
-  return (name ?? '?')
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('')
-}
 
 function studyLabel(profile) {
   if (profile.egresado) return 'Egresado'
@@ -26,7 +18,8 @@ function splitRate(value) {
 
 // Tarjeta oscura del freelancer: nombre, estudios, tarifa por hora y calificación.
 // Se usa en su pestaña Perfil y en el perfil público que ven los clientes.
-export default function FreelancerHero({ profile }) {
+// editable: en su propia pestaña Perfil la foto se puede tocar para cambiarla.
+export default function FreelancerHero({ profile, editable = false }) {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
   const hasRate = profile.tarifaHora !== null && profile.tarifaHora !== undefined
@@ -35,9 +28,11 @@ export default function FreelancerHero({ profile }) {
   return (
     <View style={styles.hero}>
       <View style={styles.identity}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{initials(profile.nombre)}</Text>
-        </View>
+        {editable ? (
+          <EditableAvatar size={56} fallbackStyle={styles.avatar} textStyle={styles.avatarText} badgeBorder={StyleSheet.flatten(styles.hero).backgroundColor} />
+        ) : (
+          <Avatar name={profile.nombre} src={profile.avatarUrl} size={56} fallbackStyle={styles.avatar} textStyle={styles.avatarText} />
+        )}
         <View style={styles.flex}>
           <Text style={styles.name}>{profile.nombre}</Text>
           <Text style={styles.muted}>
@@ -89,15 +84,9 @@ const createStyles = ({ colors, fonts, isDark }) => ({
   },
   flex: { flex: 1 },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.lime,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { fontFamily: fonts.bold, fontSize: 16, color: colors.ink },
+  // Sin foto: iniciales en tinta sobre un círculo lima
+  avatar: { backgroundColor: colors.lime },
+  avatarText: { fontSize: 16, color: colors.ink },
   name: { fontFamily: fonts.semibold, fontSize: 18, color: '#FFFFFF' },
   muted: { fontFamily: fonts.regular, fontSize: 12, color: '#AAA8A0', marginTop: 2 },
   rateRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 20 },
