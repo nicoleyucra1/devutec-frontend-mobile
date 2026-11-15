@@ -1,5 +1,7 @@
 import { ActivityIndicator, Pressable, Text } from 'react-native'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
+import { styleType } from '../utils/propShapes'
 
 // Botón del diseño (alto 54, radio 16). variant "primary": tinta (lima en modo oscuro); "secondary": con borde;
 // "danger": rojo, para acciones destructivas como cancelar un contrato.
@@ -52,3 +54,13 @@ const createStyles = ({ colors, fonts, radius }) => ({
   disabled: { opacity: 0.38 },
   text: { fontFamily: fonts.semibold, fontSize: 15 },
 })
+
+PrimaryButton.propTypes = {
+  title: PropTypes.string.isRequired,
+  onPress: PropTypes.func,
+  loading: PropTypes.bool,
+  disabled: PropTypes.bool,
+  variant: PropTypes.oneOf(['primary', 'secondary', 'danger']),
+  icon: PropTypes.node,
+  style: styleType,
+}

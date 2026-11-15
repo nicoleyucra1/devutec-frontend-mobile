@@ -6,6 +6,7 @@ import PrimaryButton from './PrimaryButton'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 import { errorMessage } from '../utils/errorMessage'
+import PropTypes from 'prop-types'
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
 
@@ -154,3 +155,7 @@ const createStyles = ({ colors, fonts, radius }) => ({
     overflow: 'hidden',
   },
 })
+
+GoogleSignInButton.propTypes = {
+  rol: PropTypes.oneOf(['CLIENT', 'FREELANCER']),
+}

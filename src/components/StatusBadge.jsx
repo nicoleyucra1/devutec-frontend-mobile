@@ -1,5 +1,7 @@
 import { Text } from 'react-native'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
+import { statusShape } from '../utils/propShapes'
 
 // Colores de cada tono, tomados de la paleta del tema para que cambien con el modo claro u oscuro
 function toneColors(colors, tone) {
@@ -35,3 +37,8 @@ const createStyles = ({ fonts }) => ({
     overflow: 'hidden',
   },
 })
+
+StatusBadge.propTypes = {
+  status: statusShape,
+  fallback: PropTypes.string,
+}

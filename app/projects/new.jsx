@@ -19,6 +19,7 @@ import { useProjectActions } from '../../src/hooks/useProjectActions'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useSkills } from '../../src/hooks/useSkills'
 import { detectDistrict } from '../../src/utils/location'
+import PropTypes from 'prop-types'
 
 // En iOS la barra de arriba es transparente por defecto y tapaba el contenido; con fondo sólido
 // la pantalla empieza debajo de ella. El color lo pone el tema desde _layout.
@@ -255,3 +256,9 @@ const createStyles = ({ colors, fonts }) => ({
   submitPressed: { opacity: 0.7 },
   submitText: { color: colors.onPrimary, fontFamily: fonts.semibold, fontSize: 16 },
 })
+
+Field.propTypes = {
+  label: PropTypes.string.isRequired,
+  error: PropTypes.string,
+  children: PropTypes.node,
+}

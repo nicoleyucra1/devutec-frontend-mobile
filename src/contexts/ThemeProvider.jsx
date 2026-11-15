@@ -3,6 +3,7 @@ import { useColorScheme } from 'react-native'
 import { ThemeContext } from './themeContext'
 import { darkColors, fonts, lightColors, radius } from '../theme'
 import { preferenceStorage } from '../utils/preferenceStorage'
+import PropTypes from 'prop-types'
 
 const PREFERENCE_KEY = 'devutec.theme'
 
@@ -42,4 +43,8 @@ export function ThemeProvider({ children }) {
   )
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+}
+
+ThemeProvider.propTypes = {
+  children: PropTypes.node,
 }

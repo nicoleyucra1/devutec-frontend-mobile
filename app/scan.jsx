@@ -23,6 +23,8 @@ import { useFreelancerProfile } from '../src/hooks/useFreelancerProfile'
 import { parseProfileLink } from '../src/utils/profileLink'
 import { darkColors, fonts, lightColors, radius } from '../src/theme'
 import Avatar from '../src/components/Avatar'
+import PropTypes from 'prop-types'
+import { idType } from '../src/utils/propShapes'
 
 // Tiempo que el mensaje de "QR no válido" queda en pantalla antes de volver a escanear
 const RETRY_DELAY_MS = 2000
@@ -460,3 +462,15 @@ const styles = StyleSheet.create({
   sheetSecondaryText: { fontFamily: fonts.semibold, fontSize: 15, color: lightColors.ink },
   pressed: { opacity: 0.75 },
 })
+
+Frame.propTypes = {
+  color: PropTypes.string.isRequired,
+  scanning: PropTypes.bool,
+}
+
+FoundProfileSheet.propTypes = {
+  userId: idType.isRequired,
+  bottomInset: PropTypes.number,
+  onOpen: PropTypes.func.isRequired,
+  onRescan: PropTypes.func.isRequired,
+}

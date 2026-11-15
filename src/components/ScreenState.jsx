@@ -1,6 +1,7 @@
 import { ActivityIndicator, Text, View } from 'react-native'
 import PrimaryButton from './PrimaryButton'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
 
 // Pantalla de carga, de error (con Reintentar) o de lista vacía
 export default function ScreenState({ loading, error, onRetry, emptyTitle, emptyMessage }) {
@@ -35,3 +36,11 @@ const createStyles = ({ colors, fonts }) => ({
   title: { fontSize: 16, fontFamily: fonts.semibold, color: colors.text, textAlign: 'center' },
   message: { color: colors.muted, textAlign: 'center', marginTop: 6 },
 })
+
+ScreenState.propTypes = {
+  loading: PropTypes.bool,
+  error: PropTypes.string,
+  onRetry: PropTypes.func,
+  emptyTitle: PropTypes.string,
+  emptyMessage: PropTypes.string,
+}
