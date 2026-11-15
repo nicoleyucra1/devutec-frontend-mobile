@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import { Stack } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import ChatBubble from '../src/components/support/ChatBubble'
 import TypingDots from '../src/components/support/TypingDots'
-import { FAQ } from '../src/components/support/faq'
+import { FAQ, SUPPORT_EMAIL, SUPPORT_MAILTO } from '../src/components/support/faq'
 import { supportService } from '../src/services/supportService'
 import { useTheme, useThemedStyles } from '../src/hooks/useTheme'
 
@@ -15,7 +15,10 @@ const MAX_HISTORY = 8
 function fallbackFor(status) {
   if (status === 429) return { text: 'Por hoy ya me hiciste muchas preguntas 😅 Mañana sigo. Mientras tanto, mira estas:', anim: 'duerme' }
   if (!status) return { text: 'Parece que no hay conexión con el servidor 😵 Revisa tu internet. Estas te pueden servir:', anim: 'confundido' }
-  return { text: 'Ahora no puedo pensar bien 😵 Pero estas preguntas frecuentes te pueden servir:', anim: 'confundido' }
+  return {
+    text: `Ahora no puedo pensar bien 😵 Mira estas preguntas frecuentes y, si no se resuelve, escríbele al equipo a ${SUPPORT_EMAIL}:`,
+    anim: 'confundido',
+  }
 }
 
 // Chat de ayuda con Cuyi (IA de Gemini en el backend). Si la IA falla, responde con las preguntas frecuentes guardadas.
@@ -120,7 +123,11 @@ export default function AyudaScreen() {
           </Pressable>
         </View>
         <Text style={styles.note}>
-          Cuyi usa IA y puede equivocarse.{remaining !== null && remaining <= 5 ? ` Te quedan ${remaining} preguntas hoy.` : ''}
+          Cuyi usa IA y puede equivocarse.{remaining !== null && remaining <= 5 ? ` Te quedan ${remaining} preguntas hoy.` : ''} ¿No se
+          resolvió?{' '}
+          <Text style={styles.noteLink} onPress={() => Linking.openURL(SUPPORT_MAILTO).catch(() => {})} accessibilityRole="link">
+            Escríbenos
+          </Text>
         </Text>
       </View>
     </KeyboardAvoidingView>
@@ -149,4 +156,5 @@ const createStyles = ({ colors, fonts }) => ({
   input: { flex: 1, height: 46, color: colors.text, fontFamily: fonts.regular, fontSize: 15 },
   send: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   note: { textAlign: 'center', fontFamily: fonts.regular, fontSize: 11, color: colors.muted },
+  noteLink: { fontFamily: fonts.semibold, color: colors.text, textDecorationLine: 'underline' },
 })

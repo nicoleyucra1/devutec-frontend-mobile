@@ -1,3 +1,7 @@
+// Correo al que Cuyi deriva lo que no puede resolver
+export const SUPPORT_EMAIL = 'devutec.notificaciones@gmail.com'
+export const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Ayuda con DEVUTEC')}`
+
 // Preguntas frecuentes que Cuyi sugiere al abrir el chat. Si el asistente con IA no está disponible
 // (sin conexión, sin cuota o sin configurar), Cuyi contesta estas con la respuesta guardada aquí.
 export const FAQ = [
