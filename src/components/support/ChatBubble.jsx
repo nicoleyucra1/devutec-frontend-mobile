@@ -1,22 +1,30 @@
 import { useEffect, useRef } from 'react'
-import { Animated, Easing, Text, View } from 'react-native'
+import { Animated, Easing, Linking, Text, View } from 'react-native'
 import PropTypes from 'prop-types'
 import Cuyi from '../brand/Cuyi'
+import { SUPPORT_EMAIL, SUPPORT_MAILTO } from './faq'
 import { useThemedStyles } from '../../hooks/useTheme'
 
-// Separa **negrita** del resto del texto
-function RichText({ text, style, boldStyle }) {
+// Separa **negrita** del resto del texto; el correo de soporte se puede tocar para abrir la app de correo
+function RichText({ text, style, boldStyle, linkStyle }) {
   return (
     <Text style={style}>
-      {text.split(/(\*\*[^*]+\*\*)/g).map((part, index) =>
-        part.startsWith('**') && part.endsWith('**') ? (
+      {text.split(/(\*\*[^*]+\*\*|devutec\.notificaciones@gmail\.com)/g).map((part, index) => {
+        if (part === SUPPORT_EMAIL) {
+          return (
+            <Text key={index} style={linkStyle} onPress={() => Linking.openURL(SUPPORT_MAILTO).catch(() => {})} accessibilityRole="link">
+              {part}
+            </Text>
+          )
+        }
+        return part.startsWith('**') && part.endsWith('**') ? (
           <Text key={index} style={boldStyle}>
             {part.slice(2, -2)}
           </Text>
         ) : (
           part
-        ),
-      )}
+        )
+      })}
     </Text>
   )
 }
@@ -48,7 +56,7 @@ export default function ChatBubble({ role, text, anim = 'saluda', children }) {
         <Cuyi anim={anim} size={26} />
       </View>
       <View style={styles.botBubble}>
-        {text ? <RichText text={text} style={styles.botText} boldStyle={styles.bold} /> : null}
+        {text ? <RichText text={text} style={styles.botText} boldStyle={styles.bold} linkStyle={styles.link} /> : null}
         {children}
       </View>
     </Animated.View>
@@ -59,6 +67,7 @@ RichText.propTypes = {
   text: PropTypes.string.isRequired,
   style: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
   boldStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
+  linkStyle: PropTypes.oneOfType([PropTypes.object, PropTypes.array, PropTypes.number]),
 }
 
 ChatBubble.propTypes = {
@@ -96,4 +105,5 @@ const createStyles = ({ colors, fonts }) => ({
   },
   botText: { color: colors.text, fontFamily: fonts.regular, fontSize: 14, lineHeight: 20 },
   bold: { fontFamily: fonts.semibold },
+  link: { fontFamily: fonts.semibold, color: colors.accent, textDecorationLine: 'underline' },
 })

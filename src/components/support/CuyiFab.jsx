@@ -1,13 +1,19 @@
 import { useEffect, useRef } from 'react'
 import { Animated, Easing, Pressable, StyleSheet } from 'react-native'
 import { useRouter } from 'expo-router'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Cuyi from '../brand/Cuyi'
 import { useTheme } from '../../hooks/useTheme'
 
-// Burbuja de Cuyi sobre las pestañas: entra rebotando, flota suavecito y abre el chat de ayuda
+// Alto de la barra de pestañas sin el borde inferior del teléfono (React Navigation usa 49)
+const TAB_BAR_HEIGHT = 49
+
+// Burbuja de Cuyi sobre las pestañas: entra rebotando, flota suavecito y abre el chat de ayuda.
+// Se suma el borde inferior del teléfono (la barra de gestos del iPhone), que también agranda las pestañas.
 export default function CuyiFab() {
   const router = useRouter()
   const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const enter = useRef(new Animated.Value(0)).current
   const bob = useRef(new Animated.Value(0)).current
 
@@ -29,7 +35,7 @@ export default function CuyiFab() {
   )
 
   return (
-    <Animated.View style={[styles.wrap, { opacity: enter, transform: [{ translateY }, { scale: enter }] }]}>
+    <Animated.View style={[styles.wrap, { bottom: TAB_BAR_HEIGHT + insets.bottom + 14, opacity: enter, transform: [{ translateY }, { scale: enter }] }]}>
       <Pressable
         onPress={() => router.push('/ayuda')}
         accessibilityRole="button"
@@ -43,7 +49,7 @@ export default function CuyiFab() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', right: 16, bottom: 72 },
+  wrap: { position: 'absolute', right: 16 },
   button: {
     width: 60,
     height: 60,

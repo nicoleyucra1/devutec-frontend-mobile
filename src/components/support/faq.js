@@ -1,3 +1,7 @@
+// Correo al que Cuyi deriva lo que no puede resolver
+export const SUPPORT_EMAIL = 'devutec.notificaciones@gmail.com'
+export const SUPPORT_MAILTO = `mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('Ayuda con DEVUTEC')}`
+
 // Preguntas frecuentes que Cuyi sugiere al abrir el chat. Si el asistente con IA no está disponible
 // (sin conexión, sin cuota o sin configurar), Cuyi contesta estas con la respuesta guardada aquí.
 export const FAQ = [
@@ -7,7 +11,7 @@ export const FAQ = [
   },
   {
     q: '¿Cómo postulo a un proyecto?',
-    a: 'Entra a Explorar, abre un proyecto abierto y toca Postular. Escribe un mensaje contando cómo lo harías y tu precio. Puedes cambiar tu postulación mientras siga pendiente.',
+    a: 'Entra a Explorar, abre un proyecto abierto y toca Postular. Escribe un mensaje contando cómo lo harías y tu precio. Mientras siga pendiente, puedes retirar tu postulación.',
   },
   {
     q: '¿Cómo contrato a un freelancer?',
