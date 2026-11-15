@@ -18,6 +18,7 @@ import { IntroContext } from '../src/contexts/introContext'
 import { ThemeProvider } from '../src/contexts/ThemeProvider'
 import { useAuth } from '../src/hooks/useAuth'
 import { useTheme } from '../src/hooks/useTheme'
+import PropTypes from 'prop-types'
 
 function RootNavigator() {
   const { user, loading } = useAuth()
@@ -110,4 +111,8 @@ export default function RootLayout() {
       </AuthProvider>
     </ThemeProvider>
   )
+}
+
+IntroGate.propTypes = {
+  children: PropTypes.node,
 }

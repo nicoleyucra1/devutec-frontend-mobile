@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Pressable, Text, TextInput, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
+import { styleType } from '../utils/propShapes'
 
 // Campo de formulario (alto 52, radio 14) con su etiqueta y el error debajo.
 // Con secureTextEntry muestra un ojito para ver u ocultar la contraseña. Con multiline crece hacia abajo;
@@ -59,3 +61,12 @@ const createStyles = ({ colors, fonts, radius }) => ({
   inputMultiline: { height: undefined, textAlignVertical: 'top' },
   error: { fontFamily: fonts.medium, color: colors.error, fontSize: 13, marginTop: 6 },
 })
+
+FormField.propTypes = {
+  label: PropTypes.string,
+  error: PropTypes.string,
+  secureTextEntry: PropTypes.bool,
+  multiline: PropTypes.bool,
+  style: styleType,
+  children: PropTypes.node,
+}

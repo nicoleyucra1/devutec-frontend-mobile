@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import QRCode from 'react-native-qrcode-svg'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 import { buildProfileLink } from '../utils/profileLink'
+import { idType } from '../utils/propShapes'
 
 // QR con el enlace al perfil público del freelancer, para que un cliente lo escanee.
 // El QR siempre es negro sobre blanco, también en modo oscuro: así lo leen todas las cámaras.
@@ -103,3 +104,7 @@ const createStyles = ({ colors, fonts, radius }) => ({
   buttonText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text },
   pressed: { opacity: 0.75 },
 })
+
+ProfileQr.propTypes = {
+  userId: idType.isRequired,
+}

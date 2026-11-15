@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 import { useTheme, useThemedStyles } from '../../hooks/useTheme'
+import PropTypes from 'prop-types'
 
 // Pantallas de carga, error y lista vacía, con un botón opcional
 export default function StateView({ loading, title, message, actionLabel, onAction }) {
@@ -26,3 +27,11 @@ const createStyles = ({ colors, fonts }) => ({
   button: { borderColor: colors.border, borderRadius: 14, borderWidth: 1, marginTop: 8, paddingHorizontal: 16, paddingVertical: 8 },
   buttonText: { color: colors.text, fontFamily: fonts.medium },
 })
+
+StateView.propTypes = {
+  loading: PropTypes.bool,
+  title: PropTypes.string,
+  message: PropTypes.string,
+  actionLabel: PropTypes.string,
+  onAction: PropTypes.func,
+}

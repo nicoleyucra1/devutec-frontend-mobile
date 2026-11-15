@@ -9,6 +9,7 @@ import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useProject } from '../../src/hooks/useProject'
 import { formatBudget, formatDate } from '../../src/utils/format'
+import PropTypes from 'prop-types'
 
 // En iOS la barra de arriba es transparente por defecto y tapaba el contenido; con fondo sólido
 // la pantalla empieza debajo de ella. El color lo pone el tema desde _layout.
@@ -88,3 +89,9 @@ const createStyles = ({ colors, fonts }) => ({
   sectionTitle: { color: colors.text, fontFamily: fonts.semibold, fontSize: 15 },
   description: { color: colors.muted, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
 })
+
+Meta.propTypes = {
+  icon: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  value: PropTypes.node,
+}

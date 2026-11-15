@@ -4,6 +4,8 @@ import StatusBadge from './StatusBadge'
 import SkillChips from './SkillChips'
 import { useTheme, useThemedStyles } from '../../hooks/useTheme'
 import { formatBudget, formatDate } from '../../utils/format'
+import PropTypes from 'prop-types'
+import { projectShape } from '../../utils/propShapes'
 
 export default function ProjectCard({ project, onPress }) {
   const { colors } = useTheme()
@@ -54,3 +56,8 @@ const createStyles = ({ colors, fonts }) => ({
   muted: { color: colors.muted, fontFamily: fonts.regular, fontSize: 13 },
   location: { alignItems: 'center', flexDirection: 'row', gap: 4 },
 })
+
+ProjectCard.propTypes = {
+  project: projectShape.isRequired,
+  onPress: PropTypes.func,
+}

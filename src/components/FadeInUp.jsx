@@ -1,6 +1,8 @@
 import { useContext, useEffect, useRef } from 'react'
 import { Animated, Easing } from 'react-native'
 import { IntroContext } from '../contexts/introContext'
+import PropTypes from 'prop-types'
+import { styleType } from '../utils/propShapes'
 
 // Muestra a sus hijos subiendo un poco y apareciendo. Espera a que termine la animación de entrada
 // de la app, así no se anima escondido detrás. Con distintos `delay` se logra un efecto en cascada.
@@ -32,4 +34,11 @@ export default function FadeInUp({ delay = 0, distance = 18, style, children }) 
       {children}
     </Animated.View>
   )
+}
+
+FadeInUp.propTypes = {
+  delay: PropTypes.number,
+  distance: PropTypes.number,
+  style: styleType,
+  children: PropTypes.node,
 }

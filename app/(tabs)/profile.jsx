@@ -11,6 +11,8 @@ import { userService } from '../../src/services/userService'
 import { useMyFreelancerProfile } from '../../src/hooks/useMyFreelancerProfile'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { ROLE_LABELS } from '../../src/utils/roles'
+import PropTypes from 'prop-types'
+import { idType } from '../../src/utils/propShapes'
 
 const THEME_OPTIONS = [
   { value: 'system', label: 'Sistema', icon: 'phone-portrait-outline' },
@@ -187,3 +189,8 @@ const createStyles = ({ colors, fonts, radius }) => ({
   errorText: { fontFamily: fonts.medium, color: colors.error },
   retryText: { fontFamily: fonts.bold, color: colors.text, marginTop: 8, textDecorationLine: 'underline' },
 })
+
+FreelancerSection.propTypes = {
+  userId: idType.isRequired,
+  refreshKey: PropTypes.number,
+}

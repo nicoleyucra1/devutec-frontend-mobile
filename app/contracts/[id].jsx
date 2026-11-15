@@ -16,6 +16,7 @@ import { errorMessage } from '../../src/utils/errorMessage'
 import { formatDate, formatBudget } from '../../src/utils/format'
 import { CONTRACT_STATUS, PAYMENT_STATUS } from '../../src/utils/status'
 import { useThemedStyles } from '../../src/hooks/useTheme'
+import PropTypes from 'prop-types'
 
 const PAYMENT_TEXT = {
   HELD: 'DEVUTEC guarda el pago hasta que el cliente confirme la entrega.',
@@ -267,3 +268,8 @@ const createStyles = ({ colors, fonts }) => ({
   success: { backgroundColor: colors.accentLight, color: colors.accent },
   error: { backgroundColor: colors.errorLight, color: colors.error },
 })
+
+Info.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.node,
+}

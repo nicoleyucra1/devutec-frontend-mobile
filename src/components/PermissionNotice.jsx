@@ -1,6 +1,7 @@
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { darkColors as colors, fonts, radius } from '../theme'
+import PropTypes from 'prop-types'
 
 // Aviso para cuando la app no tiene un permiso (cámara, ubicación...), sobre fondo oscuro como el escáner.
 // Si todavía se puede preguntar, muestra el botón para pedirlo; si el usuario lo negó
@@ -55,3 +56,13 @@ const styles = StyleSheet.create({
   buttonText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.ink },
   pressed: { opacity: 0.8 },
 })
+
+PermissionNotice.propTypes = {
+  icon: PropTypes.string.isRequired,
+  kicker: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  highlight: PropTypes.string,
+  message: PropTypes.string,
+  canAskAgain: PropTypes.bool,
+  onRequest: PropTypes.func.isRequired,
+}

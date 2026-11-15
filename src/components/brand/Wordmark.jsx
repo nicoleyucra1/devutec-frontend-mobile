@@ -1,5 +1,6 @@
 import { Text } from 'react-native'
 import { useTheme } from '../../hooks/useTheme'
+import PropTypes from 'prop-types'
 
 // El nombre de la marca en texto: DEVUTEC
 export default function Wordmark({ size = 18, color }) {
@@ -9,4 +10,9 @@ export default function Wordmark({ size = 18, color }) {
       DEVUTEC
     </Text>
   )
+}
+
+Wordmark.propTypes = {
+  size: PropTypes.number,
+  color: PropTypes.string,
 }

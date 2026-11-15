@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native'
 import { parseProfileLink } from '../utils/profileLink'
 import { darkColors as colors, fonts, radius } from '../theme'
+import PropTypes from 'prop-types'
 
 // Alternativa a la cámara: pegar el enlace del perfil o escribir su número.
 // Va dentro del escáner, que siempre es oscuro.
@@ -76,3 +77,8 @@ const styles = StyleSheet.create({
   error: { fontFamily: fonts.medium, fontSize: 13, color: colors.error, marginTop: 8 },
   pressed: { opacity: 0.8 },
 })
+
+ManualProfileEntry.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  autoFocus: PropTypes.bool,
+}

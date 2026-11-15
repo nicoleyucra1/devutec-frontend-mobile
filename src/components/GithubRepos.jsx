@@ -2,6 +2,7 @@ import { ActivityIndicator, Alert, Linking, Pressable, Text, View } from 'react-
 import { Ionicons } from '@expo/vector-icons'
 import { useGithubRepos } from '../hooks/useGithubRepos'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import PropTypes from 'prop-types'
 
 // Color del puntito de cada lenguaje; los que no están usan el gris del texto secundario
 const LANGUAGE_COLORS = {
@@ -165,3 +166,8 @@ const createStyles = ({ colors, fonts, radius }) => ({
   meta: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted },
   pressed: { opacity: 0.7 },
 })
+
+GithubRepos.propTypes = {
+  username: PropTypes.string,
+  isOwner: PropTypes.bool,
+}

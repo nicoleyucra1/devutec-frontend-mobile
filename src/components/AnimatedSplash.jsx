@@ -3,6 +3,7 @@ import { Animated, Easing, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { LOGO_ASPECT_RATIO } from './brand/LogoMark'
+import PropTypes from 'prop-types'
 
 // Mismo tamaño y color de fondo que el splash nativo (app.json), así el cambio no se nota
 const LOGO_WIDTH = 96
@@ -81,3 +82,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 })
+
+AnimatedSplash.propTypes = {
+  ready: PropTypes.bool,
+  onFinish: PropTypes.func.isRequired,
+}
