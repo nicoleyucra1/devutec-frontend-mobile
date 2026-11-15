@@ -1,10 +1,22 @@
+import { View } from 'react-native'
 import { Tabs } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useTheme } from '../../src/hooks/useTheme'
+import CuyiFab from '../../src/components/support/CuyiFab'
+
+// Pestañas principales con Cuyi flotando encima, que abre el chat de ayuda
+export default function TabsLayout() {
+  return (
+    <View style={{ flex: 1 }}>
+      <TabsNavigator />
+      <CuyiFab />
+    </View>
+  )
+}
 
 // Pestañas principales de la app. Cada módulo agrega aquí su pestaña.
-export default function TabsLayout() {
+function TabsNavigator() {
   const { colors, fonts } = useTheme()
   const { user } = useAuth()
 

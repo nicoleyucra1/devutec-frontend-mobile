@@ -56,6 +56,7 @@ function RootNavigator() {
         <Stack.Screen name="contracts/[id]" options={{ headerShown: true, headerTransparent: false, title: 'Contrato' }} />
         <Stack.Screen name="scan" />
         <Stack.Screen name="freelancers/[userId]" />
+        <Stack.Screen name="ayuda" />
       </Stack.Protected>
       <Stack.Protected guard={user === null} redirectTo="/">
         <Stack.Screen name="welcome" />
