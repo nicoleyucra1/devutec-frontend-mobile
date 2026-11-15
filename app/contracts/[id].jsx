@@ -3,6 +3,7 @@ import { AppState, Linking, RefreshControl, ScrollView, Text, View } from 'react
 import { useLocalSearchParams } from 'expo-router'
 import * as ExpoLinking from 'expo-linking'
 import PrimaryButton from '../../src/components/PrimaryButton'
+import WhatsAppCard from '../../src/components/WhatsAppCard'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
 import { useAuth } from '../../src/hooks/useAuth'
@@ -231,6 +232,8 @@ export default function ContractDetailScreen() {
           />
         )}
       </View>
+
+      {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
     </ScrollView>
   )
 }
