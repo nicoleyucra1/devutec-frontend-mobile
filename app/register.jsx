@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Linking, Pressable, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import AuthLayout from '../src/components/AuthLayout'
 import FormField from '../src/components/FormField'
 import PrimaryButton from '../src/components/PrimaryButton'
 import GoogleSignInButton from '../src/components/GoogleSignInButton'
+import { openLegalPage, PRIVACY_URL, TERMS_URL } from '../src/utils/legalLinks'
 import { useAuth } from '../src/hooks/useAuth'
 import { errorMessage } from '../src/utils/errorMessage'
 import { PASSWORD_RULES, validateRegister } from '../src/utils/validation'
@@ -21,9 +22,6 @@ const COPY = {
   FREELANCER: { nameLabel: 'Nombres y apellidos', namePh: 'Camila Ríos', mailPh: 'tu@utec.edu.pe', cta: 'Crear cuenta como freelancer' },
 }
 
-// Páginas de términos y privacidad de la web
-const TERMS_URL = 'https://devutec.vercel.app/terminos'
-const PRIVACY_URL = 'https://devutec.vercel.app/privacidad'
 
 const INITIAL_VALUES = { nombre: '', email: '', password: '', rol: 'CLIENT', terms: false }
 
@@ -141,11 +139,11 @@ export default function RegisterScreen() {
         </View>
         <Text style={styles.termsText}>
           Acepto los{' '}
-          <Text style={styles.termsLink} onPress={() => Linking.openURL(TERMS_URL)} accessibilityRole="link">
+          <Text style={styles.termsLink} onPress={() => openLegalPage(TERMS_URL)} accessibilityRole="link">
             Términos y condiciones
           </Text>{' '}
           y la{' '}
-          <Text style={styles.termsLink} onPress={() => Linking.openURL(PRIVACY_URL)} accessibilityRole="link">
+          <Text style={styles.termsLink} onPress={() => openLegalPage(PRIVACY_URL)} accessibilityRole="link">
             Política de privacidad
           </Text>
           .
