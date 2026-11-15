@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 import { Text, View } from 'react-native'
 import FormField from './FormField'
 import PrimaryButton from './PrimaryButton'
@@ -104,6 +105,11 @@ export default function PhoneEditor({ label = 'Celular', help }) {
       {done && !error ? <Text style={styles.done}>{done}</Text> : null}
     </View>
   )
+}
+
+PhoneEditor.propTypes = {
+  label: PropTypes.string,
+  help: PropTypes.string,
 }
 
 const createStyles = ({ colors, fonts }) => ({

@@ -41,3 +41,15 @@ export const statusShape = PropTypes.shape({
   label: PropTypes.string.isRequired,
   tone: PropTypes.string,
 })
+
+// Un contrato con los campos que usan las tarjetas del detalle. Los celulares solo llegan
+// a las personas del contrato y no en contratos cancelados.
+export const contractShape = PropTypes.shape({
+  id: idType.isRequired,
+  projectTitle: PropTypes.string,
+  status: PropTypes.string,
+  clientName: PropTypes.string,
+  freelancerName: PropTypes.string,
+  clientPhone: PropTypes.string,
+  freelancerPhone: PropTypes.string,
+})

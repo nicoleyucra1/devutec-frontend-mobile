@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 import { Linking, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import PhoneEditor from './PhoneEditor'
 import PrimaryButton from './PrimaryButton'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
+import { contractShape } from '../utils/propShapes'
 import { whatsappLink } from '../utils/phone'
 
 // Contacto por WhatsApp entre las dos personas del contrato. Los celulares solo llegan aquí: el backend
@@ -59,6 +61,11 @@ export default function WhatsAppCard({ contract, isClient }) {
       )}
     </View>
   )
+}
+
+WhatsAppCard.propTypes = {
+  contract: contractShape.isRequired,
+  isClient: PropTypes.bool,
 }
 
 const createStyles = ({ colors, fonts }) => ({
