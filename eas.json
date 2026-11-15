@@ -10,7 +10,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://devutec.duckdns.org/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://devutec.duckdns.org/api/v1",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "919932910332-t0oo66pq4eoitd3q9fb3us5mkje6qe1r.apps.googleusercontent.com"
       }
     },
     "production": {
@@ -18,7 +19,8 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://devutec.duckdns.org/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://devutec.duckdns.org/api/v1",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "919932910332-t0oo66pq4eoitd3q9fb3us5mkje6qe1r.apps.googleusercontent.com"
       }
     }
   }
