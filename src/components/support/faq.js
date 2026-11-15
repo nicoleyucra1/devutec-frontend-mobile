@@ -7,7 +7,7 @@ export const FAQ = [
   },
   {
     q: '¿Cómo postulo a un proyecto?',
-    a: 'Entra a Explorar, abre un proyecto abierto y toca Postular. Escribe un mensaje contando cómo lo harías y tu precio. Puedes cambiar tu postulación mientras siga pendiente.',
+    a: 'Entra a Explorar, abre un proyecto abierto y toca Postular. Escribe un mensaje contando cómo lo harías y tu precio. Mientras siga pendiente, puedes retirar tu postulación.',
   },
   {
     q: '¿Cómo contrato a un freelancer?',
