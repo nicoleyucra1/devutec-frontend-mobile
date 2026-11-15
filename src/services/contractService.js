@@ -27,6 +27,19 @@ export const contractService = {
     return data
   },
 
+  // Pago con tarjeta (Stripe, modo prueba): devuelve { sessionId, checkoutUrl } para abrir la página de pago de Stripe
+  // appReturnUrl: link para volver a la app cuando termina el pago en Stripe
+  async startCheckout(id, appReturnUrl) {
+    const { data } = await api.post(`/contracts/${id}/checkout`, { appReturnUrl })
+    return data
+  },
+
+  // El backend le pregunta a Stripe si esa sesión ya se pagó y devuelve el contrato actualizado
+  async confirmCheckout(id, sessionId) {
+    const { data } = await api.post(`/contracts/${id}/checkout/confirm`, { sessionId })
+    return data
+  },
+
   async getReviews(id, { signal } = {}) {
     const { data } = await api.get(`/contracts/${id}/reviews`, { signal })
     return data

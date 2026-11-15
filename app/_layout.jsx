@@ -37,6 +37,8 @@ function RootNavigator() {
         headerStyle: { backgroundColor: colors.background },
         headerTintColor: colors.text,
         headerShadowVisible: false,
+        // Texto del botón de volver (si no, iOS muestra el nombre interno de la ruta, "(tabs)")
+        headerBackTitle: 'Atrás',
         headerTitleStyle: { fontFamily: fonts.semibold, color: colors.text },
         // Las pantallas entran desde la derecha y se puede volver deslizando hacia la derecha
         animation: 'slide_from_right',
