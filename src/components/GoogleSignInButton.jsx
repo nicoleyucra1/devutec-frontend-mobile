@@ -6,6 +6,7 @@ import PrimaryButton from './PrimaryButton'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 import { errorMessage } from '../utils/errorMessage'
+import { openLegalPage, PRIVACY_URL, TERMS_URL } from '../utils/legalLinks'
 import PropTypes from 'prop-types'
 
 const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
@@ -128,6 +129,19 @@ export default function GoogleSignInButton({ rol: presetRol }) {
         />
       )}
 
+      {/* Con Google nadie marca la casilla de términos del registro, así que se avisa aquí */}
+      <Text style={styles.legal}>
+        Al continuar con Google aceptas los{' '}
+        <Text style={styles.legalLink} onPress={() => openLegalPage(TERMS_URL)} accessibilityRole="link">
+          Términos y condiciones
+        </Text>{' '}
+        y la{' '}
+        <Text style={styles.legalLink} onPress={() => openLegalPage(PRIVACY_URL)} accessibilityRole="link">
+          Política de privacidad
+        </Text>
+        .
+      </Text>
+
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   )
@@ -146,6 +160,8 @@ const createStyles = ({ colors, fonts, radius }) => ({
   roleTitle: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text },
   pressed: { opacity: 0.7 },
   link: { fontFamily: fonts.regular, fontSize: 12, color: colors.muted, textDecorationLine: 'underline', marginTop: 4 },
+  legal: { fontFamily: fonts.regular, fontSize: 11, lineHeight: 16, color: colors.muted, textAlign: 'center' },
+  legalLink: { fontFamily: fonts.semibold, color: colors.text, textDecorationLine: 'underline' },
   error: {
     fontFamily: fonts.medium,
     backgroundColor: colors.errorLight,
