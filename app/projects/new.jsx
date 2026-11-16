@@ -3,7 +3,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Linking,
-  Platform,
+ 
   Pressable,
   ScrollView,
   Text,
@@ -137,7 +137,7 @@ export default function NewProjectScreen() {
   const hasDistrict = Boolean(values.location.trim())
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.flex} behavior="padding">
       <Stack.Screen options={{ headerShown: false }} />
       <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
         <Pressable onPress={close} accessibilityRole="button" accessibilityLabel="Cerrar" style={styles.round}>

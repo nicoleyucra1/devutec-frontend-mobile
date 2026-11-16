@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import { KeyboardAvoidingView, Linking, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import { Stack } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import ChatBubble from '../src/components/support/ChatBubble'
@@ -75,7 +75,7 @@ export default function AyudaScreen() {
   )
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={90}>
+    <KeyboardAvoidingView style={styles.flex} behavior="padding" keyboardVerticalOffset={90}>
       <Stack.Screen options={{ headerShown: true, headerTransparent: false, title: 'Ayuda con Cuyi' }} />
       <ScrollView
         ref={scrollRef}

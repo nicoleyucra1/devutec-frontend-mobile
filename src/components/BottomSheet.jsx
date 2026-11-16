@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, View } from 'react-native'
+import { KeyboardAvoidingView, Modal, Pressable, ScrollView, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import PropTypes from 'prop-types'
 import { useThemedStyles } from '../hooks/useTheme'
@@ -14,7 +14,7 @@ export default function BottomSheet({ visible, onClose, busy = false, children }
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close} statusBarTranslucent>
-      <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.root} behavior="padding">
         <Pressable style={styles.backdrop} onPress={close} accessibilityLabel="Cerrar" accessibilityRole="button" />
         <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>
           <View style={styles.grabber} />
