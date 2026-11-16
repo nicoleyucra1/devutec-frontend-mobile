@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import ApplySheet from '../../src/components/projects/ApplySheet'
+import ClientLinks from '../../src/components/projects/ClientLinks'
 import SkillChips from '../../src/components/projects/SkillChips'
 import StateView from '../../src/components/projects/StateView'
 import StatusBadge from '../../src/components/projects/StatusBadge'
@@ -103,6 +104,8 @@ export default function ProjectDetailScreen() {
               <SkillChips skills={project.skills} />
             </View>
           ) : null}
+
+          <ClientLinks clientName={project.clientName} links={project.clientLinks} />
 
           {/* Solo un freelancer puede postular, y solo mientras el proyecto siga abierto */}
           {user?.rol === 'FREELANCER' && project.status === 'OPEN' ? (
