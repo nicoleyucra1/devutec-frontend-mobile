@@ -6,19 +6,23 @@ import BottomSheet from '../BottomSheet'
 import Money from '../Money'
 import PrimaryButton from '../PrimaryButton'
 import api from '../../services/api'
+import { authService } from '../../services/authService'
 import { useTheme, useThemedStyles } from '../../hooks/useTheme'
 import { errorMessage } from '../../utils/errorMessage'
 import { contractCode, formatBudget } from '../../utils/format'
+import { google, pickGoogleIdToken } from '../../utils/googleSignin'
 import { idType } from '../../utils/propShapes'
 
 // "Liberar pago" (mockup): resumen de a quién y cuánto se paga, y la confirmación de identidad.
 // Con huella, Face ID o código del celular se confirma con eso; si el celular no tiene ninguno (o es la web),
-// se pide la contraseña de DEVUTEC y se verifica con el login antes de liberar.
+// se pide la contraseña de DEVUTEC y se verifica con el login antes de liberar. Quien creó su cuenta con Google
+// no tiene contraseña, así que también puede confirmar eligiendo de nuevo su cuenta de Google.
 export default function ReleaseSheet({ contract, email, biometric, visible, onClose, onRelease }) {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
   const [password, setPassword] = useState('')
-  const [checking, setChecking] = useState(false)
+  // Con qué se está confirmando ('password' o 'google'), para mostrar el cargando en ese botón
+  const [checking, setChecking] = useState(null)
   const [error, setError] = useState(null)
   const amount = formatBudget(contract.amount)
 
@@ -33,8 +37,29 @@ export default function ReleaseSheet({ contract, email, biometric, visible, onCl
     else if (result.error) setError(result.error)
   }
 
+  const releaseWithGoogle = async () => {
+    setError(null)
+    let idToken
+    try {
+      idToken = await pickGoogleIdToken()
+    } catch (err) {
+      setError(err.message)
+      return
+    }
+    if (!idToken) return // cerró la ventana de Google
+    setChecking('google')
+    try {
+      await authService.confirmGoogle(idToken)
+      onRelease()
+    } catch (err) {
+      setError(err.response?.status === 403 ? 'Elige la cuenta de Google con la que iniciaste sesión.' : errorMessage(err))
+    } finally {
+      setChecking(null)
+    }
+  }
+
   const releaseWithPassword = async () => {
-    setChecking(true)
+    setChecking('password')
     setError(null)
     try {
       // El login solo se usa para comprobar la contraseña: la respuesta no se guarda y la sesión sigue igual
@@ -44,12 +69,12 @@ export default function ReleaseSheet({ contract, email, biometric, visible, onCl
     } catch (err) {
       setError(err.response?.status === 401 ? 'La contraseña no es correcta.' : errorMessage(err))
     } finally {
-      setChecking(false)
+      setChecking(null)
     }
   }
 
   return (
-    <BottomSheet visible={visible} onClose={onClose} busy={checking}>
+    <BottomSheet visible={visible} onClose={onClose} busy={Boolean(checking)}>
       <Text style={styles.kicker}>LIBERAR PAGO</Text>
       <Money value={contract.amount} style={styles.amount} centsStyle={styles.cents} />
       <Text style={styles.to}>
@@ -69,7 +94,7 @@ export default function ReleaseSheet({ contract, email, biometric, visible, onCl
           <View style={styles.notice}>
             <Ionicons name="scan-outline" size={20} color={colors.pending} />
             <Text style={styles.noticeText}>
-              Este dispositivo no tiene huella ni Face ID. Confirma con tu contraseña.
+              Este dispositivo no tiene huella ni Face ID. Confirma con tu contraseña{google ? ' o con Google' : ''}.
             </Text>
           </View>
           <Text style={styles.label}>Contraseña de DEVUTEC</Text>
@@ -91,16 +116,27 @@ export default function ReleaseSheet({ contract, email, biometric, visible, onCl
           <PrimaryButton
             title={`Confirmar y liberar ${amount}`}
             onPress={releaseWithPassword}
-            loading={checking}
-            disabled={!password}
+            loading={checking === 'password'}
+            disabled={!password || Boolean(checking)}
             style={styles.button}
           />
+          {google ? (
+            <PrimaryButton
+              variant="secondary"
+              title="Confirmar con Google"
+              onPress={releaseWithGoogle}
+              loading={checking === 'google'}
+              disabled={Boolean(checking)}
+              icon={<Ionicons name="logo-google" size={18} color={colors.text} />}
+              style={styles.googleButton}
+            />
+          ) : null}
         </>
       )}
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable onPress={onClose} disabled={checking} accessibilityRole="button" style={styles.cancel}>
+      <Pressable onPress={onClose} disabled={Boolean(checking)} accessibilityRole="button" style={styles.cancel}>
         <Text style={styles.cancelText}>Cancelar</Text>
       </Pressable>
     </BottomSheet>
@@ -174,6 +210,7 @@ const createStyles = ({ colors, fonts, radius }) => ({
   },
   inputError: { borderColor: colors.error },
   button: { marginTop: 14 },
+  googleButton: { marginTop: 10 },
   error: { color: colors.error, backgroundColor: colors.errorLight, padding: 10, borderRadius: 8, marginTop: 12 },
   cancel: { alignSelf: 'center', paddingVertical: 14, marginTop: 4 },
   cancelText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.muted },

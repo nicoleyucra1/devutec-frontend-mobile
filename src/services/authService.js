@@ -9,4 +9,7 @@ export const authService = {
 
   // data: { idToken, rol? }. Si la cuenta de Google es nueva y no se manda rol, responde 422
   google: (data) => api.post('/auth/google', data).then((res) => res.data),
+
+  // Con la sesión abierta, confirma que la cuenta de Google elegida es la misma (responde 204, o 403 si no)
+  confirmGoogle: (idToken) => api.post('/auth/google/confirm', { idToken }),
 }
