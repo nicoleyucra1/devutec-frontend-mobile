@@ -6,6 +6,7 @@ import FreelancerHero from '../../src/components/FreelancerHero'
 import GithubRepos from '../../src/components/GithubRepos'
 import PhoneEditor from '../../src/components/PhoneEditor'
 import ProfileQr from '../../src/components/ProfileQr'
+import SocialLinksEditor from '../../src/components/SocialLinksEditor'
 import { useAuth } from '../../src/hooks/useAuth'
 import { userService } from '../../src/services/userService'
 import { useMyFreelancerProfile } from '../../src/hooks/useMyFreelancerProfile'
@@ -101,6 +102,15 @@ export default function ProfileScreen() {
             <Text style={styles.section}>CELULAR PARA WHATSAPP</Text>
             <View style={styles.phoneCard}>
               <PhoneEditor help="Solo lo ve la otra persona cuando tienen un contrato, para escribirte por WhatsApp." />
+            </View>
+          </>
+        )}
+
+        {user.rol === 'CLIENT' && (
+          <>
+            <Text style={styles.section}>REDES DE TU NEGOCIO</Text>
+            <View style={styles.phoneCard}>
+              <SocialLinksEditor />
             </View>
           </>
         )}
