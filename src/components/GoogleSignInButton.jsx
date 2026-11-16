@@ -1,32 +1,13 @@
 import { useState } from 'react'
-import { Platform, Pressable, Text, View } from 'react-native'
-import Constants, { ExecutionEnvironment } from 'expo-constants'
+import { Pressable, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import PrimaryButton from './PrimaryButton'
 import { useAuth } from '../hooks/useAuth'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 import { errorMessage } from '../utils/errorMessage'
+import { google, pickGoogleIdToken } from '../utils/googleSignin'
 import { openLegalPage, PRIVACY_URL, TERMS_URL } from '../utils/legalLinks'
 import PropTypes from 'prop-types'
-
-const WEB_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID
-
-// El inicio con Google usa código nativo: funciona en el APK (EAS), pero no en Expo Go ni en la versión web.
-// Por eso la librería se carga solo cuando se puede usar; si no, el botón no aparece y la app sigue igual.
-function loadGoogleSignin() {
-  if (!WEB_CLIENT_ID || Platform.OS === 'web') return null
-  if (Constants.executionEnvironment === ExecutionEnvironment.StoreClient) return null
-  try {
-    const module = require('@react-native-google-signin/google-signin')
-    // webClientId hace que Google devuelva un idToken pensado para nuestro backend
-    module.GoogleSignin.configure({ webClientId: WEB_CLIENT_ID })
-    return module
-  } catch {
-    return null
-  }
-}
-
-const google = loadGoogleSignin()
 
 const ROLES = [
   { value: 'CLIENT', title: 'Soy cliente', detail: 'Publico proyectos' },
@@ -44,7 +25,6 @@ export default function GoogleSignInButton({ rol: presetRol }) {
   const [loading, setLoading] = useState(false)
 
   if (!google) return null
-  const { GoogleSignin, isSuccessResponse, isErrorWithCode, statusCodes } = google
 
   // Al haber sesión, el layout raíz cambia solo a las pestañas
   const submit = async (idToken, rol = presetRol) => {
@@ -68,24 +48,10 @@ export default function GoogleSignInButton({ rol: presetRol }) {
   const handlePress = async () => {
     setError(null)
     try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true })
-      const response = await GoogleSignin.signIn()
-      if (!isSuccessResponse(response)) return // el usuario cerró la ventana de Google
-      const idToken = response.data.idToken
-      // Se cierra la sesión de Google en el celular para que la próxima vez se pueda elegir otra cuenta
-      GoogleSignin.signOut().catch(() => {})
-      if (!idToken) {
-        setError('Google no devolvió los datos de tu cuenta. Intenta de nuevo')
-        return
-      }
-      await submit(idToken)
+      const idToken = await pickGoogleIdToken()
+      if (idToken) await submit(idToken)
     } catch (err) {
-      if (isErrorWithCode(err) && err.code === statusCodes.IN_PROGRESS) return
-      if (isErrorWithCode(err) && err.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        setError('Necesitas Google Play Services actualizado para entrar con Google')
-      } else {
-        setError('No se pudo abrir Google. Intenta de nuevo o entra con tu correo')
-      }
+      setError(`${err.message} o entra con tu correo`)
     }
   }
 
