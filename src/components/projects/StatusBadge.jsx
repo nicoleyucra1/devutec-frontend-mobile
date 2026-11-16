@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import { useTheme } from '../../hooks/useTheme'
 import { STATUS_LABELS } from '../../utils/format'
 import PropTypes from 'prop-types'
@@ -10,21 +10,30 @@ const statusColors = (colors) => ({
   DONE: { backgroundColor: colors.primaryLight, color: colors.muted },
 })
 
+// Estado del proyecto con un punto delante, como en el diseño
 export default function StatusBadge({ status }) {
   const { colors, fonts } = useTheme()
-  const palette = statusColors(colors)[status] ?? statusColors(colors).DONE
-  return <Text style={[styles.badge, { fontFamily: fonts.semibold }, palette]}>{STATUS_LABELS[status] ?? status}</Text>
+  const { backgroundColor, color } = statusColors(colors)[status] ?? statusColors(colors).DONE
+  return (
+    <View style={[styles.badge, { backgroundColor }]}>
+      <View style={[styles.dot, { backgroundColor: color }]} />
+      <Text style={[styles.text, { fontFamily: fonts.semibold, color }]}>{STATUS_LABELS[status] ?? status}</Text>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
   badge: {
     alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     borderRadius: 999,
-    fontSize: 12,
-    overflow: 'hidden',
     paddingHorizontal: 10,
-    paddingVertical: 2,
+    paddingVertical: 4,
   },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  text: { fontSize: 12 },
 })
 
 StatusBadge.propTypes = {

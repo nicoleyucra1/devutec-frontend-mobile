@@ -17,7 +17,7 @@ export function formatDate(value) {
 
 export const STATUS_LABELS = {
   OPEN: 'Abierto',
-  IN_PROGRESS: 'En progreso',
+  IN_PROGRESS: 'En curso',
   DONE: 'Terminado',
 }
 
