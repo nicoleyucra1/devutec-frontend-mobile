@@ -31,6 +31,11 @@ export const lightColors = {
   errorLight: '#FBEAE7',
   pendingLight: '#F8EEDC',
   white: '#FFFFFF',
+  // Tarjeta oscura del Inicio y aviso sin conexión: oscuras en los dos modos
+  night: brand.ink,
+  onNight: '#FFFFFF',
+  nightMuted: '#A6A39C',
+  nightLine: '#34342F',
 }
 
 export const darkColors = {
@@ -53,6 +58,11 @@ export const darkColors = {
   pending: '#E3A64A',
   pendingLight: '#33270F',
   white: '#FFFFFF',
+  // En oscuro el fondo ya es tinta: la tarjeta oscura sube un tono para separarse
+  night: '#1A1A17',
+  onNight: '#F5F3EE',
+  nightMuted: '#A6A39C',
+  nightLine: '#34342F',
 }
 
 // Tipografías del diseño: Geist para todo y una serif cursiva para las palabras destacadas
