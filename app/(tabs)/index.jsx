@@ -1,63 +1,45 @@
-import { ScrollView, Text, View } from 'react-native'
+import { useState } from 'react'
+import { RefreshControl, ScrollView } from 'react-native'
 import { useRouter } from 'expo-router'
-import { Ionicons } from '@expo/vector-icons'
-import Cuyi from '../../src/components/brand/Cuyi'
-import PrimaryButton from '../../src/components/PrimaryButton'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import ClientHome from '../../src/components/home/ClientHome'
+import FreelancerHome from '../../src/components/home/FreelancerHome'
+import HomeHeader from '../../src/components/home/HomeHeader'
 import { useAuth } from '../../src/hooks/useAuth'
-import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
-import { ROLE_LABELS } from '../../src/utils/roles'
+import { useThemedStyles } from '../../src/hooks/useTheme'
+import { greeting } from '../../src/utils/format'
 
+// Inicio (mockup M2): saludo y el resumen de cada rol. El cliente ve su dinero en garantía y lo que tiene
+// que revisar; el freelancer, lo que cobró y sus contratos en curso.
 export default function HomeScreen() {
   const { user } = useAuth()
   const router = useRouter()
-  const { colors } = useTheme()
+  const insets = useSafeAreaInsets()
   const styles = useThemedStyles(createStyles)
+  // Al jalar hacia abajo cambia la key: el resumen se vuelve a montar y pide sus datos otra vez
+  const [refreshKey, setRefreshKey] = useState(0)
   const firstName = (user.nombre ?? user.email).split(' ')[0]
+  const isFreelancer = user.rol === 'FREELANCER'
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <View style={styles.hero}>
-        <View style={styles.heroText}>
-          <Text style={styles.eyebrow}>CUENTA DE {(ROLE_LABELS[user.rol] ?? user.rol).toUpperCase()}</Text>
-          <Text style={styles.title}>
-            Hola, {firstName}.{'\n'}
-            {/* La frase destacada va en su propia línea para que no se parta a la mitad */}
-            <Text style={styles.highlight}>{user.rol === 'FREELANCER' ? 'A programar.' : 'Manos a la obra.'}</Text>
-          </Text>
-        </View>
-        <View style={styles.cuyi}>
-          <Cuyi anim="saluda" size={72} />
-        </View>
-      </View>
-
-      <PrimaryButton
-        title="Escanear el QR de un freelancer"
-        onPress={() => router.push('/scan')}
-        icon={<Ionicons name="qr-code-outline" size={20} color={colors.onPrimary} />}
-        style={styles.scan}
+    <ScrollView
+      style={styles.screen}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + 24 }]}
+      refreshControl={<RefreshControl refreshing={false} onRefresh={() => setRefreshKey((key) => key + 1)} />}
+    >
+      <HomeHeader
+        name={user.nombre ?? user.email}
+        avatarUrl={user.avatarUrl}
+        title={isFreelancer ? `Hola, ${firstName}.` : `${greeting(new Date())}, ${firstName}.`}
+        onScan={() => router.push('/scan')}
       />
+      {isFreelancer ? <FreelancerHome key={refreshKey} userId={user.id} /> : null}
+      {user.rol === 'CLIENT' ? <ClientHome key={refreshKey} /> : null}
     </ScrollView>
   )
 }
 
-const createStyles = ({ colors, fonts, radius }) => ({
+const createStyles = ({ colors }) => ({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20 },
-  hero: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    padding: 18,
-  },
-  heroText: { flex: 1 },
-  eyebrow: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.2, color: colors.muted },
-  // Alto de línea de 34 para que la cursiva (más alta que Geist) no se corte arriba ni abajo
-  title: { fontFamily: fonts.bold, fontSize: 24, lineHeight: 34, letterSpacing: -0.6, color: colors.text, marginTop: 6 },
-  highlight: { fontFamily: fonts.serifItalic, fontSize: 27, color: colors.accent },
-  scan: { marginTop: 16 },
-  cuyi: { width: 92, height: 92, borderRadius: radius.lg, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
+  content: { paddingHorizontal: 20, paddingBottom: 110 },
 })

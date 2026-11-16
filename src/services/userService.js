@@ -6,6 +6,10 @@ export const userService = {
   // Devuelve { id, nombre, email, rol, avatarUrl, celular } del usuario con sesión
   getMe: () => api.get('/users/me').then((res) => res.data),
 
+  // Reseñas que recibió una persona, paginadas (GET /users/{id}/reviews). El Inicio usa totalElements.
+  getReviews: (userId, { size = 1 } = {}, { signal } = {}) =>
+    api.get(`/users/${userId}/reviews`, { params: { page: 0, size }, signal }).then((res) => res.data),
+
   // Sube o reemplaza la foto de perfil. Devuelve el usuario con la nueva avatarUrl.
   // En el celular el Content-Type va explícito y React Native le agrega el boundary.
   // En la versión web lo arma el navegador, así que no se pone.
