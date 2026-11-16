@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
+import { KeyboardAvoidingView, ActivityIndicator, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import EditableAvatar from '../../src/components/EditableAvatar'
 import FreelancerHero from '../../src/components/FreelancerHero'
@@ -10,6 +10,7 @@ import { useAuth } from '../../src/hooks/useAuth'
 import { userService } from '../../src/services/userService'
 import { useMyFreelancerProfile } from '../../src/hooks/useMyFreelancerProfile'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
+import { useHeaderOffset } from '../../src/hooks/useHeaderOffset'
 import { ROLE_LABELS } from '../../src/utils/roles'
 import PropTypes from 'prop-types'
 import { idType } from '../../src/utils/propShapes'
@@ -56,6 +57,7 @@ export default function ProfileScreen() {
   const { user, logout, updateUser } = useAuth()
   const { colors, preference, setPreference } = useTheme()
   const styles = useThemedStyles(createStyles)
+  const headerOffset = useHeaderOffset()
   const [refreshKey, setRefreshKey] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -72,61 +74,64 @@ export default function ProfileScreen() {
     }
   }
 
+  // Sube el contenido cuando aparece el teclado (por ejemplo, al escribir el celular de WhatsApp)
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.text} />}
-    >
-      {/* El freelancer ve su tarjeta con la tarifa (FreelancerHero); los demás roles, su nombre y correo */}
-      {user.rol !== 'FREELANCER' && (
-        <View style={styles.card}>
-          <EditableAvatar size={48} badgeBorder={colors.card} />
-          <View style={styles.flex}>
-            <Text style={styles.name}>{user.nombre ?? 'Sin nombre'}</Text>
-            <Text style={styles.muted}>{user.email}</Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={headerOffset}>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.text} />}
+      >
+        {/* El freelancer ve su tarjeta con la tarifa (FreelancerHero); los demás roles, su nombre y correo */}
+        {user.rol !== 'FREELANCER' && (
+          <View style={styles.card}>
+            <EditableAvatar size={48} badgeBorder={colors.card} />
+            <View style={styles.flex}>
+              <Text style={styles.name}>{user.nombre ?? 'Sin nombre'}</Text>
+              <Text style={styles.muted}>{user.email}</Text>
+            </View>
+            <Text style={styles.badge}>{ROLE_LABELS[user.rol] ?? user.rol}</Text>
           </View>
-          <Text style={styles.badge}>{ROLE_LABELS[user.rol] ?? user.rol}</Text>
+        )}
+
+        {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} refreshKey={refreshKey} />}
+
+        {user.rol !== 'ADMIN' && (
+          <>
+            <Text style={styles.section}>CELULAR PARA WHATSAPP</Text>
+            <View style={styles.phoneCard}>
+              <PhoneEditor help="Solo lo ve la otra persona cuando tienen un contrato, para escribirte por WhatsApp." />
+            </View>
+          </>
+        )}
+
+        <Text style={styles.section}>APARIENCIA</Text>
+        {/* Sistema sigue el modo del celular; Claro y Oscuro lo fijan y se recuerda al volver a abrir la app */}
+        <View style={styles.segmented} accessibilityRole="radiogroup">
+          {THEME_OPTIONS.map((option) => {
+            const selected = preference === option.value
+            return (
+              <Pressable
+                key={option.value}
+                onPress={() => setPreference(option.value)}
+                style={[styles.segment, selected && styles.segmentSelected]}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: selected }}
+              >
+                <Ionicons name={option.icon} size={16} color={selected ? colors.onPrimary : colors.text} />
+                <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{option.label}</Text>
+              </Pressable>
+            )
+          })}
         </View>
-      )}
 
-      {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} refreshKey={refreshKey} />}
-
-      {user.rol !== 'ADMIN' && (
-        <>
-          <Text style={styles.section}>CELULAR PARA WHATSAPP</Text>
-          <View style={styles.phoneCard}>
-            <PhoneEditor help="Solo lo ve la otra persona cuando tienen un contrato, para escribirte por WhatsApp." />
-          </View>
-        </>
-      )}
-
-      <Text style={styles.section}>APARIENCIA</Text>
-      {/* Sistema sigue el modo del celular; Claro y Oscuro lo fijan y se recuerda al volver a abrir la app */}
-      <View style={styles.segmented} accessibilityRole="radiogroup">
-        {THEME_OPTIONS.map((option) => {
-          const selected = preference === option.value
-          return (
-            <Pressable
-              key={option.value}
-              onPress={() => setPreference(option.value)}
-              style={[styles.segment, selected && styles.segmentSelected]}
-              accessibilityRole="radio"
-              accessibilityState={{ checked: selected }}
-            >
-              <Ionicons name={option.icon} size={16} color={selected ? colors.onPrimary : colors.text} />
-              <Text style={[styles.segmentText, selected && styles.segmentTextSelected]}>{option.label}</Text>
-            </Pressable>
-          )
-        })}
-      </View>
-
-      {/* Al cerrar sesión, el layout raíz vuelve solo a la bienvenida */}
-      <Pressable onPress={logout} style={({ pressed }) => [styles.logout, pressed && styles.pressed]}>
-        <Ionicons name="log-out-outline" size={18} color={colors.error} />
-        <Text style={styles.logoutText}>Cerrar sesión</Text>
-      </Pressable>
-    </ScrollView>
+        {/* Al cerrar sesión, el layout raíz vuelve solo a la bienvenida */}
+        <Pressable onPress={logout} style={({ pressed }) => [styles.logout, pressed && styles.pressed]}>
+          <Ionicons name="log-out-outline" size={18} color={colors.error} />
+          <Text style={styles.logoutText}>Cerrar sesión</Text>
+        </Pressable>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
