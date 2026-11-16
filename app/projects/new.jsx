@@ -67,7 +67,8 @@ function Field({ label, error, children }) {
 }
 
 // Nuevo proyecto (mockup): presupuesto grande arriba, título, fecha, distrito y el botón fijo abajo.
-// El distrito se elige con un toque o con el GPS; el permiso se pide solo al tocar "Usar mi ubicación".
+// El distrito es opcional (igual que en la web): se elige con un toque o con el GPS, y el permiso se pide solo
+// al tocar "Usar mi ubicación".
 export default function NewProjectScreen() {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
@@ -112,7 +113,7 @@ export default function NewProjectScreen() {
         description: values.description.trim() || null,
         budget: Number(values.budget.replace(',', '.')),
         deadline: values.deadline ? toIsoDate(values.deadline) : null,
-        location: values.location.trim(),
+        location: values.location.trim() || null,
         skillIds: values.skillIds,
       })
       router.replace(`/projects/${created.id}`)
@@ -134,7 +135,6 @@ export default function NewProjectScreen() {
 
   // Un distrito detectado por GPS que no está en la lista aparece como una opción más, ya elegida
   const districtOptions = values.location && !DISTRICTS.includes(values.location) ? [values.location, ...DISTRICTS] : DISTRICTS
-  const hasDistrict = Boolean(values.location.trim())
 
   return (
     <KeyboardAvoidingView style={styles.flex} behavior="padding">
@@ -198,7 +198,7 @@ export default function NewProjectScreen() {
           </View>
         </Field>
 
-        <Field label="Distrito">
+        <Field label="Distrito (opcional)">
           {gps.denied ? (
             <View style={styles.notice}>
               <View style={styles.noticeIcon}>
@@ -274,17 +274,15 @@ export default function NewProjectScreen() {
       <View style={[styles.footer, { paddingBottom: insets.bottom + 12 }]}>
         <Pressable
           onPress={handleSubmit}
-          disabled={!hasDistrict || actions.saving}
-          style={({ pressed }) => [styles.submit, !hasDistrict && styles.submitDisabled, pressed && styles.pressed]}
+          disabled={actions.saving}
+          style={({ pressed }) => [styles.submit, pressed && styles.pressed]}
           accessibilityRole="button"
-          accessibilityState={{ disabled: !hasDistrict || actions.saving }}
+          accessibilityState={{ disabled: actions.saving }}
         >
           {actions.saving ? (
             <ActivityIndicator color={colors.onPrimary} />
           ) : (
-            <Text style={[styles.submitText, !hasDistrict && styles.submitTextDisabled]}>
-              {hasDistrict ? 'Publicar proyecto' : 'Elige un distrito para publicar'}
-            </Text>
+            <Text style={styles.submitText}>Publicar proyecto</Text>
           )}
         </Pressable>
       </View>
@@ -398,9 +396,7 @@ const createStyles = ({ colors, fonts }) => ({
     borderTopColor: colors.border,
   },
   submit: { alignItems: 'center', backgroundColor: colors.primary, borderRadius: radius.lg, paddingVertical: 17 },
-  submitDisabled: { backgroundColor: colors.muted + '99' },
   submitText: { color: colors.onPrimary, fontFamily: fonts.semibold, fontSize: 16 },
-  submitTextDisabled: { color: '#FFFFFF' },
 })
 
 Field.propTypes = {
