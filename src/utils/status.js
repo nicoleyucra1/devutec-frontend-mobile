@@ -7,9 +7,9 @@ export const APPLICATION_STATUS = {
 }
 
 export const CONTRACT_STATUS = {
-  IN_PROGRESS: { label: 'En progreso', tone: 'progress' },
+  IN_PROGRESS: { label: 'En curso', tone: 'progress' },
   DELIVERED: { label: 'Entregado', tone: 'pending' },
-  CONFIRMED: { label: 'Completado', tone: 'success' },
+  CONFIRMED: { label: 'Confirmado', tone: 'success' },
   CANCELLED: { label: 'Cancelado', tone: 'danger' },
 }
 

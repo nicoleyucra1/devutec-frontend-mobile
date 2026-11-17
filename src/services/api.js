@@ -57,7 +57,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config
-    const isAuthRequest = original?.url?.startsWith('/auth/')
+    // Confirmar con Google sí usa la sesión, así que puede renovarla como cualquier otra petición
+    const isAuthRequest = original?.url?.startsWith('/auth/') && original.url !== '/auth/google/confirm'
 
     // Solo se renueva ante un 401, una vez por petición y nunca en login o registro
     if (error.response?.status !== 401 || !original || original._retry || isAuthRequest) {

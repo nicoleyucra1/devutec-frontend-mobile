@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, Text } from 'react-native'
+import { KeyboardAvoidingView, ScrollView, Text } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import FormField from '../../src/components/FormField'
 import PrimaryButton from '../../src/components/PrimaryButton'
@@ -58,7 +58,7 @@ export default function ApplyScreen() {
   if (loading || error) return <ScreenState loading={loading} error={error} onRetry={reload} />
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={styles.flex} behavior="padding">
       <ScrollView style={styles.flex} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>{project.title}</Text>
         <Text style={styles.muted}>Presupuesto del cliente: {formatBudget(project.budget)}</Text>

@@ -4,7 +4,7 @@ import {
   Animated,
   Easing,
   KeyboardAvoidingView,
-  Platform,
+ 
   Pressable,
   ScrollView,
   StyleSheet,
@@ -226,7 +226,7 @@ export default function ScanScreen() {
       {checking && <ActivityIndicator style={styles.loading} size="large" color={darkColors.lime} />}
 
       {!checking && !canScan && (
-        <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={styles.flex} behavior="padding">
           <ScrollView
             contentContainerStyle={[styles.noticeContent, { paddingBottom: insets.bottom + 24 }]}
             keyboardShouldPersistTaps="handled"
@@ -273,7 +273,7 @@ export default function ScanScreen() {
           {!foundId && (
             <KeyboardAvoidingView
               style={styles.bottomArea}
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              behavior="padding"
               pointerEvents="box-none"
             >
               <View style={{ paddingBottom: insets.bottom + 24 }}>

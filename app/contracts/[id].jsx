@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { AppState, Linking, RefreshControl, ScrollView, Text, View } from 'react-native'
+import { KeyboardAvoidingView, AppState, Linking, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import * as ExpoLinking from 'expo-linking'
+import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
+import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
 import WhatsAppCard from '../../src/components/WhatsAppCard'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
@@ -13,9 +15,10 @@ import { contractService } from '../../src/services/contractService'
 import { confirmAlert } from '../../src/utils/confirmAlert'
 import { preferenceStorage } from '../../src/utils/preferenceStorage'
 import { errorMessage } from '../../src/utils/errorMessage'
-import { formatDate, formatBudget } from '../../src/utils/format'
+import { contractCode, formatDate, formatBudget } from '../../src/utils/format'
 import { CONTRACT_STATUS, PAYMENT_STATUS } from '../../src/utils/status'
 import { useThemedStyles } from '../../src/hooks/useTheme'
+import { useHeaderOffset } from '../../src/hooks/useHeaderOffset'
 import PropTypes from 'prop-types'
 
 const PAYMENT_TEXT = {
@@ -26,6 +29,7 @@ const PAYMENT_TEXT = {
 
 export default function ContractDetailScreen() {
   const styles = useThemedStyles(createStyles)
+  const headerOffset = useHeaderOffset()
   const { id } = useLocalSearchParams()
   const { user } = useAuth()
   const biometric = useBiometricAuth()
@@ -34,6 +38,7 @@ export default function ContractDetailScreen() {
   // Acción en curso ('deliver', 'confirm' o 'cancel'); su botón muestra que está cargando
   const [running, setRunning] = useState(null)
   const [message, setMessage] = useState(null)
+  const [releasing, setReleasing] = useState(false)
 
   // Pago con tarjeta: la página de Stripe se abre en el navegador. La sesión de pago se guarda en el celular
   // (por si el sistema cierra la app mientras se paga) y al volver se le pregunta al backend si ya se pagó.
@@ -134,18 +139,11 @@ export default function ContractDetailScreen() {
   const handleDeliver = () =>
     run('deliver', contractService.deliver, 'Marcaste el trabajo como entregado. El cliente debe confirmarlo.')
 
-  // Liberar el pago es la acción más delicada: se confirma con huella, Face ID o el código del celular
-  const handleConfirm = async () => {
-    const result = await biometric.confirm({
-      title: 'Confirmar entrega y liberar pago',
-      message: `Se pagarán ${formatBudget(contract.amount)} a ${contract.freelancerName}`,
-      confirmLabel: 'Liberar pago',
-    })
-    if (result.ok) {
-      run('confirm', contractService.confirm, 'Entrega confirmada. El pago fue liberado al freelancer.')
-    } else if (result.error) {
-      setMessage({ ok: false, text: result.error })
-    }
+  // Liberar el pago es la acción más delicada: el panel "Liberar pago" pide huella, Face ID, el código
+  // del celular o la contraseña, y recién ahí se llama al backend
+  const handleRelease = () => {
+    setReleasing(false)
+    run('confirm', contractService.confirm, 'Entrega confirmada. El pago fue liberado al freelancer.')
   }
 
   const handleCancel = async () => {
@@ -172,70 +170,87 @@ export default function ContractDetailScreen() {
     contract.paymentStatus === 'HELD' &&
     !contract.paidWithCard
 
+  // Sube el contenido cuando aparece el teclado (por ejemplo, al escribir el celular de WhatsApp)
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={false} onRefresh={reload} />}
-    >
-      {message && <Text style={[styles.message, message.ok ? styles.success : styles.error]}>{message.text}</Text>}
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={headerOffset}>
+      <ScrollView
+        style={styles.screen}
+        contentContainerStyle={styles.content}
+        refreshControl={<RefreshControl refreshing={false} onRefresh={reload} />}
+      >
+        {message && <Text style={[styles.message, message.ok ? styles.success : styles.error]}>{message.text}</Text>}
 
-      <View style={styles.card}>
-        <View style={styles.row}>
-          <Text style={styles.title}>{contract.projectTitle}</Text>
-          <StatusBadge status={CONTRACT_STATUS[contract.status]} fallback={contract.status} />
-        </View>
-
-        <View style={styles.grid}>
-          <Info label="Freelancer" value={contract.freelancerName} />
-          <Info label="Monto" value={formatBudget(contract.amount)} />
-          <Info label="Inicio" value={formatDate(contract.startedAt)} />
-          <Info label="Entrega" value={contract.deliveredAt ? formatDate(contract.deliveredAt) : 'Pendiente'} />
-        </View>
-
-        <View style={styles.paymentBox}>
-          <StatusBadge status={PAYMENT_STATUS[contract.paymentStatus]} fallback={contract.paymentStatus} />
-          <Text style={styles.paymentText}>{PAYMENT_TEXT[contract.paymentStatus]}</Text>
-          {contract.paidWithCard && <Text style={styles.paidText}>Pagado con tarjeta ✓</Text>}
-        </View>
-
-        {canPay && (
-          <View style={styles.payBox}>
-            <PrimaryButton title="Pagar con tarjeta" loading={running === 'pay' && !awaitingPayment} onPress={handlePay} />
-            {awaitingPayment && (
-              <PrimaryButton
-                title="Ya pagué, verificar"
-                variant="secondary"
-                loading={running === 'pay'}
-                onPress={() => verifyPayment()}
-              />
-            )}
-            <Text style={styles.payHint}>Modo de prueba: tarjeta 4242 4242 4242 4242, cualquier fecha futura y CVC</Text>
+        <View style={styles.card}>
+          <View style={styles.row}>
+            <Text style={styles.code}>{contractCode(contract.id)}</Text>
+            <View style={styles.badges}>
+              <StatusBadge status={CONTRACT_STATUS[contract.status]} fallback={contract.status} />
+              <StatusBadge status={PAYMENT_STATUS[contract.paymentStatus]} fallback={contract.paymentStatus} />
+            </View>
           </View>
-        )}
+          <Money value={contract.amount} style={styles.amount} centsStyle={styles.cents} />
+          <Text style={styles.title}>{contract.projectTitle}</Text>
 
-        {canDeliver && (
-          <PrimaryButton title="Marcar como entregado" loading={running === 'deliver'} onPress={handleDeliver} />
-        )}
+          <View style={styles.grid}>
+            <Info label="Freelancer" value={contract.freelancerName} />
+            <Info label="Inicio" value={formatDate(contract.startedAt)} />
+            <Info label="Entrega" value={contract.deliveredAt ? formatDate(contract.deliveredAt) : 'Pendiente'} />
+          </View>
+
+          <View style={styles.paymentBox}>
+            <Text style={styles.paymentText}>{PAYMENT_TEXT[contract.paymentStatus]}</Text>
+            {contract.paidWithCard && <Text style={styles.paidText}>Pagado con tarjeta ✓</Text>}
+          </View>
+
+          {canPay && (
+            <View style={styles.payBox}>
+              <PrimaryButton title="Pagar con tarjeta" loading={running === 'pay' && !awaitingPayment} onPress={handlePay} />
+              {awaitingPayment && (
+                <PrimaryButton
+                  title="Ya pagué, verificar"
+                  variant="secondary"
+                  loading={running === 'pay'}
+                  onPress={() => verifyPayment()}
+                />
+              )}
+              <Text style={styles.payHint}>Modo de prueba: tarjeta 4242 4242 4242 4242, cualquier fecha futura y CVC</Text>
+            </View>
+          )}
+
+          {canDeliver && (
+            <PrimaryButton title="Marcar como entregado" loading={running === 'deliver'} onPress={handleDeliver} />
+          )}
+          {canConfirm && (
+            <PrimaryButton
+              title={`Liberar ${formatBudget(contract.amount)}`}
+              loading={running === 'confirm'}
+              onPress={() => setReleasing(true)}
+            />
+          )}
+          {canCancel && (
+            <PrimaryButton
+              title="Cancelar contrato"
+              variant="danger"
+              loading={running === 'cancel'}
+              onPress={handleCancel}
+            />
+          )}
+        </View>
+
+        {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
+
         {canConfirm && (
-          <PrimaryButton
-            title={biometric.usesDeviceSecurity ? `Liberar pago con ${biometric.label}` : 'Confirmar y liberar pago'}
-            loading={running === 'confirm'}
-            onPress={handleConfirm}
+          <ReleaseSheet
+            contract={contract}
+            email={user?.email}
+            biometric={biometric}
+            visible={releasing}
+            onClose={() => setReleasing(false)}
+            onRelease={handleRelease}
           />
         )}
-        {canCancel && (
-          <PrimaryButton
-            title="Cancelar contrato"
-            variant="danger"
-            loading={running === 'cancel'}
-            onPress={handleCancel}
-          />
-        )}
-      </View>
-
-      {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 
@@ -252,9 +267,13 @@ function Info({ label, value }) {
 const createStyles = ({ colors, fonts }) => ({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { padding: 16, gap: 12 },
-  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 16 },
+  card: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 20, padding: 18 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
-  title: { flex: 1, fontSize: 20, fontFamily: fonts.bold, color: colors.text },
+  code: { fontSize: 13, fontFamily: fonts.regular, color: colors.muted, letterSpacing: 0.5, marginTop: 4 },
+  badges: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 6, flexShrink: 1 },
+  amount: { fontFamily: fonts.bold, fontSize: 44, letterSpacing: -2.2, color: colors.text, marginTop: 14 },
+  cents: { color: colors.muted },
+  title: { fontSize: 18, fontFamily: fonts.semibold, color: colors.text, marginTop: 4 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 16 },
   info: { width: '50%', marginBottom: 12 },
   infoLabel: { fontSize: 12, color: colors.muted },

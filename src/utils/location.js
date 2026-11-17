@@ -1,11 +1,11 @@
 import * as Location from 'expo-location'
 
 // Pide permiso de ubicación y convierte las coordenadas en el nombre del distrito.
-// Devuelve { district } o { error } con un mensaje para mostrar.
+// Devuelve { district } o { error } con un mensaje para mostrar; denied: true si no dio permiso.
 export async function detectDistrict() {
   const { status } = await Location.requestForegroundPermissionsAsync()
   if (status !== 'granted') {
-    return { error: 'No diste permiso de ubicación. Puedes escribir el distrito a mano.' }
+    return { denied: true, error: 'No diste permiso de ubicación. Puedes elegir el distrito a mano.' }
   }
 
   try {

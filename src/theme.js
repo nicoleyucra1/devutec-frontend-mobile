@@ -30,7 +30,13 @@ export const lightColors = {
   limeText: brand.ink,
   errorLight: '#FBEAE7',
   pendingLight: '#F8EEDC',
+  progressLight: '#EAEFFC',
   white: '#FFFFFF',
+  // Tarjeta oscura del Inicio y aviso sin conexión: oscuras en los dos modos
+  night: brand.ink,
+  onNight: '#FFFFFF',
+  nightMuted: '#A6A39C',
+  nightLine: '#34342F',
 }
 
 export const darkColors = {
@@ -52,7 +58,14 @@ export const darkColors = {
   errorLight: '#3A1A15',
   pending: '#E3A64A',
   pendingLight: '#33270F',
+  progress: '#93ADF4',
+  progressLight: '#1A2440',
   white: '#FFFFFF',
+  // En oscuro el fondo ya es tinta: la tarjeta oscura sube un tono para separarse
+  night: '#1A1A17',
+  onNight: '#F5F3EE',
+  nightMuted: '#A6A39C',
+  nightLine: '#34342F',
 }
 
 // Tipografías del diseño: Geist para todo y una serif cursiva para las palabras destacadas

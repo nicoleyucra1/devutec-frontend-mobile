@@ -1,4 +1,4 @@
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 import { useTheme, useThemedStyles } from '../hooks/useTheme'
 import PropTypes from 'prop-types'
 import { statusShape } from '../utils/propShapes'
@@ -13,29 +13,37 @@ function toneColors(colors, tone) {
     case 'danger':
       return { color: colors.error, backgroundColor: colors.errorLight }
     case 'progress':
-      return { color: colors.progress, backgroundColor: colors.primaryLight }
+      return { color: colors.progress, backgroundColor: colors.progressLight }
     default:
       return { color: colors.muted, backgroundColor: colors.primaryLight }
   }
 }
 
-// Etiqueta de color para un estado. status viene de src/utils/status.js ({ label, tone })
+// Etiqueta de color con un punto delante, como en el diseño. status viene de src/utils/status.js ({ label, tone })
 export default function StatusBadge({ status, fallback }) {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
-  return <Text style={[styles.badge, toneColors(colors, status?.tone)]}>{status?.label ?? fallback}</Text>
+  const { color, backgroundColor } = toneColors(colors, status?.tone)
+  return (
+    <View style={[styles.badge, { backgroundColor }]}>
+      <View style={[styles.dot, { backgroundColor: color }]} />
+      <Text style={[styles.text, { color }]}>{status?.label ?? fallback}</Text>
+    </View>
+  )
 }
 
 const createStyles = ({ fonts }) => ({
   badge: {
     alignSelf: 'flex-start',
-    fontSize: 12,
-    fontFamily: fonts.semibold,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     paddingHorizontal: 10,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: 999,
-    overflow: 'hidden',
   },
+  dot: { width: 6, height: 6, borderRadius: 3 },
+  text: { fontSize: 12, fontFamily: fonts.semibold },
 })
 
 StatusBadge.propTypes = {

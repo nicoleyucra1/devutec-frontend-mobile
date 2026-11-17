@@ -38,6 +38,8 @@ function TabsNavigator() {
         name="index"
         options={{
           title: 'Inicio',
+          // Inicio, Postulaciones y Contratos llevan su título grande dentro de la pantalla, como en el diseño
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
         }}
       />
@@ -52,6 +54,7 @@ function TabsNavigator() {
         name="applications"
         options={{
           title: 'Postulaciones',
+          headerShown: false,
           //Solo los freelancers postulan; para los demás la pestaña se oculta
           href: user?.rol === 'FREELANCER' ? undefined : null,
           tabBarIcon: ({ color, size }) => <Ionicons name="paper-plane-outline" color={color} size={size} />,
@@ -61,6 +64,7 @@ function TabsNavigator() {
         name="contracts"
         options={{
           title: 'Contratos',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <Ionicons name="document-text-outline" color={color} size={size} />,
         }}
       />
