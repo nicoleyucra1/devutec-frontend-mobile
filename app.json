@@ -35,7 +35,6 @@
         "expo-image-picker",
         {
           "photosPermission": "DEVUTEC usa tus fotos para que elijas tu foto de perfil.",
-          "cameraPermission": false,
           "microphonePermission": false
         }
       ],
