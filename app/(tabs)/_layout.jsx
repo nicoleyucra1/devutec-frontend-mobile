@@ -65,6 +65,8 @@ function TabsNavigator() {
         options={{
           title: 'Contratos',
           headerShown: false,
+          // El admin no tiene contratos propios: los pagos de la plataforma los ve en su Inicio
+          href: user?.rol === 'ADMIN' ? null : undefined,
           tabBarIcon: ({ color, size }) => <Ionicons name="document-text-outline" color={color} size={size} />,
         }}
       />
