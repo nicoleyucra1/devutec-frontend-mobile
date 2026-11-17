@@ -2,7 +2,7 @@
 
 App móvil de DEVUTEC, hecha con React Native y Expo (SDK 58) y navegación con expo-router.
 
-**Descargar la app (Android):** [DEVUTEC.apk](https://expo.dev/artifacts/eas/hwczTxkNs9CuEeh7bSkqL3JdE0uNQGXVLIYhbYWaTRA.apk) · conecta con la API en https://devutec.duckdns.org/api/v1
+**Descargar la app (Android):** [DEVUTEC.apk](https://expo.dev/artifacts/eas/xaDfiwlPM_ntQ910rnQPpX7xDFOngMysWxBgHypux0A.apk) · conecta con la API en https://devutec.duckdns.org/api/v1
 
 Para instalarla, abre el link desde el celular Android, descarga el archivo y permite instalar apps de fuentes desconocidas cuando lo pida. En iPhone se prueba con Expo Go.
 
@@ -189,4 +189,4 @@ eas init                                     # solo la primera vez: vincula el p
 eas build --platform android --profile preview
 ```
 
-Al terminar, EAS muestra un link y un QR para descargar el `.apk`. El build final de la entrega es el del commit `78f84fe` (16 de noviembre de 2026): [descargar el APK](https://expo.dev/artifacts/eas/hwczTxkNs9CuEeh7bSkqL3JdE0uNQGXVLIYhbYWaTRA.apk). En iPhone la app se prueba con Expo Go, porque instalarla fuera del App Store requiere una cuenta de Apple Developer.
+Al terminar, EAS muestra un link y un QR para descargar el `.apk`. El build final de la entrega es el del commit `7b7ee2a` (16 de noviembre de 2026): [descargar el APK](https://expo.dev/artifacts/eas/xaDfiwlPM_ntQ910rnQPpX7xDFOngMysWxBgHypux0A.apk). En iPhone la app se prueba con Expo Go, porque instalarla fuera del App Store requiere una cuenta de Apple Developer.
