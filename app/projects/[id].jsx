@@ -7,6 +7,7 @@ import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import ApplySheet from '../../src/components/projects/ApplySheet'
 import ClientLinks from '../../src/components/projects/ClientLinks'
+import ProjectApplicants from '../../src/components/projects/ProjectApplicants'
 import SkillChips from '../../src/components/projects/SkillChips'
 import StateView from '../../src/components/projects/StateView'
 import StatusBadge from '../../src/components/projects/StatusBadge'
@@ -58,6 +59,8 @@ export default function ProjectDetailScreen() {
   const { data: project, loading, error, reload } = useProject(id)
   const styles = useThemedStyles(createStyles)
   const [applying, setApplying] = useState(false)
+  // El cliente que publicó el proyecto ve las postulaciones; los demás, el botón para postular
+  const isOwner = Boolean(user && project && String(user.id) === String(project.clientId))
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/projects'))
   const share = () =>
@@ -105,7 +108,11 @@ export default function ProjectDetailScreen() {
             </View>
           ) : null}
 
-          <ClientLinks clientName={project.clientName} links={project.clientLinks} />
+          {isOwner ? (
+            <ProjectApplicants project={project} onChanged={reload} />
+          ) : (
+            <ClientLinks clientName={project.clientName} links={project.clientLinks} />
+          )}
 
           {/* Solo un freelancer puede postular, y solo mientras el proyecto siga abierto */}
           {user?.rol === 'FREELANCER' && project.status === 'OPEN' ? (
