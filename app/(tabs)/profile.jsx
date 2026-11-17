@@ -101,7 +101,7 @@ export default function ProfileScreen() {
           <>
             <Text style={styles.section}>CELULAR PARA WHATSAPP</Text>
             <View style={styles.phoneCard}>
-              <PhoneEditor help="Solo lo ve la otra persona cuando tienen un contrato, para escribirte por WhatsApp." />
+              <PhoneEditor help="Solo lo ve la persona con quien tienes un contrato para escribirte por WhatsApp." />
             </View>
           </>
         )}
