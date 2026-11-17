@@ -3,7 +3,7 @@ import api from './api'
 import { avatarFormData } from '../utils/avatar'
 
 export const userService = {
-  // Devuelve { id, nombre, email, rol, avatarUrl, celular } del usuario con sesión
+  // Devuelve { id, nombre, email, rol, avatarUrl, celular, redes } del usuario con sesión
   getMe: () => api.get('/users/me').then((res) => res.data),
 
   // Reseñas que recibió una persona, paginadas (GET /users/{id}/reviews). El Inicio usa totalElements.
@@ -28,4 +28,8 @@ export const userService = {
 
   // Quita el celular. Devuelve el usuario con celular en null.
   deletePhone: () => api.delete('/users/me/phone').then((res) => res.data),
+
+  // Guarda las redes del negocio: { instagram, facebook, tiktok, sitioWeb }. Se mandan las cuatro siempre;
+  // las vacías se quitan. Acepta "@usuario", el link o la web sin https. Devuelve el usuario con sus redes.
+  updateLinks: (links) => api.put('/users/me/links', links).then((res) => res.data),
 }
