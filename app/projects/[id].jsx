@@ -14,6 +14,8 @@ import StatusBadge from '../../src/components/projects/StatusBadge'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useProject } from '../../src/hooks/useProject'
+import { useProjectActions } from '../../src/hooks/useProjectActions'
+import { confirmAlert } from '../../src/utils/confirmAlert'
 import { formatDate } from '../../src/utils/format'
 import PropTypes from 'prop-types'
 
@@ -61,6 +63,24 @@ export default function ProjectDetailScreen() {
   const [applying, setApplying] = useState(false)
   // El cliente que publicó el proyecto ve las postulaciones; los demás, el botón para postular
   const isOwner = Boolean(user && project && String(user.id) === String(project.clientId))
+  // El dueño y el admin pueden eliminarlo; el backend solo deja si sigue abierto y nunca tuvo contrato
+  const canDelete = Boolean(project && (isOwner || user?.rol === 'ADMIN') && project.status === 'OPEN')
+  const actions = useProjectActions()
+
+  const remove = async () => {
+    const ok = await confirmAlert(
+      '¿Eliminar este proyecto?',
+      `"${project.title}" y sus postulaciones se borran para siempre. No se puede deshacer.`,
+      'Eliminar',
+    )
+    if (!ok) return
+    try {
+      await actions.remove(project.id)
+      router.replace('/projects')
+    } catch {
+      // El mensaje queda en actions.error y se muestra sobre el botón
+    }
+  }
 
   const goBack = () => (router.canGoBack() ? router.back() : router.replace('/projects'))
   const share = () =>
@@ -129,6 +149,22 @@ export default function ProjectDetailScreen() {
               />
             </>
           ) : null}
+
+          {canDelete ? (
+            <View style={styles.danger}>
+              {user?.rol === 'ADMIN' && !isOwner ? (
+                <Text style={styles.dangerNote}>Como admin puedes eliminar proyectos que incumplan las reglas.</Text>
+              ) : null}
+              {actions.error ? <Text style={styles.dangerError}>{actions.error}</Text> : null}
+              <PrimaryButton
+                title="Eliminar proyecto"
+                variant="danger"
+                onPress={remove}
+                loading={actions.saving}
+                icon={<Ionicons name="trash-outline" size={18} color="#FFFFFF" />}
+              />
+            </View>
+          ) : null}
         </ScrollView>
       ) : null}
     </>
@@ -165,6 +201,9 @@ const createStyles = ({ colors, fonts }) => ({
   section: { gap: 8 },
   sectionTitle: { color: colors.text, fontFamily: fonts.semibold, fontSize: 15 },
   description: { color: colors.muted, fontFamily: fonts.regular, fontSize: 15, lineHeight: 22 },
+  danger: { gap: 10, marginTop: 8, paddingTop: 20, borderTopWidth: 1, borderTopColor: colors.border },
+  dangerNote: { color: colors.muted, fontFamily: fonts.regular, fontSize: 13, lineHeight: 18 },
+  dangerError: { color: colors.error, backgroundColor: colors.errorLight, padding: 10, borderRadius: 8, overflow: 'hidden' },
 })
 
 Meta.propTypes = {
