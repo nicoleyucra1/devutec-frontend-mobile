@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { KeyboardAvoidingView, AppState, Linking, RefreshControl, ScrollView, Text, View } from 'react-native'
+import { KeyboardAvoidingView, AppState, Linking, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import * as ExpoLinking from 'expo-linking'
+import { Ionicons } from '@expo/vector-icons'
 import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
+import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
 import WhatsAppCard from '../../src/components/WhatsAppCard'
 import ScreenState from '../../src/components/ScreenState'
@@ -17,7 +19,7 @@ import { preferenceStorage } from '../../src/utils/preferenceStorage'
 import { errorMessage } from '../../src/utils/errorMessage'
 import { contractCode, formatDate, formatBudget } from '../../src/utils/format'
 import { CONTRACT_STATUS, PAYMENT_STATUS } from '../../src/utils/status'
-import { useThemedStyles } from '../../src/hooks/useTheme'
+import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { useHeaderOffset } from '../../src/hooks/useHeaderOffset'
 import PropTypes from 'prop-types'
 
@@ -35,10 +37,12 @@ export default function ContractDetailScreen() {
   const biometric = useBiometricAuth()
   const { data: contract, loading, error, reload } = useContract(id)
 
-  // Acción en curso ('deliver', 'confirm' o 'cancel'); su botón muestra que está cargando
+  // Acción en curso ('pay', 'confirm' o 'cancel'); su botón muestra que está cargando
   const [running, setRunning] = useState(null)
   const [message, setMessage] = useState(null)
   const [releasing, setReleasing] = useState(false)
+  // Panel para pegar el link de la entrega
+  const [delivering, setDelivering] = useState(false)
 
   // Pago con tarjeta: la página de Stripe se abre en el navegador. La sesión de pago se guarda en el celular
   // (por si el sistema cierra la app mientras se paga) y al volver se le pregunta al backend si ya se pagó.
@@ -136,8 +140,12 @@ export default function ContractDetailScreen() {
     }
   }
 
-  const handleDeliver = () =>
-    run('deliver', contractService.deliver, 'Marcaste el trabajo como entregado. El cliente debe confirmarlo.')
+  // Después de entregar desde el panel: aviso arriba y se recarga el contrato
+  const handleDelivered = () => {
+    setDelivering(false)
+    setMessage({ ok: true, text: 'Trabajo entregado. El cliente revisará tu link y confirmará la entrega.' })
+    reload()
+  }
 
   // Liberar el pago es la acción más delicada: el panel "Liberar pago" pide huella, Face ID, el código
   // del celular o la contraseña, y recién ahí se llama al backend
@@ -217,9 +225,7 @@ export default function ContractDetailScreen() {
             </View>
           )}
 
-          {canDeliver && (
-            <PrimaryButton title="Marcar como entregado" loading={running === 'deliver'} onPress={handleDeliver} />
-          )}
+          {canDeliver && <PrimaryButton title="Entregar trabajo" onPress={() => setDelivering(true)} />}
           {canConfirm && (
             <PrimaryButton
               title={`Liberar ${formatBudget(contract.amount)}`}
@@ -237,7 +243,18 @@ export default function ContractDetailScreen() {
           )}
         </View>
 
+        {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
+
         {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
+
+        {canDeliver && (
+          <DeliverSheet
+            contract={contract}
+            visible={delivering}
+            onClose={() => setDelivering(false)}
+            onDelivered={handleDelivered}
+          />
+        )}
 
         {canConfirm && (
           <ReleaseSheet
@@ -252,6 +269,49 @@ export default function ContractDetailScreen() {
       </ScrollView>
     </KeyboardAvoidingView>
   )
+}
+
+// Lo que entregó el freelancer: el link (abre la app o el navegador) y su nota
+function DeliveryCard({ contract, isClient }) {
+  const { colors } = useTheme()
+  const styles = useThemedStyles(createStyles)
+  const firstName = contract.freelancerName?.split(' ')[0] ?? 'El freelancer'
+  return (
+    <View style={styles.card}>
+      <Text style={styles.deliveryKicker}>ENTREGA</Text>
+      <Text style={styles.deliveryTitle}>
+        {isClient && contract.status === 'DELIVERED' ? `Revisa lo que entregó ${firstName}` : 'Trabajo entregado'}
+      </Text>
+      <Pressable
+        onPress={() => Linking.openURL(contract.deliveryUrl).catch(() => {})}
+        accessibilityRole="link"
+        accessibilityLabel="Abrir el trabajo entregado"
+        style={({ pressed }) => [styles.deliveryLink, pressed && styles.pressed]}
+      >
+        <Ionicons name="link-outline" size={18} color={colors.text} />
+        <Text style={styles.deliveryUrl} numberOfLines={1}>
+          {contract.deliveryUrl.replace(/^https?:\/\//, '')}
+        </Text>
+        <Text style={styles.deliveryOpen}>Abrir</Text>
+      </Pressable>
+      {contract.deliveryNote ? (
+        <View style={styles.deliveryNote}>
+          <Text style={styles.deliveryNoteLabel}>NOTA DE {firstName.toUpperCase()}</Text>
+          <Text style={styles.deliveryNoteText}>{contract.deliveryNote}</Text>
+        </View>
+      ) : null}
+    </View>
+  )
+}
+
+DeliveryCard.propTypes = {
+  contract: PropTypes.shape({
+    status: PropTypes.string,
+    freelancerName: PropTypes.string,
+    deliveryUrl: PropTypes.string.isRequired,
+    deliveryNote: PropTypes.string,
+  }).isRequired,
+  isClient: PropTypes.bool,
 }
 
 function Info({ label, value }) {
@@ -283,6 +343,26 @@ const createStyles = ({ colors, fonts }) => ({
   paidText: { color: colors.accent, fontSize: 13, fontFamily: fonts.semibold },
   payBox: { gap: 8, marginBottom: 8 },
   payHint: { color: colors.muted, fontSize: 11, textAlign: 'center' },
+  pressed: { opacity: 0.7 },
+  deliveryKicker: { fontFamily: fonts.bold, fontSize: 11, letterSpacing: 1.5, color: colors.accent },
+  deliveryTitle: { fontFamily: fonts.semibold, fontSize: 17, color: colors.text, marginTop: 6 },
+  deliveryLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginTop: 14,
+  },
+  deliveryUrl: { flex: 1, fontFamily: fonts.semibold, fontSize: 14, color: colors.text },
+  deliveryOpen: { fontFamily: fonts.semibold, fontSize: 14, color: colors.accent },
+  deliveryNote: { backgroundColor: colors.background, borderRadius: 12, padding: 14, marginTop: 10, gap: 4 },
+  deliveryNoteLabel: { fontFamily: fonts.bold, fontSize: 10, letterSpacing: 1.3, color: colors.muted },
+  deliveryNoteText: { fontFamily: fonts.regular, fontSize: 14, lineHeight: 21, color: colors.text },
   message: { padding: 12, borderRadius: 10 },
   success: { backgroundColor: colors.accentLight, color: colors.accent },
   error: { backgroundColor: colors.errorLight, color: colors.error },

@@ -12,8 +12,9 @@ export const contractService = {
     return data
   },
 
-  async deliver(id) {
-    const { data } = await api.patch(`/contracts/${id}/deliver`)
+  // delivery: { link, nota }. El link es obligatorio (Drive, GitHub, Figma...); la nota es opcional
+  async deliver(id, delivery) {
+    const { data } = await api.patch(`/contracts/${id}/deliver`, delivery)
     return data
   },
 
