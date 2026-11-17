@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { RefreshControl, ScrollView } from 'react-native'
 import { useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import AdminHome from '../../src/components/home/AdminHome'
 import ClientHome from '../../src/components/home/ClientHome'
 import FreelancerHome from '../../src/components/home/FreelancerHome'
 import HomeHeader from '../../src/components/home/HomeHeader'
@@ -10,7 +11,7 @@ import { useThemedStyles } from '../../src/hooks/useTheme'
 import { greeting } from '../../src/utils/format'
 
 // Inicio (mockup M2): saludo y el resumen de cada rol. El cliente ve su dinero en garantía y lo que tiene
-// que revisar; el freelancer, lo que cobró y sus contratos en curso.
+// que revisar; el freelancer, lo que cobró y sus contratos en curso; el admin, los pagos de toda la plataforma.
 export default function HomeScreen() {
   const { user } = useAuth()
   const router = useRouter()
@@ -35,6 +36,7 @@ export default function HomeScreen() {
       />
       {isFreelancer ? <FreelancerHome key={refreshKey} userId={user.id} /> : null}
       {user.rol === 'CLIENT' ? <ClientHome key={refreshKey} /> : null}
+      {user.rol === 'ADMIN' ? <AdminHome key={refreshKey} /> : null}
     </ScrollView>
   )
 }
