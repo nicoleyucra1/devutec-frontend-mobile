@@ -8,6 +8,8 @@ import PrimaryButton from '../../src/components/PrimaryButton'
 import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
 import WhatsAppCard from '../../src/components/WhatsAppCard'
+import TranslationCard from '../../src/components/contracts/TranslationCard'
+import ClientRequestTranslator from '../../src/components/contracts/ClientRequestTranslator'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
 import { useAuth } from '../../src/hooks/useAuth'
@@ -245,6 +247,23 @@ export default function ContractDetailScreen() {
 
         {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
 
+        {/* IA traductora: explica la nota de entrega al cliente (el estudiante ve cómo le llegará) */}
+        {contract.deliveryNote && (isClient || isFreelancer) ? (
+          <TranslationCard
+            key={contract.deliveryNote}
+            contractId={contract.id}
+            note={contract.deliveryNote}
+            freelancerName={contract.freelancerName}
+            clientName={contract.clientName}
+            isClient={isClient}
+          />
+        ) : null}
+
+        {/* IA traductora al revés: convierte un pedido del cliente en tareas y preguntas para el estudiante */}
+        {isFreelancer && (contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED') ? (
+          <ClientRequestTranslator contractId={contract.id} clientName={contract.clientName} />
+        ) : null}
+
         {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
 
         {canDeliver && (
@@ -294,7 +313,8 @@ function DeliveryCard({ contract, isClient }) {
         </Text>
         <Text style={styles.deliveryOpen}>Abrir</Text>
       </Pressable>
-      {contract.deliveryNote ? (
+      {/* El cliente ve la nota traducida por Cuyi más abajo; el original queda en «Ver mensaje original» */}
+      {contract.deliveryNote && !isClient ? (
         <View style={styles.deliveryNote}>
           <Text style={styles.deliveryNoteLabel}>NOTA DE {firstName.toUpperCase()}</Text>
           <Text style={styles.deliveryNoteText}>{contract.deliveryNote}</Text>

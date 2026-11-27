@@ -41,6 +41,14 @@ export const contractService = {
     return data
   },
 
+  // IA traductora entre cliente y estudiante. direction: 'FOR_CLIENT' (explica al cliente lo que mandó el estudiante)
+  // o 'FOR_STUDENT' (convierte un pedido del cliente en tareas y preguntas). Sin text, FOR_CLIENT traduce la nota de entrega.
+  // El backend guarda cada traducción: pedir de nuevo el mismo mensaje no vuelve a llamar a la IA.
+  async translate(id, { direction, text = null, stageName = null }) {
+    const { data } = await api.post(`/contracts/${id}/translations`, { direction, text, stageName })
+    return data
+  },
+
   async getReviews(id, { signal } = {}) {
     const { data } = await api.get(`/contracts/${id}/reviews`, { signal })
     return data
