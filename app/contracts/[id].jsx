@@ -253,11 +253,11 @@ export default function ContractDetailScreen() {
 
         {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
 
+        {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
+
         {showGuide ? (
           <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />
         ) : null}
-
-        {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
 
         {canDeliver && (
           <DeliverSheet
