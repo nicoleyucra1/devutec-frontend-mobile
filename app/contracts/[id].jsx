@@ -7,8 +7,8 @@ import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
-import WhatsAppCard from '../../src/components/WhatsAppCard'
 import StageGuideCard from '../../src/components/contracts/StageGuideCard'
+import WhatsAppCard from '../../src/components/WhatsAppCard'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
 import { useAuth } from '../../src/hooks/useAuth'
@@ -170,6 +170,7 @@ export default function ContractDetailScreen() {
   const isClient = user?.id === contract.clientId
   const isFreelancer = user?.id === contract.freelancerUserId
   const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS'
+  const canCancel = isClient && contract.status === 'IN_PROGRESS'
   // Etapa en la que se está trabajando (la manda el backend con las etapas); la Mini guía es para el estudiante
   const currentStage = contract.stages?.find((stage) => stage.position === contract.currentStage)
   const showGuide =
@@ -177,7 +178,6 @@ export default function ContractDetailScreen() {
     (contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED') &&
     currentStage &&
     currentStage.status !== 'CANCELLED'
-  const canCancel = isClient && contract.status === 'IN_PROGRESS'
   const canConfirm = isClient && contract.status === 'DELIVERED'
   // El cliente puede pagar con tarjeta mientras el contrato siga abierto y no lo haya pagado antes
   const canPay =
@@ -251,11 +251,11 @@ export default function ContractDetailScreen() {
           )}
         </View>
 
+        {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
+
         {showGuide ? (
           <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />
         ) : null}
-
-        {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
 
         {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
 
