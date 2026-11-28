@@ -14,6 +14,7 @@ import StateView from '../../src/components/projects/StateView'
 import StatusBadge from '../../src/components/projects/StatusBadge'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { useAuth } from '../../src/hooks/useAuth'
+import InvitationBanner from '../../src/components/rehire/InvitationBanner'
 import { useProject } from '../../src/hooks/useProject'
 import { useProjectActions } from '../../src/hooks/useProjectActions'
 import { confirmAlert } from '../../src/utils/confirmAlert'
@@ -110,6 +111,8 @@ export default function ProjectDetailScreen() {
           </View>
           <Text style={styles.title}>{project.title}</Text>
           {project.clientName ? <Text style={styles.client}>{project.clientName}</Text> : null}
+          {/* Volver a contratar: 48 horas solo para el estudiante invitado */}
+          <InvitationBanner project={project} viewerId={user?.id} />
           {project.metricsRequested ? (
             <View style={styles.metricsNote}>
               <Text style={styles.metricsNoteTitle}>Incluye métricas DEVUTEC</Text>

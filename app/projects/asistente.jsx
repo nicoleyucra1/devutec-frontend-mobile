@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
-import { Stack, useRouter } from 'expo-router'
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import ChatBubble from '../../src/components/support/ChatBubble'
@@ -28,6 +28,7 @@ export default function ProjectAssistantScreen() {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
   const insets = useSafeAreaInsets()
+  const invite = useLocalSearchParams()
   const router = useRouter()
   const { user } = useAuth()
   const [messages, setMessages] = useState([])
@@ -98,7 +99,8 @@ export default function ProjectAssistantScreen() {
   const openForm = (fromDraft) => {
     draftStore.set(fromDraft)
     assetStore.set(assets)
-    router.replace('/projects/new')
+    // Volver a contratar: la invitación pasa al formulario
+    router.replace(invite.invitar ? `/projects/new?invitar=${invite.invitar}&nombre=${encodeURIComponent(invite.nombre ?? '')}` : '/projects/new')
   }
 
   const close = () => (router.canGoBack() ? router.back() : router.replace('/'))
