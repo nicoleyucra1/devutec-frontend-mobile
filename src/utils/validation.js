@@ -33,11 +33,19 @@ export function validateLogin({ email, password }) {
   return errors
 }
 
+// Los estudiantes se registran con su correo universitario: el dominio termina en .edu.pe (igual que el backend)
+export const STUDENT_EMAIL_MESSAGE = 'Usa tu correo universitario (el que termina en .edu.pe)'
+export function isUniversityEmail(email) {
+  const domain = String(email ?? '').trim().toLowerCase().split('@').pop()
+  return String(email ?? '').includes('@') && domain.endsWith('.edu.pe') && domain.length > '.edu.pe'.length
+}
+
 export function validateRegister({ nombre, email, password, rol, terms }) {
   const errors = {}
   if (!nombre.trim()) errors.nombre = 'El nombre es obligatorio'
   const emailError = validateEmail(email)
   if (emailError) errors.email = emailError
+  else if (rol === 'FREELANCER' && !isUniversityEmail(email)) errors.email = STUDENT_EMAIL_MESSAGE
   const passwordError = validatePassword(password)
   if (passwordError) errors.password = passwordError
   if (!rol) errors.rol = 'Elige si quieres contratar o trabajar'
