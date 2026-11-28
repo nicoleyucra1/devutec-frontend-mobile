@@ -40,6 +40,15 @@ export default function FreelancerHero({ profile, editable = false }) {
           <Text style={styles.muted}>
             {[profile.universidad, studyLabel(profile)].filter(Boolean).join(' · ') || 'Freelancer de DEVUTEC'}
           </Text>
+          {typeof profile.activeProjects === 'number' ? (
+            <View style={[styles.status, profile.activeProjects > 0 ? styles.statusBusy : styles.statusFree]}>
+              <Text style={[styles.statusText, profile.activeProjects > 0 ? styles.statusTextBusy : styles.statusTextFree]}>
+                {profile.activeProjects > 0
+                  ? `⏳ Con ${profile.activeProjects === 1 ? 'un proyecto' : `${profile.activeProjects} proyectos`} en curso`
+                  : '🟢 Disponible'}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
 
@@ -85,6 +94,13 @@ const createStyles = ({ colors, fonts, isDark }) => ({
     padding: 20,
   },
   flex: { flex: 1 },
+  // Estado del estudiante: disponible o con un proyecto en curso
+  status: { alignSelf: 'flex-start', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, marginTop: 6 },
+  statusFree: { backgroundColor: colors.lime },
+  statusBusy: { backgroundColor: colors.pendingLight ?? colors.card },
+  statusText: { fontFamily: fonts.semibold, fontSize: 11 },
+  statusTextFree: { color: colors.ink },
+  statusTextBusy: { color: colors.pending ?? colors.text },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   // Sin foto: iniciales en tinta sobre un círculo lima
   avatar: { backgroundColor: colors.lime },

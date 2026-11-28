@@ -26,6 +26,7 @@ export const projectShape = PropTypes.shape({
 })
 
 export const freelancerProfileShape = PropTypes.shape({
+  activeProjects: PropTypes.number,
   userId: idType,
   nombre: PropTypes.string,
   avatarUrl: PropTypes.string,
