@@ -8,6 +8,8 @@ import PrimaryButton from '../../src/components/PrimaryButton'
 import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
 import WhatsAppCard from '../../src/components/WhatsAppCard'
+import TranslationCard from '../../src/components/contracts/TranslationCard'
+import ClientRequestTranslator from '../../src/components/contracts/ClientRequestTranslator'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
 import { useAuth } from '../../src/hooks/useAuth'
@@ -168,6 +170,11 @@ export default function ContractDetailScreen() {
   // El rol en este contrato se decide con los ids que manda el backend
   const isClient = user?.id === contract.clientId
   const isFreelancer = user?.id === contract.freelancerUserId
+  // Con etapas: la entrega y el pedido de cambios de la etapa en curso se traducen con su nombre como contexto
+  const translatedStage = contract.stages?.find((stage) => stage.position === contract.currentStage)
+  const deliveryNote = translatedStage?.deliveryNote || contract.deliveryNote
+  const deliveryStageName = translatedStage?.deliveryNote ? translatedStage.name : undefined
+  const changeRequest = translatedStage?.status === 'CHANGES_REQUESTED' ? translatedStage.changeRequestNote : null
   const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS'
   const canCancel = isClient && contract.status === 'IN_PROGRESS'
   const canConfirm = isClient && contract.status === 'DELIVERED'
@@ -245,6 +252,31 @@ export default function ContractDetailScreen() {
 
         {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
 
+        {/* IA traductora: explica la nota de entrega al cliente (el estudiante ve cómo le llegará) */}
+        {deliveryNote && (isClient || isFreelancer) ? (
+          <TranslationCard
+            key={deliveryNote}
+            contractId={contract.id}
+            note={deliveryNote}
+            stageName={deliveryStageName}
+            freelancerName={contract.freelancerName}
+            clientName={contract.clientName}
+            isClient={isClient}
+          />
+        ) : null}
+
+        {/* IA traductora al revés: el pedido de cambios del cliente se traduce solo para el estudiante;
+            si no hay pedido, el estudiante puede pegar cualquier mensaje del cliente */}
+        {isFreelancer && (contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED') ? (
+          <ClientRequestTranslator
+            key={changeRequest ?? 'manual'}
+            contractId={contract.id}
+            clientName={contract.clientName}
+            stageName={translatedStage?.name}
+            request={changeRequest ?? undefined}
+          />
+        ) : null}
+
         {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
 
         {canDeliver && (
@@ -294,7 +326,8 @@ function DeliveryCard({ contract, isClient }) {
         </Text>
         <Text style={styles.deliveryOpen}>Abrir</Text>
       </Pressable>
-      {contract.deliveryNote ? (
+      {/* El cliente ve la nota traducida por Cuyi más abajo; el original queda en «Ver mensaje original» */}
+      {contract.deliveryNote && !isClient ? (
         <View style={styles.deliveryNote}>
           <Text style={styles.deliveryNoteLabel}>NOTA DE {firstName.toUpperCase()}</Text>
           <Text style={styles.deliveryNoteText}>{contract.deliveryNote}</Text>
