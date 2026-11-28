@@ -4,6 +4,7 @@ import PrimaryButton from '../PrimaryButton'
 import StatusBadge from '../StatusBadge'
 import { useThemedStyles } from '../../hooks/useTheme'
 import { formatBudget, formatDate } from '../../utils/format'
+import { beforeDue, closedForNonPayment, emergencyFundForStudent } from '../../utils/installments'
 
 // Estado de cada pago, con los mismos tonos que el resto de la app
 const STATUS = {
@@ -24,6 +25,9 @@ export default function InstallmentsCard({ contract, isClient, onPay, paying, aw
   const client = contract.clientName?.split(' ')[0] ?? 'El cliente'
   const open = contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED'
   const next = installments.find((installment) => installment.status === 'PENDING')
+  // Pago 2 con plazo: si no se paga a tiempo, el contrato se cierra solo
+  const due = contract.secondPaymentDueAt
+  const closedUnpaid = closedForNonPayment(contract)
 
   return (
     <View style={styles.card}>
@@ -40,7 +44,10 @@ export default function InstallmentsCard({ contract, isClient, onPay, paying, aw
 
       <View style={styles.list}>
         {installments.map((installment) => {
-          const status = STATUS[installment.status] ?? STATUS.PENDING
+          const status =
+            closedUnpaid && installment.status === 'PENDING'
+              ? { label: 'No se pagó', tone: 'muted' }
+              : (STATUS[installment.status] ?? STATUS.PENDING)
           const isNext = open && next?.number === installment.number
           return (
             <View key={installment.number} style={styles.item}>
@@ -77,6 +84,12 @@ export default function InstallmentsCard({ contract, isClient, onPay, paying, aw
                   <Text style={styles.hint}>Modo de prueba: tarjeta 4242 4242 4242 4242, cualquier fecha futura y CVC</Text>
                 </View>
               )}
+              {isNext && isClient && installment.payableNow && installment.number === 2 && due ? (
+                <Text style={styles.deadline}>
+                  Paga {beforeDue(due)} para que {freelancer} siga con el Desarrollo. Si no pagas, el contrato se cierra:{' '}
+                  {freelancer} se queda con lo aprobado y la bolsa de emergencia, y se te devuelve lo que no se usó.
+                </Text>
+              ) : null}
               {isNext && !installment.payableNow && (
                 <Text style={styles.waiting}>
                   {isClient
@@ -85,7 +98,12 @@ export default function InstallmentsCard({ contract, isClient, onPay, paying, aw
                 </Text>
               )}
               {isNext && installment.payableNow && !isClient && (
-                <Text style={styles.waiting}>Esperando este pago de {client}. Podrás entregar cuando lo haga.</Text>
+                <Text style={styles.waiting}>
+                  Esperando este pago de {client}. Podrás entregar cuando lo haga.
+                  {installment.number === 2 && due
+                    ? ` Si ${client} no paga ${beforeDue(due)}, el contrato se cierra y recibes la bolsa de emergencia (${formatBudget(emergencyFundForStudent(contract))}) además de lo aprobado.`
+                    : ''}
+                </Text>
               )}
             </View>
           )
@@ -108,6 +126,16 @@ const createStyles = ({ colors, fonts }) => ({
   small: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 18, color: colors.muted },
   released: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 18, color: colors.accent },
   waiting: { fontFamily: fonts.semibold, fontSize: 12, lineHeight: 18, color: colors.pending },
+  deadline: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    lineHeight: 18,
+    color: colors.pending,
+    backgroundColor: colors.pendingLight,
+    borderRadius: 10,
+    padding: 10,
+    overflow: 'hidden',
+  },
   payBox: { gap: 8, marginTop: 4 },
   hint: { fontFamily: fonts.regular, fontSize: 11, color: colors.muted, textAlign: 'center' },
 })
@@ -118,6 +146,8 @@ InstallmentsCard.propTypes = {
     status: PropTypes.string,
     freelancerName: PropTypes.string,
     clientName: PropTypes.string,
+    secondPaymentDueAt: PropTypes.string,
+    closedReason: PropTypes.string,
     studentAmount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     commissionAmount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     installments: PropTypes.arrayOf(
