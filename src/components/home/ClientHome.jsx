@@ -109,7 +109,7 @@ export default function ClientHome() {
 
       <PrimaryButton
         title="Publicar proyecto"
-        onPress={() => router.push('/projects/new')}
+        onPress={() => router.push('/projects/asistente')}
         icon={<Ionicons name="add" size={20} color={colors.onPrimary} />}
         style={styles.publish}
       />

@@ -51,6 +51,7 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="projects/[id]" />
         <Stack.Screen name="projects/new" />
+        <Stack.Screen name="projects/asistente" />
         {/* headerTransparent: false para que en iOS la barra sea sólida y tome el color del tema */}
         <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, headerTransparent: false, title: 'Postular' }} />
         <Stack.Screen name="contracts/[id]" options={{ headerShown: true, headerTransparent: false, title: 'Contrato' }} />

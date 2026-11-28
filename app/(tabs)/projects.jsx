@@ -108,7 +108,7 @@ export default function ProjectsScreen() {
       {user?.rol === 'CLIENT' ? (
         <Pressable
           style={styles.fab}
-          onPress={() => router.push('/projects/new')}
+          onPress={() => router.push('/projects/asistente')}
           accessibilityRole="button"
           accessibilityLabel="Publicar proyecto"
         >
