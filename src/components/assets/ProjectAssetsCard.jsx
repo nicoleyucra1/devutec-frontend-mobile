@@ -1,4 +1,5 @@
-import { Image, Text, View } from 'react-native'
+import { useState } from 'react'
+import { Image, Pressable, Text, View } from 'react-native'
 import PropTypes from 'prop-types'
 import { useAsync } from '../../hooks/useAsync'
 import { useThemedStyles } from '../../hooks/useTheme'
@@ -9,11 +10,25 @@ const plural = (count, one, many) => `${count} ${count === 1 ? one : many}`
 
 // Archivos del negocio en el proyecto y en el contrato.
 // El cliente, el estudiante contratado y el admin ven las imágenes (con la sesión) y lo que la IA entendió de cada
-// archivo. Los demás estudiantes solo ven cuántos hay. El PDF se descarga desde la web.
+// archivo. Los demás estudiantes solo ven cuántos hay. Descargar abre el menú de compartir del celular.
 export default function ProjectAssetsCard({ projectId }) {
   const styles = useThemedStyles(createStyles)
   const { data } = useAsync((options) => assetService.list(projectId, options), [projectId])
+  const [downloading, setDownloading] = useState(null)
+  const [error, setError] = useState(null)
   if (!data || data.images + data.pdfs === 0) return null
+
+  const download = async (asset) => {
+    setDownloading(asset.id)
+    setError(null)
+    try {
+      await assetService.download(asset)
+    } catch {
+      setError('No pudimos descargar el archivo. Inténtalo de nuevo.')
+    } finally {
+      setDownloading(null)
+    }
+  }
 
   return (
     <View style={styles.card}>
@@ -38,12 +53,16 @@ export default function ProjectAssetsCard({ projectId }) {
                 <Text style={styles.name} numberOfLines={1}>
                   {asset.fileName}
                 </Text>
-                {asset.kind === 'PDF' ? <Text style={styles.small}>{plural(asset.pages ?? 1, 'página', 'páginas')} · descárgalo desde la web</Text> : null}
+                {asset.kind === 'PDF' ? <Text style={styles.small}>{plural(asset.pages ?? 1, 'página', 'páginas')}</Text> : null}
                 {asset.summary ? <Text style={styles.small}>{asset.summary}</Text> : null}
+                <Pressable onPress={() => download(asset)} disabled={downloading === asset.id} accessibilityRole="button" hitSlop={6}>
+                  <Text style={styles.link}>{downloading === asset.id ? 'Descargando…' : 'Descargar'}</Text>
+                </Pressable>
               </View>
             </View>
           ))}
-          <Text style={styles.small}>DEVUTEC revisó y limpió cada archivo antes de guardarlo.</Text>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+          <Text style={styles.small}>DEVUTEC revisó y limpió cada archivo antes de guardarlo: las imágenes se volvieron a generar y al PDF se le quitó todo lo que podía ejecutarse.</Text>
         </>
       )}
     </View>
@@ -64,5 +83,7 @@ const createStyles = ({ colors, fonts }) => ({
   pdfText: { fontFamily: fonts.bold, fontSize: 13, color: colors.muted },
   info: { flex: 1, gap: 2 },
   name: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text },
+  link: { fontFamily: fonts.semibold, fontSize: 13, color: colors.accent, textDecorationLine: 'underline', marginTop: 2 },
+  error: { fontFamily: fonts.regular, fontSize: 12, color: colors.error },
   small: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.muted },
 })

@@ -108,6 +108,13 @@ export default function ClientHome() {
       {allProjects.length === 0 ? <Text style={styles.empty}>Todavía no publicas proyectos.</Text> : null}
 
       <PrimaryButton
+        title="Mis métricas"
+        variant="secondary"
+        onPress={() => router.push('/metricas')}
+        icon={<Ionicons name="bar-chart-outline" size={18} color={colors.text} />}
+      />
+
+      <PrimaryButton
         title="Publicar proyecto"
         onPress={() => router.push('/projects/asistente')}
         icon={<Ionicons name="add" size={20} color={colors.onPrimary} />}

@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import PropTypes from 'prop-types'
 import NightCard from './NightCard'
+import CarnetCard from './CarnetCard'
 import StatCard from './StatCard'
 import ContractCard from '../contracts/ContractCard'
 import { useMyApplications } from '../../hooks/useApplications'
@@ -84,6 +85,8 @@ export default function FreelancerHome({ userId }) {
           { label: 'CONTRATOS ACTIVOS', value: pad(active.length) },
         ]}
       />
+
+      <CarnetCard />
 
       <View style={styles.pair}>
         <StatCard

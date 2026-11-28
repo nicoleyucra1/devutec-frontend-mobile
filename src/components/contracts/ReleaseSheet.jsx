@@ -17,14 +17,16 @@ import { idType } from '../../utils/propShapes'
 // Con huella, Face ID o código del celular se confirma con eso; si el celular no tiene ninguno (o es la web),
 // se pide la contraseña de DEVUTEC y se verifica con el login antes de liberar. Quien creó su cuenta con Google
 // no tiene contraseña, así que también puede confirmar eligiendo de nuevo su cuenta de Google.
-export default function ReleaseSheet({ contract, email, biometric, visible, onClose, onRelease }) {
+// releaseAmount y stageName: con etapas se libera solo la etapa que se aprueba, no todo el contrato
+export default function ReleaseSheet({ contract, email, biometric, visible, onClose, onRelease, releaseAmount, stageName }) {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
   const [password, setPassword] = useState('')
   // Con qué se está confirmando ('password' o 'google'), para mostrar el cargando en ese botón
   const [checking, setChecking] = useState(null)
   const [error, setError] = useState(null)
-  const amount = formatBudget(contract.amount)
+  const value = releaseAmount ?? contract.amount
+  const amount = formatBudget(value)
 
   const releaseWithDevice = async () => {
     setError(null)
@@ -76,9 +78,9 @@ export default function ReleaseSheet({ contract, email, biometric, visible, onCl
   return (
     <BottomSheet visible={visible} onClose={onClose} busy={Boolean(checking)}>
       <Text style={styles.kicker}>LIBERAR PAGO</Text>
-      <Money value={contract.amount} style={styles.amount} centsStyle={styles.cents} />
+      <Money value={value} style={styles.amount} centsStyle={styles.cents} />
       <Text style={styles.to}>
-        a <Text style={styles.strong}>{contract.freelancerName}</Text> · {contract.projectTitle}
+        a <Text style={styles.strong}>{contract.freelancerName}</Text> · {stageName ? `Aprobar ${stageName}` : contract.projectTitle}
       </Text>
 
       <View style={styles.rows}>
@@ -173,6 +175,8 @@ ReleaseSheet.propTypes = {
   }).isRequired,
   visible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
+  releaseAmount: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  stageName: PropTypes.string,
   onRelease: PropTypes.func.isRequired,
 }
 

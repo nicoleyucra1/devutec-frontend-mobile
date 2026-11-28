@@ -52,6 +52,13 @@ export default function FreelancerHero({ profile, editable = false }) {
         </View>
       </View>
 
+      {profile.universityEmail || profile.carnetVerified ? (
+        <View style={styles.badges}>
+          {profile.universityEmail ? <Text style={styles.badge}>🎓 Correo universitario</Text> : null}
+          {profile.carnetVerified ? <Text style={styles.badge}>🪪 Carnet verificado</Text> : null}
+        </View>
+      ) : null}
+
       <View style={styles.rateRow}>
         <View>
           <Text style={styles.kicker}>TARIFA POR HORA</Text>
@@ -101,6 +108,18 @@ const createStyles = ({ colors, fonts, isDark }) => ({
   statusText: { fontFamily: fonts.semibold, fontSize: 11 },
   statusTextFree: { color: colors.ink },
   statusTextBusy: { color: colors.pending ?? colors.text },
+  // Insignias de verificación (igual que en la web)
+  badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
+  badge: {
+    fontFamily: fonts.semibold,
+    fontSize: 11,
+    color: colors.ink,
+    backgroundColor: colors.lime,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    overflow: 'hidden',
+  },
   identity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   // Sin foto: iniciales en tinta sobre un círculo lima
   avatar: { backgroundColor: colors.lime },

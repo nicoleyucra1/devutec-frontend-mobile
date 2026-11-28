@@ -340,9 +340,10 @@ export default function NewProjectScreen() {
           </View>
         </Pressable>
 
-        <Field label="Logo y fotos de tu negocio (opcional)">
+        <Field label="Archivos de tu negocio (opcional)">
           <Text style={styles.hint}>
-            Hasta {MAX_IMAGES} fotos. Solo el estudiante que contrates las podrá ver. El PDF (carta o catálogo) se sube desde la web.
+            Tu logo y hasta {MAX_IMAGES} fotos, y 1 PDF de máximo 2 páginas (carta o catálogo). Revisamos y limpiamos cada archivo. Solo
+            el estudiante que contrates los podrá descargar.
           </Text>
           <AssetChips assets={assets} onRemove={files.remove} removing={files.removing} />
           {files.error ? <Text style={styles.error}>{files.error}</Text> : null}
@@ -354,6 +355,15 @@ export default function NewProjectScreen() {
           >
             {files.uploading ? <ActivityIndicator color={colors.text} /> : <Ionicons name="image-outline" size={18} color={colors.text} />}
             <Text style={styles.attachText}>{files.uploading ? 'Revisando…' : 'Adjuntar fotos'}</Text>
+          </Pressable>
+          <Pressable
+            onPress={files.pickPdfAndUpload}
+            disabled={files.uploading}
+            style={({ pressed }) => [styles.attach, pressed && styles.pressed]}
+            accessibilityRole="button"
+          >
+            <Ionicons name="document-text-outline" size={18} color={colors.text} />
+            <Text style={styles.attachText}>Adjuntar PDF</Text>
           </Pressable>
         </Field>
 
