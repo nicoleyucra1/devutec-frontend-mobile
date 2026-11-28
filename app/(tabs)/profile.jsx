@@ -4,7 +4,6 @@ import { Ionicons } from '@expo/vector-icons'
 import EditableAvatar from '../../src/components/EditableAvatar'
 import FreelancerHero from '../../src/components/FreelancerHero'
 import GithubRepos from '../../src/components/GithubRepos'
-import PhoneEditor from '../../src/components/PhoneEditor'
 import ProfileQr from '../../src/components/ProfileQr'
 import SocialLinksEditor from '../../src/components/SocialLinksEditor'
 import { useAuth } from '../../src/hooks/useAuth'
@@ -75,7 +74,7 @@ export default function ProfileScreen() {
     }
   }
 
-  // Sube el contenido cuando aparece el teclado (por ejemplo, al escribir el celular de WhatsApp)
+  // Sube el contenido cuando aparece el teclado
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={headerOffset}>
       <ScrollView
@@ -96,15 +95,6 @@ export default function ProfileScreen() {
         )}
 
         {user.rol === 'FREELANCER' && <FreelancerSection userId={user.id} refreshKey={refreshKey} />}
-
-        {user.rol !== 'ADMIN' && (
-          <>
-            <Text style={styles.section}>CELULAR PARA WHATSAPP</Text>
-            <View style={styles.phoneCard}>
-              <PhoneEditor help="Solo lo ve la persona con quien tienes un contrato para escribirte por WhatsApp." />
-            </View>
-          </>
-        )}
 
         {user.rol === 'CLIENT' && (
           <>

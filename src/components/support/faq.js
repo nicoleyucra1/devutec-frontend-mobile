@@ -23,6 +23,6 @@ export const FAQ = [
   },
   {
     q: '¿Cómo hablo con la otra persona?',
-    a: 'Agrega tu celular en tu perfil. En el contrato aparece el botón "Escribir por WhatsApp" cuando las dos personas lo agregaron. El número solo lo ve la otra persona del contrato.',
+    a: 'Todo se coordina dentro del contrato: entregas, pedidos de cambios y la traductora. DEVUTEC no comparte celulares para que tu pago siga protegido por la garantía. Si alguien te pide hablar o pagar por fuera, repórtalo desde el contrato.',
   },
 ]

@@ -8,7 +8,7 @@ import PrimaryButton from '../../src/components/PrimaryButton'
 import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
 import StageGuideCard from '../../src/components/contracts/StageGuideCard'
-import WhatsAppCard from '../../src/components/WhatsAppCard'
+import CoordinateCard from '../../src/components/contracts/CoordinateCard'
 import TranslationCard from '../../src/components/contracts/TranslationCard'
 import ClientRequestTranslator from '../../src/components/contracts/ClientRequestTranslator'
 import ScreenState from '../../src/components/ScreenState'
@@ -193,7 +193,7 @@ export default function ContractDetailScreen() {
     contract.paymentStatus === 'HELD' &&
     !contract.paidWithCard
 
-  // Sube el contenido cuando aparece el teclado (por ejemplo, al escribir el celular de WhatsApp)
+  // Sube el contenido cuando aparece el teclado
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding" keyboardVerticalOffset={headerOffset}>
       <ScrollView
@@ -285,7 +285,7 @@ export default function ContractDetailScreen() {
           />
         ) : null}
 
-        {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
+        {(isClient || isFreelancer) && <CoordinateCard contract={contract} isClient={isClient} />}
 
         {showGuide ? (
           <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />
