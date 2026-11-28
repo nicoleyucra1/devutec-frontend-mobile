@@ -27,6 +27,8 @@ export const projectShape = PropTypes.shape({
 
 export const freelancerProfileShape = PropTypes.shape({
   activeProjects: PropTypes.number,
+  universityEmail: PropTypes.bool,
+  carnetVerified: PropTypes.bool,
   userId: idType,
   nombre: PropTypes.string,
   avatarUrl: PropTypes.string,

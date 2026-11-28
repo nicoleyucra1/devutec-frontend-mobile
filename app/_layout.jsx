@@ -56,6 +56,8 @@ function RootNavigator() {
         <Stack.Screen name="apply/[projectId]" options={{ headerShown: true, headerTransparent: false, title: 'Postular' }} />
         <Stack.Screen name="contracts/[id]" options={{ headerShown: true, headerTransparent: false, title: 'Contrato' }} />
         <Stack.Screen name="scan" />
+        <Stack.Screen name="metricas/index" />
+        <Stack.Screen name="metricas/[id]" />
         <Stack.Screen name="freelancers/[userId]" />
         <Stack.Screen name="ayuda" />
       </Stack.Protected>

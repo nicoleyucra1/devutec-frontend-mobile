@@ -7,6 +7,9 @@ import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
+import StagesCard from '../../src/components/contracts/StagesCard'
+import ChangesSheet from '../../src/components/contracts/ChangesSheet'
+import MetricsLinkCard from '../../src/components/metrics/MetricsLinkCard'
 import StageGuideCard from '../../src/components/contracts/StageGuideCard'
 import QualityCard from '../../src/components/contracts/QualityCard'
 import CoordinateCard from '../../src/components/contracts/CoordinateCard'
@@ -49,6 +52,7 @@ export default function ContractDetailScreen() {
   const [running, setRunning] = useState(null)
   const [message, setMessage] = useState(null)
   const [releasing, setReleasing] = useState(false)
+  const [askingChanges, setAskingChanges] = useState(false)
   // Panel para pegar el link de la entrega
   const [delivering, setDelivering] = useState(false)
 
@@ -160,13 +164,24 @@ export default function ContractDetailScreen() {
   // del celular o la contraseña, y recién ahí se llama al backend
   const handleRelease = () => {
     setReleasing(false)
-    run('confirm', contractService.confirm, 'Entrega confirmada. El pago fue liberado al freelancer.')
+    const withStages = (contract.stages?.length ?? 0) > 1
+    const stage = contract.stages?.find((item) => item.position === contract.currentStage)
+    const last = withStages && stage && stage.position === contract.stages.length
+    run(
+      'confirm',
+      contractService.confirm,
+      withStages && stage && !last
+        ? `Aprobaste ${stage.name}. Se liberó su parte al estudiante.`
+        : 'Entrega confirmada. El pago fue liberado al freelancer.',
+    )
   }
 
   const handleCancel = async () => {
     const ok = await confirmAlert(
       '¿Cancelar el contrato?',
-      `Se te devolverán ${formatBudget(contract.amount)} y el proyecto volverá a estar abierto.`,
+      (contract.installments?.length ?? 0) > 0
+        ? 'Se te devolverá lo que pagaste y todavía no se liberó al estudiante, y el proyecto volverá a estar abierto.'
+        : `Se te devolverán ${formatBudget(contract.amount)} y el proyecto volverá a estar abierto.`,
       'Sí, cancelar',
     )
     if (ok) run('cancel', contractService.cancel, 'Contrato cancelado. El pago fue reembolsado.')
@@ -189,7 +204,9 @@ export default function ContractDetailScreen() {
   const coveringInstallment = stageNow && plan.length > 0 ? plan[Math.min(stageNow.paymentPart ?? 1, plan.length) - 1] : null
   const stagePaid = !coveringInstallment || coveringInstallment.status !== 'PENDING'
   const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS' && stagePaid
-  const canCancel = isClient && contract.status === 'IN_PROGRESS'
+  // Con alguna etapa aprobada ya no se puede cancelar (el backend lo bloquea): el botón no se muestra
+  const hasApprovedStage = (contract.stages ?? []).some((stage) => stage.status === 'APPROVED')
+  const canCancel = isClient && contract.status === 'IN_PROGRESS' && !hasApprovedStage
   // Etapa en la que se está trabajando (la manda el backend con las etapas); la Mini guía es para el estudiante
   const currentStage = contract.stages?.find((stage) => stage.position === contract.currentStage)
   const showGuide =
@@ -198,6 +215,17 @@ export default function ContractDetailScreen() {
     currentStage &&
     currentStage.status !== 'CANCELLED'
   const canConfirm = isClient && contract.status === 'DELIVERED'
+  // Con etapas (igual que en la web): se aprueba la etapa entregada y se libera su parte; la última libera lo que
+  // queda con la bolsa. También se pueden pedir cambios (máximo 2 rondas por etapa)
+  const withStages = (contract.stages?.length ?? 0) > 1
+  const lastStage = withStages && currentStage && currentStage.position === contract.stages.length
+  const roundsLeft = currentStage ? (currentStage.maxChangeRounds ?? 2) - (currentStage.changeRounds ?? 0) : 0
+  const canRequestChanges = canConfirm && withStages && roundsLeft > 0
+  const releaseAmount = !withStages || !currentStage
+    ? contract.amount
+    : lastStage
+      ? Math.max(0, Number(contract.amount) - Number(contract.releasedAmount ?? 0))
+      : currentStage.amount
   // Pago en dos partes: los botones de pagar viven en la tarjeta de pagos. Sin plan (contratos antiguos)
   // se mantiene el pago único de siempre
   const hasPlan = (contract.installments?.length ?? 0) > 0
@@ -262,9 +290,22 @@ export default function ContractDetailScreen() {
           {canDeliver && <PrimaryButton title="Entregar trabajo" onPress={() => setDelivering(true)} />}
           {canConfirm && (
             <PrimaryButton
-              title={`Liberar ${formatBudget(contract.amount)}`}
+              title={
+                withStages && currentStage
+                  ? lastStage
+                    ? `Aprobar la Entrega final y liberar ${formatBudget(releaseAmount)}`
+                    : `Aprobar ${currentStage.name} y liberar ${formatBudget(releaseAmount)}`
+                  : `Liberar ${formatBudget(contract.amount)}`
+              }
               loading={running === 'confirm'}
               onPress={() => setReleasing(true)}
+            />
+          )}
+          {canRequestChanges && (
+            <PrimaryButton
+              title={`Pedir cambios (${roundsLeft === 1 ? 'queda 1 ronda' : `quedan ${roundsLeft} rondas`})`}
+              variant="secondary"
+              onPress={() => setAskingChanges(true)}
             />
           )}
           {canCancel && (
@@ -289,6 +330,8 @@ export default function ContractDetailScreen() {
             onVerify={() => verifyPayment()}
           />
         ) : null}
+
+        {isClient || isFreelancer ? <StagesCard contract={contract} isClient={isClient} /> : null}
 
         {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
 
@@ -319,6 +362,8 @@ export default function ContractDetailScreen() {
 
         {(isClient || isFreelancer) && <CoordinateCard contract={contract} isClient={isClient} />}
         {contract.projectId ? <ProjectAssetsCard projectId={contract.projectId} /> : null}
+
+        {(isClient || isFreelancer) && contract.status !== 'CANCELLED' ? <MetricsLinkCard contractId={contract.id} isClient={isClient} /> : null}
 
         {showGuide ? (
           <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />
@@ -352,6 +397,24 @@ export default function ContractDetailScreen() {
             visible={releasing}
             onClose={() => setReleasing(false)}
             onRelease={handleRelease}
+            releaseAmount={releaseAmount}
+            stageName={withStages && currentStage ? currentStage.name : undefined}
+          />
+        )}
+
+        {canRequestChanges && (
+          <ChangesSheet
+            contractId={contract.id}
+            stageName={currentStage?.name}
+            freelancerName={contract.freelancerName}
+            roundsLeft={roundsLeft}
+            visible={askingChanges}
+            onClose={() => setAskingChanges(false)}
+            onDone={() => {
+              setAskingChanges(false)
+              setMessage({ ok: true, text: `Pediste cambios en ${currentStage?.name ?? 'la entrega'}. ${contract.freelancerName ?? 'El estudiante'} ya puede corregirla.` })
+              reload()
+            }}
           />
         )}
       </ScrollView>

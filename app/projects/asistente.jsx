@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { ActivityIndicator, KeyboardAvoidingView, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import { Stack, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -75,13 +75,25 @@ export default function ProjectAssistantScreen() {
     }
   }
 
-  const attach = async () => {
-    const added = await files.pickAndUpload()
+  // El clip pregunta si son fotos o un PDF; al subirlos se le avisa al asistente para que comente lo que ve
+  const attachWith = async (pick) => {
+    const added = await pick()
     if (added.length > 0 && !thinking) {
       const names = added.map((asset) => asset.fileName).join(', ')
-      send(`Te adjunto ${added.length === 1 ? 'esta foto' : 'estas fotos'} de mi negocio: ${names}`, [...assets, ...added].map((asset) => asset.id))
+      const what = added[0].kind === 'PDF' ? 'este PDF' : added.length === 1 ? 'esta foto' : 'estas fotos'
+      send(`Te adjunto ${what} de mi negocio: ${names}`, [...assets, ...added].map((asset) => asset.id))
     }
   }
+
+  const attach = () =>
+    // En la versión web de la app no hay avisos con botones: el clip abre las fotos (el PDF está en el formulario)
+    Platform.OS === 'web'
+      ? attachWith(files.pickAndUpload)
+      : Alert.alert('Adjuntar', 'Tu logo y fotos (JPG o PNG) o 1 PDF de máximo 2 páginas.', [
+      { text: 'Fotos', onPress: () => attachWith(files.pickAndUpload) },
+      { text: 'PDF', onPress: () => attachWith(files.pickPdfAndUpload) },
+      { text: 'Cancelar', style: 'cancel' },
+    ])
 
   const openForm = (fromDraft) => {
     draftStore.set(fromDraft)
@@ -128,7 +140,7 @@ export default function ProjectAssistantScreen() {
           <Text style={styles.introTitle}>No necesitas saber de tecnología.</Text>
           <Text style={styles.introText}>
             Cuéntale qué necesita tu negocio. Arma el proyecto, te sugiere un precio con datos reales y te muestra cómo pagas en
-            dos partes. Tú revisas todo antes de publicar. Con el clip puedes adjuntar tu logo y fotos.
+            dos partes. Tú revisas todo antes de publicar. Con el clip puedes adjuntar tu logo, fotos y 1 PDF.
           </Text>
         </View>
 
@@ -171,7 +183,7 @@ export default function ProjectAssistantScreen() {
             disabled={files.uploading || thinking}
             style={[styles.clip, (files.uploading || thinking) && styles.dim]}
             accessibilityRole="button"
-            accessibilityLabel="Adjuntar logo o fotos del negocio"
+            accessibilityLabel="Adjuntar logo, fotos o un PDF del negocio"
             hitSlop={6}
           >
             {files.uploading ? <ActivityIndicator size="small" color={colors.muted} /> : <Ionicons name="attach" size={22} color={colors.muted} />}
