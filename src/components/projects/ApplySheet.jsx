@@ -4,14 +4,21 @@ import { Ionicons } from '@expo/vector-icons'
 import PropTypes from 'prop-types'
 import BottomSheet from '../BottomSheet'
 import PrimaryButton from '../PrimaryButton'
+import CopilotCard from './CopilotCard'
 import { applicationService } from '../../services/applicationService'
+import { pricingService } from '../../services/pricingService'
+import { useAsync } from '../../hooks/useAsync'
 import { useTheme, useThemedStyles } from '../../hooks/useTheme'
+import { formatRate, splitClientTotal } from '../../utils/commission'
+import { hasFeatureDetail, isoInWeeks } from '../../utils/copilot'
 import { errorMessage } from '../../utils/errorMessage'
-import { formatBudget } from '../../utils/format'
+import { formatBudget, formatDate } from '../../utils/format'
 import { idType } from '../../utils/propShapes'
 
 const MIN = 20
 const MAX = 2000
+// Contraoferta de plazo: en vez de un calendario, opciones rápidas en semanas desde hoy (null = la fecha del cliente)
+const DEADLINE_WEEKS = [null, 1, 2, 3, 4, 6]
 
 // Mismas reglas que ApplicationRequestDTO en el backend
 function validate({ message, price }) {
@@ -24,7 +31,8 @@ function validate({ message, price }) {
 }
 
 // "Tu propuesta" (mockup): el freelancer postula sin salir del proyecto. El precio empieza en el presupuesto
-// del cliente y se puede cambiar.
+// del cliente y se puede cambiar. Es el total que paga el cliente: la comisión de DEVUTEC va adentro.
+// Arriba va el copiloto (horas, cuánto cobrar, lo que se suele olvidar) y abajo la contraoferta de plazo.
 export default function ApplySheet({ project, visible, onClose, onApplied }) {
   const { colors } = useTheme()
   const styles = useThemedStyles(createStyles)
@@ -33,6 +41,11 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
   const [errors, setErrors] = useState({})
   const [submitError, setSubmitError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [deadlineWeeks, setDeadlineWeeks] = useState(null)
+  const copilot = useAsync(
+    (options) => (visible ? pricingService.estimateProject(project.id, options) : Promise.resolve(null)),
+    [project.id, visible],
+  )
   const clientFirstName = (project.clientName ?? '').split(' ').slice(0, 2).join(' ')
 
   const handleSubmit = async () => {
@@ -47,6 +60,7 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
         projectId: Number(project.id),
         message: message.trim(),
         proposedPrice: Number(price.replace(',', '.')),
+        proposedDeadline: deadlineWeeks ? isoInWeeks(deadlineWeeks) : null,
       })
       onApplied()
     } catch (err) {
@@ -55,6 +69,18 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
       setSubmitting(false)
     }
   }
+
+  // Lo que recibe el estudiante y las alertas del copiloto (avisos, no bloquean)
+  const split = splitClientTotal(Number(price.replace(',', '.')) || 0)
+  const info = copilot.data?.estimate
+  const detailed = hasFeatureDetail(info)
+  // Sin funcionalidades, las horas no son reales; si el precio también salió de ellas, no hay con qué comparar
+  const priceReliable = info && (detailed || info.source !== 'HOURS')
+  const underestimate =
+    priceReliable && split.freelancerAmount > 0 && split.freelancerAmount < Number(copilot.data.underestimateBelow)
+  const averageHours = info ? Math.round((info.hoursMin + info.hoursMax) / 2) : 0
+  const perHour = averageHours > 0 ? Math.round(split.freelancerAmount / averageHours) : 0
+  const shortDeadline = detailed && deadlineWeeks !== null && deadlineWeeks < info.weeksMin
 
   return (
     <BottomSheet visible={visible} onClose={onClose} busy={submitting}>
@@ -70,7 +96,9 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
         </Pressable>
       </View>
 
-      <Text style={styles.label}>PRECIO PROPUESTO</Text>
+      <CopilotCard estimate={copilot.data} loading={copilot.loading} />
+
+      <Text style={styles.label}>PRECIO TOTAL PARA EL CLIENTE</Text>
       <View style={[styles.priceRow, errors.price && styles.priceRowError]}>
         <Text style={styles.currency}>S/</Text>
         <TextInput
@@ -83,11 +111,60 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
           placeholder="0.00"
           placeholderTextColor={colors.muted}
           style={styles.priceInput}
-          accessibilityLabel="Precio propuesto en soles"
+          accessibilityLabel="Precio total para el cliente, en soles"
         />
       </View>
       {errors.price ? <Text style={styles.fieldError}>{errors.price}</Text> : null}
-      <Text style={styles.hint}>Presupuesto del cliente: {formatBudget(project.budget)}</Text>
+      <Text style={styles.hint}>
+        {split.freelancerAmount > 0 ? (
+          <>
+            Tú recibes <Text style={styles.hintStrong}>{formatBudget(split.freelancerAmount)}</Text>; el {formatRate(split.rate)} es
+            la tarifa de DEVUTEC.{' '}
+          </>
+        ) : null}
+        Presupuesto del cliente: {formatBudget(project.budget)}
+      </Text>
+      {underestimate ? (
+        <Text style={styles.alert}>
+          <Text style={styles.noteStrong}>Ojo: </Text>
+          {detailed
+            ? `proyectos así toman entre ${info.hoursMin} y ${info.hoursMax} horas. Con ${formatBudget(Number(price.replace(',', '.')))} estarías cobrando unos S/ ${perHour} la hora. `
+            : 'proyectos parecidos terminados en DEVUTEC se cobraron más. '}
+          Un precio más realista empieza en {formatBudget(info.clientMin)}.
+        </Text>
+      ) : null}
+
+      <Text style={styles.label}>¿PARA CUÁNDO LO ENTREGAS?</Text>
+      <View style={styles.chips}>
+        {DEADLINE_WEEKS.map((weeks) => {
+          const selected = deadlineWeeks === weeks
+          return (
+            <Pressable
+              key={String(weeks)}
+              onPress={() => setDeadlineWeeks(weeks)}
+              accessibilityRole="button"
+              accessibilityState={{ selected }}
+              style={[styles.chip, selected && styles.chipSelected]}
+            >
+              <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+                {weeks === null ? 'La del cliente' : `En ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`}
+              </Text>
+            </Pressable>
+          )
+        })}
+      </View>
+      <Text style={styles.hint}>
+        {deadlineWeeks === null
+          ? `El cliente lo necesita para el ${formatDate(project.deadline)}.`
+          : `Propones entregar el ${formatDate(isoInWeeks(deadlineWeeks))} (el cliente lo pidió para el ${formatDate(project.deadline)}).`}
+      </Text>
+      {shortDeadline ? (
+        <Text style={styles.alert}>
+          <Text style={styles.noteStrong}>Ojo: </Text>
+          proyectos así suelen tomar {info.weeksMin} {info.weeksMin === 1 ? 'semana' : 'semanas'} o más. Asegúrate de que
+          te alcance el tiempo.
+        </Text>
+      ) : null}
 
       <Text style={styles.messageLabel}>Mensaje para {clientFirstName || 'el cliente'}</Text>
       <TextInput
@@ -126,6 +203,7 @@ ApplySheet.propTypes = {
     title: PropTypes.string,
     clientName: PropTypes.string,
     budget: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    deadline: PropTypes.string,
   }).isRequired,
   visible: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
@@ -158,7 +236,31 @@ const createStyles = ({ colors, fonts, radius }) => ({
   priceRowError: { borderBottomColor: colors.error },
   currency: { fontFamily: fonts.bold, fontSize: 26, color: colors.text },
   priceInput: { flex: 1, fontFamily: fonts.bold, fontSize: 40, letterSpacing: -1.6, color: colors.text, padding: 0 },
-  hint: { fontFamily: fonts.regular, fontSize: 13, color: colors.muted, marginTop: 8 },
+  hint: { fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.muted, marginTop: 8 },
+  hintStrong: { fontFamily: fonts.bold, color: colors.text },
+  alert: {
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    lineHeight: 18,
+    color: colors.pending,
+    backgroundColor: colors.pendingLight,
+    borderRadius: radius.md,
+    padding: 12,
+    marginTop: 10,
+    overflow: 'hidden',
+  },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  chip: {
+    borderWidth: 1,
+    borderColor: colors.inputBorder,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: colors.card,
+  },
+  chipSelected: { backgroundColor: colors.text, borderColor: colors.text },
+  chipText: { fontFamily: fonts.medium, fontSize: 13, color: colors.text },
+  chipTextSelected: { color: colors.background },
   fieldError: { fontFamily: fonts.regular, fontSize: 13, color: colors.error, marginTop: 6 },
   fieldErrorText: { color: colors.error },
   messageLabel: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text, marginTop: 20, marginBottom: 8 },
