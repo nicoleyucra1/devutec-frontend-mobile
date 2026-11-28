@@ -2,6 +2,7 @@ import { Pressable, Text, View } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import PropTypes from 'prop-types'
 import Avatar from '../Avatar'
+import ThemeToggle from '../ThemeToggle'
 import { useTheme, useThemedStyles } from '../../hooks/useTheme'
 import { todayLabel } from '../../utils/format'
 
@@ -26,6 +27,8 @@ export default function HomeHeader({ name, avatarUrl, title, onScan }) {
           {title}
         </Text>
       </View>
+      {/* Sol y luna: modo claro u oscuro con un toque */}
+      <ThemeToggle />
       <Pressable
         onPress={onScan}
         accessibilityRole="button"

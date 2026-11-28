@@ -66,6 +66,12 @@ export default function AdminHome() {
       ))}
       {list.length === 0 && !payments.error ? <Text style={styles.empty}>Todavía no hay pagos.</Text> : null}
 
+      {/* Carnets universitarios por revisar (segunda verificación del estudiante) */}
+      <PrimaryButton
+        title="Revisar carnets"
+        onPress={() => router.push('/admin/carnets')}
+        style={styles.button}
+      />
       <PrimaryButton
         title="Revisar proyectos"
         variant="secondary"
