@@ -14,6 +14,8 @@ import ClientRequestTranslator from '../../src/components/contracts/ClientReques
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
 import InstallmentsCard from '../../src/components/contracts/InstallmentsCard'
+import ClosedForNonPaymentCard from '../../src/components/contracts/ClosedForNonPaymentCard'
+import { closedForNonPayment } from '../../src/utils/installments'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useBiometricAuth } from '../../src/hooks/useBiometricAuth'
 import { useContract } from '../../src/hooks/useContracts'
@@ -219,7 +221,10 @@ export default function ContractDetailScreen() {
           <View style={styles.row}>
             <Text style={styles.code}>{contractCode(contract.id)}</Text>
             <View style={styles.badges}>
-              <StatusBadge status={CONTRACT_STATUS[contract.status]} fallback={contract.status} />
+              <StatusBadge
+                status={closedForNonPayment(contract) ? { label: 'Cerrado: sin pago 2', tone: 'pending' } : CONTRACT_STATUS[contract.status]}
+                fallback={contract.status}
+              />
               <StatusBadge status={PAYMENT_STATUS[contract.paymentStatus]} fallback={contract.paymentStatus} />
             </View>
           </View>
@@ -269,6 +274,8 @@ export default function ContractDetailScreen() {
             />
           )}
         </View>
+
+        {isClient || isFreelancer ? <ClosedForNonPaymentCard contract={contract} isClient={isClient} /> : null}
 
         {hasPlan && (isClient || isFreelancer) ? (
           <InstallmentsCard
