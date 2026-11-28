@@ -21,6 +21,7 @@ import { useProjectActions } from '../../src/hooks/useProjectActions'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useSkills } from '../../src/hooks/useSkills'
 import { detectDistrict } from '../../src/utils/location'
+import { draftStore } from '../../src/utils/draftStore'
 import PropTypes from 'prop-types'
 
 // Distritos para elegir con un toque; con el GPS se puede llenar cualquier otro
@@ -66,7 +67,27 @@ function Field({ label, error, children }) {
   )
 }
 
+// "2026-12-15" → "15/12/2026" para el campo de fecha
+function fromIsoDate(iso) {
+  if (!iso) return ''
+  const [year, month, day] = iso.slice(0, 10).split('-')
+  return `${day}/${month}/${year}`
+}
+
+// Formulario lleno con lo que armó el asistente. Las habilidades van ocultas: las eligió la IA y las ven los estudiantes.
+function valuesFromDraft(draft) {
+  return {
+    title: (draft.title ?? '').slice(0, 255),
+    description: draft.description ?? '',
+    budget: draft.budgetTotal != null ? String(draft.budgetTotal) : '',
+    deadline: fromIsoDate(draft.deadline),
+    location: '',
+    skillIds: draft.skillIds ?? [],
+  }
+}
+
 // Nuevo proyecto (mockup): presupuesto grande arriba, título, fecha, distrito y el botón fijo abajo.
+// Si viene del asistente, llega lleno (draftStore) y se envían también la categoría y las funcionalidades.
 // El distrito es opcional (igual que en la web): se elige con un toque o con el GPS, y el permiso se pide solo
 // al tocar "Usar mi ubicación".
 export default function NewProjectScreen() {
@@ -77,7 +98,11 @@ export default function NewProjectScreen() {
   const { user } = useAuth()
   const skills = useSkills()
   const actions = useProjectActions()
-  const [values, setValues] = useState({ title: '', description: '', budget: '', deadline: '', location: '', skillIds: [] })
+  // El borrador del asistente se toma una sola vez al abrir la pantalla
+  const [draft] = useState(() => draftStore.take())
+  const [values, setValues] = useState(() =>
+    draft ? valuesFromDraft(draft) : { title: '', description: '', budget: '', deadline: '', location: '', skillIds: [] },
+  )
   const [errors, setErrors] = useState({})
   const [gps, setGps] = useState({ status: 'idle', message: null, denied: false })
 
@@ -115,6 +140,7 @@ export default function NewProjectScreen() {
         deadline: values.deadline ? toIsoDate(values.deadline) : null,
         location: values.location.trim() || null,
         skillIds: values.skillIds,
+        ...(draft ? { category: draft.category, features: draft.features } : {}),
       })
       router.replace(`/projects/${created.id}`)
     } catch {
@@ -143,7 +169,7 @@ export default function NewProjectScreen() {
         <Pressable onPress={close} accessibilityRole="button" accessibilityLabel="Cerrar" style={styles.round}>
           <Ionicons name="close" size={20} color={colors.text} />
         </Pressable>
-        <Text style={styles.topTitle}>Nuevo proyecto</Text>
+        <Text style={styles.topTitle}>{draft ? 'Revisa tu proyecto' : 'Nuevo proyecto'}</Text>
         <Text style={styles.free}>Gratis</Text>
       </View>
 
@@ -262,11 +288,20 @@ export default function NewProjectScreen() {
           />
         </Field>
 
-        <Field label="Habilidades requeridas">
-          {skills.loading ? <ActivityIndicator color={colors.primary} /> : null}
-          {skills.error ? <Text style={styles.error}>{skills.error}</Text> : null}
-          <SkillChips skills={skills.data} selectedIds={values.skillIds} onToggle={toggleSkill} />
-        </Field>
+        {draft ? (
+          <View style={styles.aiNote}>
+            <Ionicons name="sparkles-outline" size={18} color={colors.accent} />
+            <Text style={styles.aiNoteText}>
+              El asistente ya eligió las habilidades técnicas que necesita tu proyecto. Las ven los estudiantes al postular.
+            </Text>
+          </View>
+        ) : (
+          <Field label="Habilidades requeridas">
+            {skills.loading ? <ActivityIndicator color={colors.primary} /> : null}
+            {skills.error ? <Text style={styles.error}>{skills.error}</Text> : null}
+            <SkillChips skills={skills.data} selectedIds={values.skillIds} onToggle={toggleSkill} />
+          </Field>
+        )}
 
         {actions.error ? <Text style={styles.serverError}>{actions.error}</Text> : null}
       </ScrollView>
@@ -386,6 +421,8 @@ const createStyles = ({ colors, fonts }) => ({
   districtText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.text },
   districtTextSelected: { color: colors.onPrimary },
   hint: { color: colors.muted, fontFamily: fonts.regular, fontSize: 13 },
+  aiNote: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: colors.accentLight, borderRadius: 14, padding: 14 },
+  aiNoteText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.text },
   error: { color: colors.error, fontFamily: fonts.regular, fontSize: 13 },
   serverError: { backgroundColor: colors.errorLight, borderRadius: radius.sm, color: colors.error, fontFamily: fonts.regular, padding: 12 },
   footer: {
