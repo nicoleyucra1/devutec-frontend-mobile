@@ -23,12 +23,6 @@ export const userService = {
   // Quita la foto de perfil. Devuelve el usuario con avatarUrl en null.
   deleteAvatar: () => api.delete('/users/me/avatar').then((res) => res.data),
 
-  // Guarda o cambia el celular para WhatsApp. El backend lo valida y lo guarda con solo los 9 dígitos.
-  updatePhone: (celular) => api.put('/users/me/phone', { celular }).then((res) => res.data),
-
-  // Quita el celular. Devuelve el usuario con celular en null.
-  deletePhone: () => api.delete('/users/me/phone').then((res) => res.data),
-
   // Guarda las redes del negocio: { instagram, facebook, tiktok, sitioWeb }. Se mandan las cuatro siempre;
   // las vacías se quitan. Acepta "@usuario", el link o la web sin https. Devuelve el usuario con sus redes.
   updateLinks: (links) => api.put('/users/me/links', links).then((res) => res.data),
