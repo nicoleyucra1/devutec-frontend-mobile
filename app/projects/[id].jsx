@@ -121,7 +121,8 @@ export default function ProjectDetailScreen() {
             <Text style={styles.description}>{project.description || 'Sin descripción.'}</Text>
           </View>
 
-          {project.skills?.length ? (
+          {/* Las habilidades son para que el estudiante sepa si el proyecto es para él: al cliente no se le muestran */}
+          {user?.rol !== 'CLIENT' && project.skills?.length ? (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Habilidades requeridas</Text>
               <SkillChips skills={project.skills} />
