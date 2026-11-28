@@ -83,6 +83,7 @@ function valuesFromDraft(draft) {
     deadline: fromIsoDate(draft.deadline),
     location: '',
     skillIds: draft.skillIds ?? [],
+    metricsRequested: Boolean(draft.metricsRequested),
   }
 }
 
@@ -101,7 +102,7 @@ export default function NewProjectScreen() {
   // El borrador del asistente se toma una sola vez al abrir la pantalla
   const [draft] = useState(() => draftStore.take())
   const [values, setValues] = useState(() =>
-    draft ? valuesFromDraft(draft) : { title: '', description: '', budget: '', deadline: '', location: '', skillIds: [] },
+    draft ? valuesFromDraft(draft) : { title: '', description: '', budget: '', deadline: '', location: '', skillIds: [], metricsRequested: false },
   )
   const [errors, setErrors] = useState({})
   const [gps, setGps] = useState({ status: 'idle', message: null, denied: false })
@@ -140,6 +141,7 @@ export default function NewProjectScreen() {
         deadline: values.deadline ? toIsoDate(values.deadline) : null,
         location: values.location.trim() || null,
         skillIds: values.skillIds,
+        metricsRequested: Boolean(values.metricsRequested),
         ...(draft ? { category: draft.category, features: draft.features } : {}),
       })
       router.replace(`/projects/${created.id}`)
@@ -303,6 +305,25 @@ export default function NewProjectScreen() {
           </Field>
         )}
 
+        <Pressable
+          onPress={() => setField('metricsRequested', !values.metricsRequested)}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: Boolean(values.metricsRequested) }}
+          style={[styles.metrics, values.metricsRequested && styles.metricsOn]}
+        >
+          <Ionicons
+            name={values.metricsRequested ? 'checkbox' : 'square-outline'}
+            size={22}
+            color={values.metricsRequested ? colors.text : colors.muted}
+          />
+          <View style={styles.flex}>
+            <Text style={styles.metricsTitle}>Quiero ver cuántas personas visitan mi web y cuántas me contactan</Text>
+            <Text style={styles.metricsText}>
+              El estudiante deja instaladas las métricas de DEVUTEC sin costo extra. Las ves en tu perfil con 3 meses gratis.
+            </Text>
+          </View>
+        </Pressable>
+
         {actions.error ? <Text style={styles.serverError}>{actions.error}</Text> : null}
       </ScrollView>
 
@@ -421,6 +442,10 @@ const createStyles = ({ colors, fonts }) => ({
   districtText: { fontFamily: fonts.semibold, fontSize: 15, color: colors.text },
   districtTextSelected: { color: colors.onPrimary },
   hint: { color: colors.muted, fontFamily: fonts.regular, fontSize: 13 },
+  metrics: { flexDirection: 'row', gap: 12, alignItems: 'flex-start', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 16, padding: 16 },
+  metricsOn: { borderColor: colors.text },
+  metricsTitle: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.text },
+  metricsText: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.muted, marginTop: 4 },
   aiNote: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: colors.accentLight, borderRadius: 14, padding: 14 },
   aiNoteText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.text },
   error: { color: colors.error, fontFamily: fonts.regular, fontSize: 13 },
