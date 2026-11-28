@@ -36,4 +36,10 @@ export const applicationService = {
   async withdraw(id) {
     await api.delete(`/applications/${id}`)
   },
+
+  // Contraoferta explicada por la IA (solo el cliente dueño del proyecto)
+  async explain(id) {
+    const { data } = await api.post(`/applications/${id}/explanation`)
+    return data
+  },
 }
