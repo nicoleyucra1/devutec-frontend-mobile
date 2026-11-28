@@ -39,6 +39,12 @@ export default function DraftCard({ draft, onContinue, onKeepChatting }) {
         <Text style={styles.small}>
           Entrega sugerida: <Text style={styles.strong}>{formatDate(draft.deadline)}</Text>
         </Text>
+        {draft.metricsRequested ? (
+          <Text style={styles.small}>
+            Métricas DEVUTEC: <Text style={styles.strong}>sí</Text>, verás las visitas y los contactos de tu web en tu perfil (3 meses
+            gratis).
+          </Text>
+        ) : null}
       </View>
 
       <View style={styles.section}>
@@ -271,6 +277,7 @@ DraftCard.propTypes = {
       ),
     }).isRequired,
     stages: PropTypes.arrayOf(PropTypes.shape({ name: PropTypes.string.isRequired, percent: PropTypes.number.isRequired })),
+    metricsRequested: PropTypes.bool,
     payments: PropTypes.arrayOf(
       PropTypes.shape({
         number: PropTypes.number.isRequired,

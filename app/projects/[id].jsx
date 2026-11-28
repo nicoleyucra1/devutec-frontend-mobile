@@ -109,6 +109,15 @@ export default function ProjectDetailScreen() {
           </View>
           <Text style={styles.title}>{project.title}</Text>
           {project.clientName ? <Text style={styles.client}>{project.clientName}</Text> : null}
+          {project.metricsRequested ? (
+            <View style={styles.metricsNote}>
+              <Text style={styles.metricsNoteTitle}>Incluye métricas DEVUTEC</Text>
+              <Text style={styles.metricsNoteText}>
+                El cliente pidió métricas: antes de la Entrega final hay que dejar instalado el script en su web (es una línea
+                y DEVUTEC da las instrucciones). Sin costo extra.
+              </Text>
+            </View>
+          ) : null}
 
           <View style={styles.card}>
             <Meta icon="calendar-outline" label="Fecha límite" value={formatDate(project.deadline)} />
@@ -173,6 +182,9 @@ export default function ProjectDetailScreen() {
 }
 
 const createStyles = ({ colors, fonts }) => ({
+  metricsNote: { backgroundColor: colors.progressLight, borderRadius: 14, padding: 14, gap: 4, marginTop: 4 },
+  metricsNoteTitle: { fontFamily: fonts.semibold, fontSize: 13, color: colors.progress },
+  metricsNoteText: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.progress },
   container: { backgroundColor: colors.background, flex: 1 },
   content: { gap: 16, paddingHorizontal: 20, paddingBottom: 40 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
