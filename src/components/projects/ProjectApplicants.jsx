@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import Avatar from '../Avatar'
 import PrimaryButton from '../PrimaryButton'
 import ProposalExplainer from './ProposalExplainer'
+import { STAGE_NAMES, isStandardSplit } from '../../utils/stageSplit'
 import StatusBadge from '../StatusBadge'
 import { applicationService } from '../../services/applicationService'
 import { useProjectApplicants } from '../../hooks/useProjectApplicants'
@@ -26,7 +27,8 @@ function changesProposal(application, project) {
   const deadline = application.projectDeadline ?? project.deadline
   return (
     Number(application.proposedPrice) !== Number(application.projectBudget ?? project.budget) ||
-    Boolean(application.proposedDeadline && deadline && application.proposedDeadline !== deadline)
+    Boolean(application.proposedDeadline && deadline && application.proposedDeadline !== deadline) ||
+    !isStandardSplit(application.stagePercents)
   )
 }
 
@@ -138,6 +140,12 @@ export default function ProjectApplicants({ project, onChanged }) {
               ) : null}
             </View>
             <Text style={styles.message}>{application.message}</Text>
+            {!isStandardSplit(application.stagePercents) ? (
+              <Text style={styles.message}>
+                Propone liberar el pago así: {STAGE_NAMES.map((name, index) => `${name} ${application.stagePercents[index]} %`).join(' · ')}. Cada parte
+                del pago sigue siendo 50 %.
+              </Text>
+            ) : null}
             {/* Si propone otro precio u otro plazo, Cuyi le explica al cliente qué cambia y por qué */}
             {decidable && changesProposal(application, project) ? (
               <ProposalExplainer applicationId={application.id} freelancerName={application.freelancerName} />

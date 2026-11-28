@@ -3,12 +3,14 @@ import api from './api'
 // Postulaciones: el freelancer postula y retira; el cliente ve los postulantes de su proyecto y acepta o rechaza
 export const applicationService = {
   // proposedDeadline es opcional (contraoferta de plazo, "AAAA-MM-DD"); sin ella vale la fecha del proyecto
-  async apply({ projectId, message, proposedPrice, proposedDeadline }) {
+  // stagePercents (opcional): reparto del pago por etapas que propone el estudiante, p. ej. [15, 25, 35, 15]
+  async apply({ projectId, message, proposedPrice, proposedDeadline, stagePercents }) {
     const { data } = await api.post('/applications', {
       projectId,
       message,
       proposedPrice,
       proposedDeadline: proposedDeadline || null,
+      ...(stagePercents ? { stagePercents } : {}),
     })
     return data
   },

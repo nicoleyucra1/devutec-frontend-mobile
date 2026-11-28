@@ -5,6 +5,8 @@ import PropTypes from 'prop-types'
 import BottomSheet from '../BottomSheet'
 import PrimaryButton from '../PrimaryButton'
 import CopilotCard from './CopilotCard'
+import StageSplitPicker from './StageSplitPicker'
+import { STANDARD_SPLIT, isStandardSplit } from '../../utils/stageSplit'
 import { applicationService } from '../../services/applicationService'
 import { pricingService } from '../../services/pricingService'
 import { useAsync } from '../../hooks/useAsync'
@@ -42,6 +44,9 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
   const [submitError, setSubmitError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [deadlineWeeks, setDeadlineWeeks] = useState(null)
+  // Reparto del pago por etapas que propone el estudiante (opcional)
+  const [customSplit, setCustomSplit] = useState(false)
+  const [stageSplit, setStageSplit] = useState(STANDARD_SPLIT)
   const copilot = useAsync(
     (options) => (visible ? pricingService.estimateProject(project.id, options) : Promise.resolve(null)),
     [project.id, visible],
@@ -61,6 +66,7 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
         message: message.trim(),
         proposedPrice: Number(price.replace(',', '.')),
         proposedDeadline: deadlineWeeks ? isoInWeeks(deadlineWeeks) : null,
+        ...(customSplit && !isStandardSplit(stageSplit) ? { stagePercents: stageSplit } : {}),
       })
       onApplied()
     } catch (err) {
@@ -184,6 +190,21 @@ export default function ApplySheet({ project, visible, onClose, onApplied }) {
         {errors.message ?? `${message.trim().length}/${MAX} · mínimo ${MIN}`}
       </Text>
 
+      <Pressable
+        onPress={() => setCustomSplit((current) => !current)}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: customSplit }}
+        style={styles.splitToggle}
+      >
+        <Ionicons name={customSplit ? 'checkbox' : 'square-outline'} size={20} color={customSplit ? colors.text : colors.muted} />
+        <Text style={styles.splitToggleText}>Proponer cómo se libera el pago por etapas</Text>
+      </Pressable>
+      {customSplit ? (
+        <StageSplitPicker value={stageSplit} onChange={setStageSplit} />
+      ) : (
+        <Text style={styles.hint}>Si no lo cambias: Descubrimiento 10 %, Diseño 30 %, Desarrollo 40 % y Entrega final 10 %.</Text>
+      )}
+
       <View style={styles.note}>
         <Ionicons name="shield-checkmark-outline" size={20} color={colors.accent} />
         <Text style={styles.noteText}>
@@ -289,6 +310,8 @@ const createStyles = ({ colors, fonts, radius }) => ({
   },
   noteText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.accent },
   noteStrong: { fontFamily: fonts.bold },
+  splitToggle: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 16 },
+  splitToggleText: { flex: 1, fontFamily: fonts.semibold, fontSize: 14, color: colors.text },
   submitError: { color: colors.error, backgroundColor: colors.errorLight, padding: 10, borderRadius: 8, marginTop: 12 },
   button: { marginTop: 16 },
 })
