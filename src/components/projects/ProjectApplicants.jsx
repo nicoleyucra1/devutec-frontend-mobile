@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons'
 import PropTypes from 'prop-types'
 import Avatar from '../Avatar'
 import PrimaryButton from '../PrimaryButton'
+import ProposalExplainer from './ProposalExplainer'
 import StatusBadge from '../StatusBadge'
 import { applicationService } from '../../services/applicationService'
 import { useProjectApplicants } from '../../hooks/useProjectApplicants'
@@ -19,6 +20,15 @@ import { APPLICATION_STATUS } from '../../utils/status'
 const ORDER = { PENDING: 0, ACCEPTED: 1, REJECTED: 2 }
 const byStatusThenDate = (a, b) =>
   (ORDER[a.status] ?? 9) - (ORDER[b.status] ?? 9) || new Date(b.createdAt) - new Date(a.createdAt)
+
+// ¿La propuesta cambia el precio o el plazo del proyecto?
+function changesProposal(application, project) {
+  const deadline = application.projectDeadline ?? project.deadline
+  return (
+    Number(application.proposedPrice) !== Number(application.projectBudget ?? project.budget) ||
+    Boolean(application.proposedDeadline && deadline && application.proposedDeadline !== deadline)
+  )
+}
 
 // "Postulaciones" en el detalle del proyecto, solo para el cliente dueño: cada freelancer con su precio y su
 // mensaje. Mientras el proyecto está abierto, puede elegir a uno (se crea el contrato y el resto se rechaza)
@@ -128,6 +138,10 @@ export default function ProjectApplicants({ project, onChanged }) {
               ) : null}
             </View>
             <Text style={styles.message}>{application.message}</Text>
+            {/* Si propone otro precio u otro plazo, Cuyi le explica al cliente qué cambia y por qué */}
+            {decidable && changesProposal(application, project) ? (
+              <ProposalExplainer applicationId={application.id} freelancerName={application.freelancerName} />
+            ) : null}
 
             {decidable ? (
               <View style={styles.actions}>
