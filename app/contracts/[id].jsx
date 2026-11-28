@@ -13,6 +13,7 @@ import TranslationCard from '../../src/components/contracts/TranslationCard'
 import ClientRequestTranslator from '../../src/components/contracts/ClientRequestTranslator'
 import ScreenState from '../../src/components/ScreenState'
 import StatusBadge from '../../src/components/StatusBadge'
+import InstallmentsCard from '../../src/components/contracts/InstallmentsCard'
 import { useAuth } from '../../src/hooks/useAuth'
 import { useBiometricAuth } from '../../src/hooks/useBiometricAuth'
 import { useContract } from '../../src/hooks/useContracts'
@@ -68,7 +69,7 @@ export default function ContractDetailScreen() {
     try {
       await contractService.confirmCheckout(id, sessionId)
       rememberSession(null)
-      setMessage({ ok: true, text: 'Pago recibido. El dinero queda en garantía hasta que confirmes la entrega.' })
+      setMessage({ ok: true, text: 'Pago recibido. El dinero queda en garantía y se libera cuando apruebas cada etapa.' })
       reload()
     } catch (err) {
       // 409: Stripe todavía no marca la sesión como pagada (se cerró la página o aún se está procesando)
@@ -111,14 +112,15 @@ export default function ContractDetailScreen() {
     }
   }, [storageKey])
 
-  const handlePay = async () => {
+  // installment: con el pago en dos partes, el número de pago (1 o 2); sin él se paga el contrato completo
+  const handlePay = async (installment) => {
     setRunning('pay')
     setMessage(null)
     try {
       // Link para que, al terminar en Stripe, la página puente de la web vuelva a abrir este contrato en la app.
       // En el APK queda devutec://contracts/ID y en Expo Go exp://.../--/contracts/ID
       const appReturnUrl = ExpoLinking.createURL(`/contracts/${id}`)
-      const { sessionId, checkoutUrl } = await contractService.startCheckout(id, appReturnUrl)
+      const { sessionId, checkoutUrl } = await contractService.startCheckout(id, appReturnUrl, installment)
       rememberSession(sessionId)
       await Linking.openURL(checkoutUrl)
     } catch (err) {
@@ -176,7 +178,13 @@ export default function ContractDetailScreen() {
   const deliveryNote = translatedStage?.deliveryNote || contract.deliveryNote
   const deliveryStageName = translatedStage?.deliveryNote ? translatedStage.name : undefined
   const changeRequest = translatedStage?.status === 'CHANGES_REQUESTED' ? translatedStage.changeRequestNote : null
-  const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS'
+  // Pago en dos partes: la etapa en curso solo se puede entregar si ya se pagó la parte que la cubre
+  // (el backend también lo revisa). Sin plan (contratos antiguos) no cambia nada
+  const plan = contract.installments ?? []
+  const stageNow = contract.stages?.find((stage) => stage.position === contract.currentStage)
+  const coveringInstallment = stageNow && plan.length > 0 ? plan[Math.min(stageNow.paymentPart ?? 1, plan.length) - 1] : null
+  const stagePaid = !coveringInstallment || coveringInstallment.status !== 'PENDING'
+  const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS' && stagePaid
   const canCancel = isClient && contract.status === 'IN_PROGRESS'
   // Etapa en la que se está trabajando (la manda el backend con las etapas); la Mini guía es para el estudiante
   const currentStage = contract.stages?.find((stage) => stage.position === contract.currentStage)
@@ -186,8 +194,12 @@ export default function ContractDetailScreen() {
     currentStage &&
     currentStage.status !== 'CANCELLED'
   const canConfirm = isClient && contract.status === 'DELIVERED'
+  // Pago en dos partes: los botones de pagar viven en la tarjeta de pagos. Sin plan (contratos antiguos)
+  // se mantiene el pago único de siempre
+  const hasPlan = (contract.installments?.length ?? 0) > 0
   // El cliente puede pagar con tarjeta mientras el contrato siga abierto y no lo haya pagado antes
   const canPay =
+    !hasPlan &&
     isClient &&
     (contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED') &&
     contract.paymentStatus === 'HELD' &&
@@ -227,7 +239,7 @@ export default function ContractDetailScreen() {
 
           {canPay && (
             <View style={styles.payBox}>
-              <PrimaryButton title="Pagar con tarjeta" loading={running === 'pay' && !awaitingPayment} onPress={handlePay} />
+              <PrimaryButton title="Pagar con tarjeta" loading={running === 'pay' && !awaitingPayment} onPress={() => handlePay()} />
               {awaitingPayment && (
                 <PrimaryButton
                   title="Ya pagué, verificar"
@@ -257,6 +269,17 @@ export default function ContractDetailScreen() {
             />
           )}
         </View>
+
+        {hasPlan && (isClient || isFreelancer) ? (
+          <InstallmentsCard
+            contract={contract}
+            isClient={isClient}
+            onPay={handlePay}
+            paying={running === 'pay'}
+            awaitingPayment={awaitingPayment}
+            onVerify={() => verifyPayment()}
+          />
+        ) : null}
 
         {contract.deliveryUrl ? <DeliveryCard contract={contract} isClient={isClient} /> : null}
 
