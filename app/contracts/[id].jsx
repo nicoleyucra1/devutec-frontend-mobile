@@ -10,6 +10,7 @@ import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
 import StageGuideCard from '../../src/components/contracts/StageGuideCard'
 import QualityCard from '../../src/components/contracts/QualityCard'
 import CoordinateCard from '../../src/components/contracts/CoordinateCard'
+import ProjectAssetsCard from '../../src/components/assets/ProjectAssetsCard'
 import TranslationCard from '../../src/components/contracts/TranslationCard'
 import ClientRequestTranslator from '../../src/components/contracts/ClientRequestTranslator'
 import ScreenState from '../../src/components/ScreenState'
@@ -317,6 +318,7 @@ export default function ContractDetailScreen() {
         ) : null}
 
         {(isClient || isFreelancer) && <CoordinateCard contract={contract} isClient={isClient} />}
+        {contract.projectId ? <ProjectAssetsCard projectId={contract.projectId} /> : null}
 
         {showGuide ? (
           <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />

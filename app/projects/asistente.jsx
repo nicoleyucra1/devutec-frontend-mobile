@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { KeyboardAvoidingView, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, Pressable, ScrollView, Text, TextInput, View } from 'react-native'
 import { Stack, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -12,6 +12,9 @@ import { useAuth } from '../../src/hooks/useAuth'
 import { useTheme, useThemedStyles } from '../../src/hooks/useTheme'
 import { errorMessage } from '../../src/utils/errorMessage'
 import { draftStore } from '../../src/utils/draftStore'
+import { assetStore } from '../../src/utils/assetStore'
+import AssetChips from '../../src/components/assets/AssetChips'
+import { useAssetUpload } from '../../src/hooks/useAssetUpload'
 
 const GREETING =
   '¡Hola! Te ayudo a armar tu proyecto en un par de minutos. Para empezar, ¿qué negocio tienes y qué te gustaría lograr con una web, una app o una automatización?'
@@ -33,9 +36,15 @@ export default function ProjectAssistantScreen() {
   const [draft, setDraft] = useState(null)
   const [error, setError] = useState(null)
   const [remaining, setRemaining] = useState(null)
+  // Logo y fotos del negocio: la IA los mira y no pregunta lo que ya se ve
+  const [assets, setAssets] = useState(() => {
+    assetStore.clear()
+    return []
+  })
+  const files = useAssetUpload(assets, setAssets)
   const scrollRef = useRef(null)
 
-  const send = async (raw) => {
+  const send = async (raw, assetIds = assets.map((asset) => asset.id)) => {
     const message = raw.trim()
     if (!message || thinking) return
     // El saludo es local: la conversación que ve la IA empieza con el primer mensaje del cliente
@@ -48,7 +57,7 @@ export default function ProjectAssistantScreen() {
     setError(null)
     setThinking(true)
     try {
-      const data = await assistantService.chat({ message, history })
+      const data = await assistantService.chat({ message, history, assetIds })
       setRemaining(data.remaining)
       // Si la pregunta era de otro tema, ni ella ni la respuesta fija vuelven a la IA en el historial
       setMessages((current) => [
@@ -66,8 +75,17 @@ export default function ProjectAssistantScreen() {
     }
   }
 
+  const attach = async () => {
+    const added = await files.pickAndUpload()
+    if (added.length > 0 && !thinking) {
+      const names = added.map((asset) => asset.fileName).join(', ')
+      send(`Te adjunto ${added.length === 1 ? 'esta foto' : 'estas fotos'} de mi negocio: ${names}`, [...assets, ...added].map((asset) => asset.id))
+    }
+  }
+
   const openForm = (fromDraft) => {
     draftStore.set(fromDraft)
+    assetStore.set(assets)
     router.replace('/projects/new')
   }
 
@@ -110,7 +128,7 @@ export default function ProjectAssistantScreen() {
           <Text style={styles.introTitle}>No necesitas saber de tecnología.</Text>
           <Text style={styles.introText}>
             Cuéntale qué necesita tu negocio. Arma el proyecto, te sugiere un precio con datos reales y te muestra cómo pagas en
-            dos partes. Tú revisas todo antes de publicar.
+            dos partes. Tú revisas todo antes de publicar. Con el clip puedes adjuntar tu logo y fotos.
           </Text>
         </View>
 
@@ -145,7 +163,19 @@ export default function ProjectAssistantScreen() {
 
       <View style={[styles.composer, { paddingBottom: insets.bottom + 10 }]}>
         {error ? <Text style={styles.error}>{error}</Text> : null}
+        {files.error ? <Text style={styles.error}>{files.error}</Text> : null}
+        <AssetChips assets={assets} onRemove={files.remove} removing={files.removing} />
         <View style={styles.inputRow}>
+          <Pressable
+            onPress={attach}
+            disabled={files.uploading || thinking}
+            style={[styles.clip, (files.uploading || thinking) && styles.dim]}
+            accessibilityRole="button"
+            accessibilityLabel="Adjuntar logo o fotos del negocio"
+            hitSlop={6}
+          >
+            {files.uploading ? <ActivityIndicator size="small" color={colors.muted} /> : <Ionicons name="attach" size={22} color={colors.muted} />}
+          </Pressable>
           <TextInput
             value={text}
             onChangeText={setText}
@@ -221,6 +251,7 @@ const createStyles = ({ colors, fonts }) => ({
     paddingLeft: 14,
     paddingRight: 6,
   },
+  clip: { width: 30, height: 36, alignItems: 'center', justifyContent: 'center', marginLeft: -6 },
   input: { flex: 1, height: 46, color: colors.text, fontFamily: fonts.regular, fontSize: 15 },
   send: { width: 36, height: 36, borderRadius: 18, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   note: { textAlign: 'center', fontFamily: fonts.regular, fontSize: 11, color: colors.muted },

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
   ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Linking,
  
@@ -22,6 +23,10 @@ import { useAuth } from '../../src/hooks/useAuth'
 import { useSkills } from '../../src/hooks/useSkills'
 import { detectDistrict } from '../../src/utils/location'
 import { draftStore } from '../../src/utils/draftStore'
+import { assetStore } from '../../src/utils/assetStore'
+import { assetService } from '../../src/services/assetService'
+import AssetChips from '../../src/components/assets/AssetChips'
+import { MAX_IMAGES, useAssetUpload } from '../../src/hooks/useAssetUpload'
 import PropTypes from 'prop-types'
 
 // Distritos para elegir con un toque; con el GPS se puede llenar cualquier otro
@@ -101,6 +106,9 @@ export default function NewProjectScreen() {
   const actions = useProjectActions()
   // El borrador del asistente se toma una sola vez al abrir la pantalla
   const [draft] = useState(() => draftStore.take())
+  // Logo y fotos del negocio (los del chat llegan aquí); se unen al proyecto al publicar
+  const [assets, setAssets] = useState(() => assetStore.get())
+  const files = useAssetUpload(assets, setAssets)
   const [values, setValues] = useState(() =>
     draft ? valuesFromDraft(draft) : { title: '', description: '', budget: '', deadline: '', location: '', skillIds: [], metricsRequested: false },
   )
@@ -144,6 +152,14 @@ export default function NewProjectScreen() {
         metricsRequested: Boolean(values.metricsRequested),
         ...(draft ? { category: draft.category, features: draft.features } : {}),
       })
+      if (assets.length > 0) {
+        try {
+          await assetService.attach(created.id, assets.map((asset) => asset.id))
+        } catch {
+          Alert.alert('Proyecto publicado', 'No pudimos adjuntar tus archivos. Súbelos de nuevo desde la web.')
+        }
+      }
+      assetStore.clear()
       router.replace(`/projects/${created.id}`)
     } catch {
       // El mensaje queda en actions.error
@@ -324,6 +340,23 @@ export default function NewProjectScreen() {
           </View>
         </Pressable>
 
+        <Field label="Logo y fotos de tu negocio (opcional)">
+          <Text style={styles.hint}>
+            Hasta {MAX_IMAGES} fotos. Solo el estudiante que contrates las podrá ver. El PDF (carta o catálogo) se sube desde la web.
+          </Text>
+          <AssetChips assets={assets} onRemove={files.remove} removing={files.removing} />
+          {files.error ? <Text style={styles.error}>{files.error}</Text> : null}
+          <Pressable
+            onPress={files.pickAndUpload}
+            disabled={files.uploading}
+            style={({ pressed }) => [styles.attach, pressed && styles.pressed]}
+            accessibilityRole="button"
+          >
+            {files.uploading ? <ActivityIndicator color={colors.text} /> : <Ionicons name="image-outline" size={18} color={colors.text} />}
+            <Text style={styles.attachText}>{files.uploading ? 'Revisando…' : 'Adjuntar fotos'}</Text>
+          </Pressable>
+        </Field>
+
         {actions.error ? <Text style={styles.serverError}>{actions.error}</Text> : null}
       </ScrollView>
 
@@ -380,6 +413,18 @@ const createStyles = ({ colors, fonts }) => ({
   lockText: { fontFamily: fonts.semibold, fontSize: 13, color: colors.accent },
   field: { gap: 8 },
   label: { color: colors.text, fontFamily: fonts.semibold, fontSize: 14 },
+  attach: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    minHeight: 46,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 14,
+    backgroundColor: colors.card,
+  },
+  attachText: { fontFamily: fonts.semibold, fontSize: 14, color: colors.text },
   input: {
     backgroundColor: colors.card,
     borderColor: colors.inputBorder,
