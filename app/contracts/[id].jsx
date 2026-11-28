@@ -12,6 +12,7 @@ import ChangesSheet from '../../src/components/contracts/ChangesSheet'
 import MetricsLinkCard from '../../src/components/metrics/MetricsLinkCard'
 import StageGuideCard from '../../src/components/contracts/StageGuideCard'
 import ChatCard from '../../src/components/contracts/ChatCard'
+import DoneContractCard from '../../src/components/rehire/DoneContractCard'
 import QualityCard from '../../src/components/contracts/QualityCard'
 import CoordinateCard from '../../src/components/contracts/CoordinateCard'
 import ProjectAssetsCard from '../../src/components/assets/ProjectAssetsCard'
@@ -375,6 +376,16 @@ export default function ContractDetailScreen() {
         {contract.projectId ? <ProjectAssetsCard projectId={contract.projectId} /> : null}
 
         {(isClient || isFreelancer) && contract.status !== 'CANCELLED' ? <MetricsLinkCard contractId={contract.id} isClient={isClient} /> : null}
+
+        {/* Trabajo terminado: certificado verificable y, para el cliente, volver a contratar */}
+        {contract.status === 'CONFIRMED' && (isClient || isFreelancer) ? (
+          <DoneContractCard
+            contractId={contract.id}
+            isClient={isClient}
+            freelancerUserId={contract.freelancerUserId}
+            freelancerName={contract.freelancerName}
+          />
+        ) : null}
 
         {showGuide ? (
           <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />

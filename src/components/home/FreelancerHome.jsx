@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons'
 import PropTypes from 'prop-types'
 import NightCard from './NightCard'
 import CarnetCard from './CarnetCard'
+import InvitationsCard from '../rehire/InvitationsCard'
 import StatCard from './StatCard'
 import ContractCard from '../contracts/ContractCard'
 import { useMyApplications } from '../../hooks/useApplications'
@@ -85,6 +86,9 @@ export default function FreelancerHome({ userId }) {
           { label: 'CONTRATOS ACTIVOS', value: pad(active.length) },
         ]}
       />
+
+      {/* Clientes que quieren volver a trabajar con el estudiante (48 horas para postular) */}
+      <InvitationsCard />
 
       <CarnetCard />
 

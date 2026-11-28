@@ -11,7 +11,7 @@ import {
   TextInput,
   View,
 } from 'react-native'
-import { Stack, useRouter } from 'expo-router'
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import SkillChips from '../../src/components/projects/SkillChips'
@@ -101,6 +101,10 @@ export default function NewProjectScreen() {
   const styles = useThemedStyles(createStyles)
   const insets = useSafeAreaInsets()
   const router = useRouter()
+  // Volver a contratar: ?invitar=ID&nombre=Nombre (48 horas solo para ese estudiante)
+  const invite = useLocalSearchParams()
+  const invitedId = Number(invite.invitar) || null
+  const invitedName = typeof invite.nombre === 'string' && invite.nombre ? invite.nombre : 'el estudiante'
   const { user } = useAuth()
   const skills = useSkills()
   const actions = useProjectActions()
@@ -151,6 +155,7 @@ export default function NewProjectScreen() {
         skillIds: values.skillIds,
         metricsRequested: Boolean(values.metricsRequested),
         ...(draft ? { category: draft.category, features: draft.features } : {}),
+        ...(invitedId ? { invitedFreelancerUserId: invitedId } : {}),
       })
       if (assets.length > 0) {
         try {
@@ -192,6 +197,15 @@ export default function NewProjectScreen() {
       </View>
 
       <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        {invitedId ? (
+          <View style={styles.aiNote}>
+            <Text style={styles.inviteText}>
+              <Text style={styles.inviteBold}>🔁 Volver a contratar a {invitedName}. </Text>
+              Al publicar, recibe la invitación y por 48 horas el proyecto es solo para {invitedName.split(' ')[0]}. Si no
+              postula a tiempo, se abre para todos.
+            </Text>
+          </View>
+        ) : null}
         <View style={[styles.budgetCard, errors.budget && styles.budgetCardError]}>
           <Text style={styles.kicker}>PRESUPUESTO</Text>
           <View style={styles.budgetRow}>
@@ -502,6 +516,8 @@ const createStyles = ({ colors, fonts }) => ({
   metricsTitle: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20, color: colors.text },
   metricsText: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.muted, marginTop: 4 },
   aiNote: { flexDirection: 'row', gap: 10, alignItems: 'flex-start', backgroundColor: colors.accentLight, borderRadius: 14, padding: 14 },
+  inviteText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 19, color: colors.accent },
+  inviteBold: { fontFamily: fonts.semibold },
   aiNoteText: { flex: 1, fontFamily: fonts.regular, fontSize: 13, lineHeight: 18, color: colors.text },
   error: { color: colors.error, fontFamily: fonts.regular, fontSize: 13 },
   serverError: { backgroundColor: colors.errorLight, borderRadius: radius.sm, color: colors.error, fontFamily: fonts.regular, padding: 12 },
