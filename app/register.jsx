@@ -108,6 +108,9 @@ export default function RegisterScreen() {
         autoCapitalize="none"
         autoComplete="email"
       />
+      {values.rol === 'FREELANCER' && !errors.email ? (
+        <Text style={styles.studentHint}>Como estudiante, regístrate con tu correo universitario (.edu.pe).</Text>
+      ) : null}
       <FormField
         label="Contraseña"
         placeholder="Crea una contraseña"
@@ -163,6 +166,7 @@ export default function RegisterScreen() {
 
 const createStyles = ({ colors, fonts, radius }) => ({
   roles: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+  studentHint: { fontFamily: fonts.regular, fontSize: 12, lineHeight: 17, color: colors.muted, marginTop: -8, marginBottom: 12 },
   role: {
     flex: 1,
     minHeight: 132,
