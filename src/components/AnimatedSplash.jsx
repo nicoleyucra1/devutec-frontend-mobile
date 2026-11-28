@@ -2,12 +2,11 @@ import { useEffect, useRef } from 'react'
 import { Animated, Easing, StyleSheet } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import * as SplashScreen from 'expo-splash-screen'
-import { LOGO_ASPECT_RATIO } from './brand/LogoMark'
+import LogoMark from './brand/LogoMark'
 import PropTypes from 'prop-types'
 
 // Mismo tamaño y color de fondo que el splash nativo (app.json), así el cambio no se nota
 const LOGO_WIDTH = 96
-const logo = require('../../assets/images/logo-mark.png')
 
 // Animación de entrada, igual en modo claro y oscuro:
 // 1. Sobre negro, el logo crece en el centro mientras gira -135°.
@@ -56,19 +55,17 @@ export default function AnimatedSplash({ ready, onFinish }) {
   return (
     <Animated.View pointerEvents="none" style={styles.container}>
       <StatusBar style="light" />
-      <Animated.Image
-        source={logo}
+      {/* El isotipo con degradado (siempre la versión lima: el fondo de la animación es oscuro) */}
+      <Animated.View
         style={{
-          width: LOGO_WIDTH,
-          height: LOGO_WIDTH / LOGO_ASPECT_RATIO,
           transform: [
             { scale: spin.interpolate({ inputRange: [0, 1], outputRange: [1, 1.45] }) },
             { rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '-135deg'] }) },
           ],
         }}
-        resizeMode="contain"
-        accessibilityLabel="Logo de DEVUTEC"
-      />
+      >
+        <LogoMark width={LOGO_WIDTH} variant="lime" />
+      </Animated.View>
     </Animated.View>
   )
 }

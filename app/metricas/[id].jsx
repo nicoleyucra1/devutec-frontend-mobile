@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Linking, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native'
+import { Alert, Linking, Pressable, RefreshControl, ScrollView, Share, Text, View } from 'react-native'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 import PropTypes from 'prop-types'
@@ -14,6 +14,7 @@ import { confirmAlert } from '../../src/utils/confirmAlert'
 import { errorMessage } from '../../src/utils/errorMessage'
 import { formatBudget, formatDate, formatWhen } from '../../src/utils/format'
 import { summarySentence } from '../../src/utils/metrics'
+import { downloadMetricsPdf } from '../../src/utils/metricsPdf'
 
 const PLANS = [
   { key: 'BASIC', name: 'Básico', priceKey: 'basicPrice', regularKey: 'regularBasicPrice', features: ['Visitas, contactos, pedidos y reservas', 'Velocidad de tu web', 'Últimos 30 días, en palabras simples'] },
@@ -90,7 +91,19 @@ export default function ContractMetricsScreen() {
     if (ok) act('disable', () => metricsService.disable(id), 'Métricas desactivadas.')
   }
 
-  // En la app el reporte se comparte como texto (WhatsApp, correo, notas). El PDF se descarga desde la web.
+  // El reporte se comparte como texto (WhatsApp, correo, notas) o como PDF con el diseño de DEVUTEC
+  const [pdfBusy, setPdfBusy] = useState(false)
+  const downloadPdf = async () => {
+    if (!data.summary) return
+    setPdfBusy(true)
+    try {
+      await downloadMetricsPdf({ projectTitle: contract.data.projectTitle, site: data.allowedOrigin, summary: data.summary })
+    } catch {
+      Alert.alert('No se pudo', 'No pudimos crear el PDF. Inténtalo otra vez.')
+    } finally {
+      setPdfBusy(false)
+    }
+  }
   const shareReport = () => {
     const s = data.summary
     if (!s) return
@@ -199,6 +212,7 @@ export default function ContractMetricsScreen() {
                     </View>
                     <Bars days={data.summary.lastDays ?? []} />
                     {data.summary.includesTestData ? <Text style={styles.small}>Incluye datos de prueba (localhost o links de vista previa).</Text> : null}
+                    <PrimaryButton title="Descargar PDF" onPress={downloadPdf} loading={pdfBusy} />
                     {isClient ? <PrimaryButton title="Compartir reporte" variant="secondary" onPress={shareReport} /> : null}
                   </>
                 ) : (

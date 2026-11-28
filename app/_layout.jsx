@@ -60,6 +60,7 @@ function RootNavigator() {
         <Stack.Screen name="metricas/[id]" />
         <Stack.Screen name="freelancers/[userId]" />
         <Stack.Screen name="ayuda" />
+        <Stack.Screen name="admin/carnets" />
       </Stack.Protected>
       <Stack.Protected guard={user === null} redirectTo="/">
         <Stack.Screen name="welcome" />
