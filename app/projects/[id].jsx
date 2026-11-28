@@ -7,6 +7,7 @@ import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import ApplySheet from '../../src/components/projects/ApplySheet'
 import ClientLinks from '../../src/components/projects/ClientLinks'
+import ProjectAssetsCard from '../../src/components/assets/ProjectAssetsCard'
 import ProjectApplicants from '../../src/components/projects/ProjectApplicants'
 import SkillChips from '../../src/components/projects/SkillChips'
 import StateView from '../../src/components/projects/StateView'
@@ -137,6 +138,8 @@ export default function ProjectDetailScreen() {
               <SkillChips skills={project.skills} />
             </View>
           ) : null}
+
+          {user ? <ProjectAssetsCard projectId={project.id} /> : null}
 
           {isOwner ? (
             <ProjectApplicants project={project} onChanged={reload} />
