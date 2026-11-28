@@ -7,6 +7,7 @@ import Money from '../../src/components/Money'
 import PrimaryButton from '../../src/components/PrimaryButton'
 import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
+import StageGuideCard from '../../src/components/contracts/StageGuideCard'
 import WhatsAppCard from '../../src/components/WhatsAppCard'
 import TranslationCard from '../../src/components/contracts/TranslationCard'
 import ClientRequestTranslator from '../../src/components/contracts/ClientRequestTranslator'
@@ -177,6 +178,13 @@ export default function ContractDetailScreen() {
   const changeRequest = translatedStage?.status === 'CHANGES_REQUESTED' ? translatedStage.changeRequestNote : null
   const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS'
   const canCancel = isClient && contract.status === 'IN_PROGRESS'
+  // Etapa en la que se está trabajando (la manda el backend con las etapas); la Mini guía es para el estudiante
+  const currentStage = contract.stages?.find((stage) => stage.position === contract.currentStage)
+  const showGuide =
+    isFreelancer &&
+    (contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED') &&
+    currentStage &&
+    currentStage.status !== 'CANCELLED'
   const canConfirm = isClient && contract.status === 'DELIVERED'
   // El cliente puede pagar con tarjeta mientras el contrato siga abierto y no lo haya pagado antes
   const canPay =
@@ -278,6 +286,10 @@ export default function ContractDetailScreen() {
         ) : null}
 
         {(isClient || isFreelancer) && <WhatsAppCard contract={contract} isClient={isClient} />}
+
+        {showGuide ? (
+          <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />
+        ) : null}
 
         {canDeliver && (
           <DeliverSheet

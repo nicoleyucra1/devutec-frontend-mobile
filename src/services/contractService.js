@@ -58,4 +58,16 @@ export const contractService = {
     const { data } = await api.post(`/contracts/${id}/reviews`, { rating, comment })
     return data
   },
+
+  // Mini guía de una etapa (solo el estudiante): tareas con horas, preguntas para el cliente, riesgos, consejo,
+  // avance vs. horas y revisión del precio. La primera vez la arma la IA; después devuelve la guardada.
+  async getStageGuide(id, stageId) {
+    const { data } = await api.post(`/contracts/${id}/stages/${stageId}/guide`)
+    return data
+  },
+
+  async updateGuideTask(id, stageId, taskId, done) {
+    const { data } = await api.patch(`/contracts/${id}/stages/${stageId}/guide/tasks/${taskId}`, { done })
+    return data
+  },
 }
