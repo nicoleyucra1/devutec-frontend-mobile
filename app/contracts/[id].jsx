@@ -11,6 +11,7 @@ import StagesCard from '../../src/components/contracts/StagesCard'
 import ChangesSheet from '../../src/components/contracts/ChangesSheet'
 import MetricsLinkCard from '../../src/components/metrics/MetricsLinkCard'
 import StageGuideCard from '../../src/components/contracts/StageGuideCard'
+import ChatCard from '../../src/components/contracts/ChatCard'
 import QualityCard from '../../src/components/contracts/QualityCard'
 import CoordinateCard from '../../src/components/contracts/CoordinateCard'
 import ProjectAssetsCard from '../../src/components/assets/ProjectAssetsCard'
@@ -357,6 +358,16 @@ export default function ContractDetailScreen() {
             clientName={contract.clientName}
             stageName={translatedStage?.name}
             request={changeRequest ?? undefined}
+          />
+        ) : null}
+
+        {/* Chat del contrato: dudas a mitad de una etapa, dentro de DEVUTEC (sin celulares) */}
+        {isClient || isFreelancer ? (
+          <ChatCard
+            contractId={contract.id}
+            otherName={isClient ? contract.freelancerName : contract.clientName}
+            isClient={isClient}
+            closed={contract.status === 'CANCELLED'}
           />
         ) : null}
 
