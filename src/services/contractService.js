@@ -72,4 +72,16 @@ export const contractService = {
     const { data } = await api.patch(`/contracts/${id}/stages/${stageId}/guide/tasks/${taskId}`, { done })
     return data
   },
+
+  // Estándar de calidad: si la etapa lo exige (entrega final de una web) y la última revisión
+  async getQuality(id, stageId) {
+    const { data } = await api.get(`/contracts/${id}/stages/${stageId}/quality`)
+    return data
+  },
+
+  // El estudiante revisa su web publicada con PageSpeed (Google tarda hasta 40 s)
+  async checkQuality(id, stageId, url) {
+    const { data } = await api.post(`/contracts/${id}/stages/${stageId}/quality/checks`, { url }, { timeout: 120000 })
+    return data
+  },
 }

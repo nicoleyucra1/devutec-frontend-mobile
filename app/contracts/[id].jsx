@@ -8,6 +8,7 @@ import PrimaryButton from '../../src/components/PrimaryButton'
 import DeliverSheet from '../../src/components/contracts/DeliverSheet'
 import ReleaseSheet from '../../src/components/contracts/ReleaseSheet'
 import StageGuideCard from '../../src/components/contracts/StageGuideCard'
+import QualityCard from '../../src/components/contracts/QualityCard'
 import CoordinateCard from '../../src/components/contracts/CoordinateCard'
 import TranslationCard from '../../src/components/contracts/TranslationCard'
 import ClientRequestTranslator from '../../src/components/contracts/ClientRequestTranslator'
@@ -312,6 +313,17 @@ export default function ContractDetailScreen() {
 
         {showGuide ? (
           <StageGuideCard key={currentStage.id} contractId={contract.id} stage={currentStage} clientName={contract.clientName} />
+        ) : null}
+
+        {/* Entrega final de una web: tiene que pasar el estándar de calidad de DEVUTEC (la tarjeta decide si aplica) */}
+        {currentStage && (isClient || isFreelancer) && (contract.status === 'IN_PROGRESS' || contract.status === 'DELIVERED') ? (
+          <QualityCard
+            key={`quality-${currentStage.id}`}
+            contractId={contract.id}
+            stage={currentStage}
+            isClient={isClient}
+            freelancerName={contract.freelancerName}
+          />
         ) : null}
 
         {canDeliver && (
