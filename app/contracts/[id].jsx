@@ -179,7 +179,9 @@ export default function ContractDetailScreen() {
   const handleCancel = async () => {
     const ok = await confirmAlert(
       '¿Cancelar el contrato?',
-      `Se te devolverán ${formatBudget(contract.amount)} y el proyecto volverá a estar abierto.`,
+      (contract.installments?.length ?? 0) > 0
+        ? 'Se te devolverá lo que pagaste y todavía no se liberó al estudiante, y el proyecto volverá a estar abierto.'
+        : `Se te devolverán ${formatBudget(contract.amount)} y el proyecto volverá a estar abierto.`,
       'Sí, cancelar',
     )
     if (ok) run('cancel', contractService.cancel, 'Contrato cancelado. El pago fue reembolsado.')
@@ -202,7 +204,9 @@ export default function ContractDetailScreen() {
   const coveringInstallment = stageNow && plan.length > 0 ? plan[Math.min(stageNow.paymentPart ?? 1, plan.length) - 1] : null
   const stagePaid = !coveringInstallment || coveringInstallment.status !== 'PENDING'
   const canDeliver = isFreelancer && contract.status === 'IN_PROGRESS' && stagePaid
-  const canCancel = isClient && contract.status === 'IN_PROGRESS'
+  // Con alguna etapa aprobada ya no se puede cancelar (el backend lo bloquea): el botón no se muestra
+  const hasApprovedStage = (contract.stages ?? []).some((stage) => stage.status === 'APPROVED')
+  const canCancel = isClient && contract.status === 'IN_PROGRESS' && !hasApprovedStage
   // Etapa en la que se está trabajando (la manda el backend con las etapas); la Mini guía es para el estudiante
   const currentStage = contract.stages?.find((stage) => stage.position === contract.currentStage)
   const showGuide =
